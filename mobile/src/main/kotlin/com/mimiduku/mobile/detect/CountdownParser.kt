@@ -8,6 +8,8 @@ data class AdScreenState(
     /** 画面の文字から読み取った残り秒数。読み取れなければ null。 */
     val countdownSeconds: Int?,
     val mode: UsageMode,
+    /** 広告 SDK の Activity（全画面の広告）と判定できたか。 */
+    val fullScreen: Boolean = false,
 )
 
 /**

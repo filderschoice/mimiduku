@@ -29,6 +29,8 @@ class OverlayController(
     private var current: View? = null
     private var adPanel: View? = null
     private var adPanelSpec: AdPanelSpec? = null
+    private var shield: View? = null
+    private val shieldTimeoutRunnable = Runnable { setShield(false) }
 
     fun show(spec: BannerSpec) {
         dismiss()
@@ -78,11 +80,42 @@ class OverlayController(
         view.findViewById<Button>(R.id.ad_panel_back).setText(spec.backLabelRes)
     }
 
-    /** 警告バナーと広告画面の案内パネルをすべて消す。 */
+    /**
+     * 全画面のタップシールドを張る・外す。シールドは半透明でタップを吸収し、案内パネル（大きな「もどる」）だけを押せる
+     * ようにする。判定の誤りで操作できなくなるのを防ぐため、[ShieldTimer.MAX_SHIELD_MILLIS] で自動的に外す。
+     */
+    fun setShield(on: Boolean) {
+        if (on == (shield != null)) return
+        handler.removeCallbacks(shieldTimeoutRunnable)
+        if (!on) {
+            shield?.let { runCatching { windowManager.removeView(it) } }
+            shield = null
+            return
+        }
+        val view =
+            View(context).apply {
+                setBackgroundColor(SHIELD_COLOR)
+                importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                // タップを吸収するだけで、下の広告へは渡さない。
+                setOnTouchListener { touched, _ -> touched.performClick() }
+                setOnClickListener { }
+            }
+        windowManager.addView(view, shieldLayoutParams())
+        shield = view
+        handler.postDelayed(shieldTimeoutRunnable, ShieldTimer.MAX_SHIELD_MILLIS)
+        // 案内パネルをシールドより上に置くため、出ていれば付け直す。
+        adPanel?.let { panel ->
+            runCatching { windowManager.removeView(panel) }
+            windowManager.addView(panel, layoutParams(Gravity.BOTTOM))
+        }
+    }
+
+    /** 警告バナー・広告画面の案内パネル・シールドをすべて消す。 */
     fun dismissAll() {
         dismiss()
         adPanelSpec = null
         removeAdPanel()
+        setShield(false)
     }
 
     private fun removeAdPanel() {
@@ -105,6 +138,15 @@ class OverlayController(
         arg: String?,
     ): String = if (arg == null) context.getString(res) else context.getString(res, arg)
 
+    private fun shieldLayoutParams() =
+        WindowManager.LayoutParams(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+            PixelFormat.TRANSLUCENT,
+        )
+
     private fun layoutParams(gravity: Int) =
         WindowManager
             .LayoutParams(
@@ -116,4 +158,9 @@ class OverlayController(
                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
                 PixelFormat.TRANSLUCENT,
             ).also { it.gravity = gravity }
+
+    private companion object {
+        /** 広告が透けて見える程度の半透明の黒。 */
+        const val SHIELD_COLOR = 0x66000000
+    }
 }

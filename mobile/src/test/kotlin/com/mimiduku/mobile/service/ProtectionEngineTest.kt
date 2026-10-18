@@ -158,7 +158,7 @@ class ProtectionEngineTest {
 
         handle(EngineEvent.WindowChanged(GAME, 0, AD_ACTIVITY))
 
-        assertEquals(AdScreenState(countdownSeconds = 5, mode = UsageMode.CHILD), engine.adScreen)
+        assertEquals(AdScreenState(countdownSeconds = 5, mode = UsageMode.CHILD, fullScreen = true), engine.adScreen)
     }
 
     @Test

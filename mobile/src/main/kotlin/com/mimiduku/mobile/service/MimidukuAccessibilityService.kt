@@ -18,6 +18,7 @@ import com.mimiduku.mobile.mode.UsageModeStore
 import com.mimiduku.mobile.overlay.AdPanelSpec
 import com.mimiduku.mobile.overlay.BannerSpec
 import com.mimiduku.mobile.overlay.OverlayController
+import com.mimiduku.mobile.overlay.ShieldTimer
 import com.mimiduku.mobile.rules.RulesLoader
 import com.mimiduku.mobile.rules.ScarewareMatcher
 import com.mimiduku.mobile.storage.SharedPreferencesStringStore
@@ -34,6 +35,7 @@ import java.util.concurrent.Executors
 class MimidukuAccessibilityService : AccessibilityService() {
     private var engine: ProtectionEngine? = null
     private var overlay: OverlayController? = null
+    private val shieldTimer = ShieldTimer()
     private lateinit var detectionLog: DetectionLog
     private lateinit var modeStore: UsageModeStore
     private lateinit var pauseStore: PauseStore
@@ -73,7 +75,9 @@ class MimidukuAccessibilityService : AccessibilityService() {
                 ?: return
         val detections = engine.handle(engineEvent) { NodeTextCollector.collect(rootInActiveWindow) }
         detections.forEach(::intervene)
-        overlay?.showAdPanel(engine.adScreen?.let(AdPanelSpec::from))
+        val adScreen = engine.adScreen
+        overlay?.setShield(shieldTimer.shouldShield(adScreen, engineEvent.atMillis))
+        overlay?.showAdPanel(adScreen?.let(AdPanelSpec::from))
     }
 
     private fun intervene(detection: Detection) {

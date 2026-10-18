@@ -153,7 +153,11 @@ class ProtectionEngine(
         val verdict = adDetector?.evaluate(foregroundClassName, texts)
         adScreen =
             if (verdict?.isAd == true) {
-                AdScreenState(countdownSeconds = CountdownParser.parse(texts), mode = modeProvider())
+                AdScreenState(
+                    countdownSeconds = CountdownParser.parse(texts),
+                    mode = modeProvider(),
+                    fullScreen = verdict.byActivity,
+                )
             } else {
                 null
             }

@@ -5,6 +5,33 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-10-19 15:20
+  summary: 全画面広告のタップシールドを実装する（BL-020）
+  details:
+    変更内容: >-
+      こどもモードで全画面の広告（広告 SDK の Activity と判定できたもの）のとき、半透明でタップを吸収する
+      全画面のシールドを張り、案内パネル（大きな「もどる」）をその上に置くようにした。ShieldTimer が張るかを決め、
+      同じ広告画面で張り続けるのは60秒までとし、時間切れの後はその広告画面が終わるまで張り直さない
+      （判定の誤りで子供が操作できなくなるのを防ぐ）。OverlayController にも60秒の自動解除を入れた。
+      AdScreenState に fullScreen を足した。完了条件のうち「画面外・極小の領域の除外」は、ノードの位置で覆う
+      アプリ内バナー広告向けのもので、今回は全画面広告に限ったため対象外とし、BL-025（人手検証）へ分けた。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/overlay/ShieldTimer.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/overlay/OverlayController.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/MimidukuAccessibilityService.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/ProtectionEngine.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/detect/CountdownParser.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/overlay/ShieldTimerTest.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/service/ProtectionEngineTest.kt
+      - docs/records/managed/BACKLOG.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintDebug testDebugUnitTest assembleDebug、
+      npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml、python scripts/validate-records.py
+    検証結果: >-
+      成功 - 既存テストの期待値（fullScreen の追加）を直して再実行し、いずれも終了コード0、単体テスト117件成功
+    関連ID:
+      - BL-020
+      - BL-025
 - date: 2026-10-19 14:40
   summary: 広告画面のカウントダウン表示と大きな「戻る」ボタンを実装する（BL-019）
   details:
