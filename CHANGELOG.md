@@ -15,3 +15,4 @@
 - Google Play のポリシーを調べ、Play 版（機能限定）と GitHub 版（全機能）に分ける案を含む配布の構成案を docs/design/DISTRIBUTION.md にまとめた（BL-026）
 - 全画面広告では正常に見えても悪質な場合があるため、GitHub 版では全画面広告への介入を残す方針とした（ユーザー決定）
 - Play 版と GitHub 版を同じソースからフラグで出し分ける作業を BL-028〜BL-031 へ分解した
+- プライバシーポリシー（docs/PRIVACY.md）と Google Play のリスティング文案（docs/PLAY_LISTING.md）を追加した（BL-030）
