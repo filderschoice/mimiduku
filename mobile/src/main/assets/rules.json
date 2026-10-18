@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "browserPackages": [
+    "com.android.chrome",
+    "com.chrome.beta",
+    "org.mozilla.firefox",
+    "com.microsoft.emmx",
+    "com.brave.browser",
+    "com.opera.browser",
+    "com.sec.android.app.sbrowser",
+    "com.duckduckgo.mobile.android",
+    "jp.co.yahoo.android.ybrowser"
+  ],
+  "storePackages": [
+    "com.android.vending"
+  ],
+  "installerPackages": [
+    "com.google.android.packageinstaller",
+    "com.android.packageinstaller"
+  ],
+  "transientPackages": [
+    "com.android.systemui",
+    "android"
+  ],
+  "ignoredSourcePackages": [
+    "com.android.settings",
+    "com.google.android.permissioncontroller"
+  ],
+  "scarewarePhrases": [
+    {
+      "id": "virus-infected-ja",
+      "text": "ウイルスに感染"
+    },
+    {
+      "id": "virus-infected-ja",
+      "text": "ウィルスに感染"
+    },
+    {
+      "id": "virus-detected-ja",
+      "text": "ウイルスが検出"
+    },
+    {
+      "id": "virus-detected-ja",
+      "text": "ウイルスを検出"
+    },
+    {
+      "id": "battery-damaged-ja",
+      "text": "バッテリーが損傷"
+    },
+    {
+      "id": "battery-damaged-ja",
+      "text": "バッテリーが破損"
+    },
+    {
+      "id": "phone-damaged-ja",
+      "text": "スマートフォンが損傷"
+    },
+    {
+      "id": "phone-damaged-ja",
+      "text": "携帯電話が損傷"
+    },
+    {
+      "id": "device-infected-en",
+      "text": "your device is infected"
+    },
+    {
+      "id": "device-infected-en",
+      "text": "your phone is infected"
+    },
+    {
+      "id": "device-infected-en",
+      "text": "has been infected with"
+    },
+    {
+      "id": "virus-detected-en",
+      "text": "virus detected"
+    },
+    {
+      "id": "virus-detected-en",
+      "text": "viruses detected"
+    },
+    {
+      "id": "battery-damaged-en",
+      "text": "battery is damaged"
+    }
+  ]
+}

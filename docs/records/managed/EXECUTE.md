@@ -5,6 +5,28 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-10-18 15:10
+  summary: 検知ルールの JSON 化とスケアウェア文言の照合を実装する（BL-003）
+  details:
+    変更内容: >-
+      検知ルール（ブラウザ・ストア・インストーラー・一時的な前面・除外する遷移元・スケアウェア文言）を
+      DetectionRules として定義し、assets/rules.json に同じ内容を置いた。RulesLoader は空・壊れた JSON・
+      必須の項目の欠け・未対応の版のときに既定のルールへ戻す。ScarewareMatcher は NFKC・小文字化・空白除去で
+      表記ゆれを吸収し、ノードをまたいだ文言も照合する。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/rules/DetectionRules.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/rules/RulesLoader.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/rules/ScarewareMatcher.kt
+      - mobile/src/main/assets/rules.json
+      - mobile/src/test/kotlin/com/mimiduku/mobile/rules/RulesLoaderTest.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/rules/ScarewareMatcherTest.kt
+      - docs/records/managed/BACKLOG.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintDebug testDebugUnitTest assembleDebug、
+      npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml、python scripts/validate-records.py
+    検証結果: 成功 - いずれも終了コード0、単体テスト13件成功、Markdown は 0 issues
+    関連ID:
+      - BL-003
 - date: 2026-10-18 14:30
   summary: Gradle プロジェクトの雛形と品質ゲートを用意する（BL-001）
   details:
