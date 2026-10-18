@@ -5,6 +5,30 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-10-19 11:10
+  summary: 設定画面を保護者 PIN で保護する（BL-015）
+  details:
+    変更内容: >-
+      PinPolicy（保護を弱める操作＝おとなモードへの切替・PIN の変更と削除・一時停止・ログの消去だけ PIN を求め、
+      こどもモードへの切替と再開は求めない。照合結果ごとの文言）を追加した。設定画面に「保護者 PIN」の
+      カードと PIN の入力・設定ダイアログ（数字のみ・伏せ字・2回入力）を加え、MainActivity で操作ごとに PIN を求める。
+      画面部品は settings パッケージの SettingsScreen.kt・PinDialogs.kt へ分けた。PIN を忘れた場合は
+      アプリの入れ直しで復旧すると画面に示す。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/MainActivity.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/PinPolicy.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/PinDialogs.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/SettingsScreen.kt
+      - mobile/src/main/res/values/strings.xml
+      - mobile/src/test/kotlin/com/mimiduku/mobile/settings/PinPolicyTest.kt
+      - docs/records/managed/BACKLOG.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintDebug testDebugUnitTest assembleDebug、
+      npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml、python scripts/validate-records.py
+    検証結果: >-
+      成功 - detekt の関数の長さの指摘を直して再実行し、いずれも終了コード0、単体テスト75件成功
+    関連ID:
+      - BL-015
 - date: 2026-10-19 10:30
   summary: 保護者 PIN の保存と照合を実装する（BL-014）
   details:
