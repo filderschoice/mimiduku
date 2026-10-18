@@ -5,6 +5,26 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-10-18 16:00
+  summary: 検知ログの保存を実装する（BL-005）
+  details:
+    変更内容: >-
+      DetectionLog を追加した。アプリ内ストレージの JSON ファイルへ件数上限（既定500件）つきで保存し、
+      一時ファイルへ書いてから ATOMIC_MOVE で置き換える。読めないファイルは空として扱い、次の追記で置き換える。
+      ログの項目は日時・パッケージ名・検知の種類・ルール ID・介入の内容・直前のクリックの有無に限り、
+      画面の文字・URL を持たないことを単体テストで確かめる。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/log/DetectionLog.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/log/DetectionLogTest.kt
+      - docs/records/managed/BACKLOG.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintDebug testDebugUnitTest assembleDebug、
+      npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml、python scripts/validate-records.py
+    検証結果: >-
+      成功 - 初回はログ項目の検査テストの期待値誤り（既定値の項目は出力されない）で1件失敗し、
+      期待値を「許可した項目以外が無いこと」へ直して再実行。いずれも終了コード0、単体テスト36件成功
+    関連ID:
+      - BL-005
 - date: 2026-10-18 15:40
   summary: 前面パッケージの変化から外部遷移を判定する処理を実装する（BL-004）
   details:
