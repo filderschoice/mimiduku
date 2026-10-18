@@ -5,6 +5,42 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-10-18 17:00
+  summary: AccessibilityService と警告バナーを実装し、判定ロジックへ接続する（BL-006）
+  details:
+    変更内容: >-
+      MimidukuAccessibilityService を追加し、イベントを Android 非依存の ProtectionEngine へ渡して、
+      検知結果に従って GLOBAL_ACTION_BACK・警告バナー・ログ保存（別スレッド）を行うようにした。
+      ProtectionEngine はイベントの変換、外部遷移の判定、前面アプリだけを対象にしたスケアウェア照合
+      （1秒間隔の間引き、同じアプリ・同じ文言は60秒繰り返さない）を受け持つ。NodeTextCollector はノード数400・
+      深さ40を上限に文字を集める。OverlayController は TYPE_ACCESSIBILITY_OVERLAY で画面上部にバナーを出し、
+      BannerSpec が利用モードと介入内容から文言・ボタンを決める。警告文言はこども向けとおとな向けに分けて
+      strings.xml へ置いた。accessibility_service_config.xml、サービスの宣言と queries、
+      dataExtractionRules（バックアップ・端末間転送から全データを除外）を追加した。
+      作業中に補助スクリプトの置換範囲の誤りで未コミットの ProtectionEngine.kt を壊したため、削除して書き直した。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/MimidukuAccessibilityService.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/ProtectionEngine.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/NodeTextCollector.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/overlay/BannerSpec.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/overlay/OverlayController.kt
+      - mobile/src/main/res/layout/overlay_banner.xml
+      - mobile/src/main/res/drawable/overlay_banner_background.xml
+      - mobile/src/main/res/values/strings.xml
+      - mobile/src/main/res/xml/accessibility_service_config.xml
+      - mobile/src/main/res/xml/data_extraction_rules.xml
+      - mobile/src/main/AndroidManifest.xml
+      - mobile/src/test/kotlin/com/mimiduku/mobile/service/ProtectionEngineTest.kt
+      - docs/design/MVP_DESIGN.md
+      - docs/records/managed/BACKLOG.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintDebug testDebugUnitTest assembleDebug、
+      npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml、python scripts/validate-records.py
+    検証結果: >-
+      成功 - detekt の指摘（入れ子の深さ・行長・return の数）を直して再実行し、いずれも終了コード0、
+      単体テスト52件成功。Android Lint の警告（アイコン未設定・依存の新版あり等）は残るが、合否基準の対象外
+    関連ID:
+      - BL-006
 - date: 2026-10-18 16:20
   summary: 大人も使えるように利用モード（こども／おとな）を実装する（BL-013）
   details:

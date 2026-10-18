@@ -1,4 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 警告文言は後から差し替えやすいよう、すべてここに置く（PLAN.md 2.5）。 -->
 <resources>
     <string name="app_name">みみづく</string>
+
+    <!-- アクセシビリティ設定画面に出る説明 -->
+    <string name="accessibility_service_label">みみづく（広告対策）</string>
+    <string name="accessibility_service_description">広告による勝手なブラウザ・ストアへの移動と、「ウイルスに感染」などの偽の警告を見つけて知らせます。画面の文字は照合にだけ使い、保存も送信もしません。</string>
+
+    <!-- 遷移先の種類 -->
+    <string name="target_browser">ブラウザ</string>
+    <string name="target_store">アプリストア</string>
+    <string name="target_installer">アプリのインストール画面</string>
+
+    <!-- こどもモード（ひらがな中心・怖がらせない・短い） -->
+    <string name="child_transition_blocked_title">みみづくが止めたよ</string>
+    <string name="child_transition_blocked_message">ここから先は行かないでね。</string>
+    <string name="child_transition_warn_title">ほー、あやしいリンクだよ</string>
+    <string name="child_transition_warn_message">パパ・ママに聞いてみよう。</string>
+    <string name="child_scareware_title">みみづくが気づいたよ</string>
+    <string name="child_scareware_message">これは広告かも。こわいことが書いてあっても、うそかもしれないよ。さわらずにパパ・ママに見せてね。</string>
+    <string name="child_close">わかった</string>
+
+    <!-- おとなモード（通常の文言で、検知理由を具体的に示す） -->
+    <string name="adult_transition_title">%1$sへの移動を検知しました</string>
+    <string name="adult_transition_message">アプリから自動的に、またはタップによって%1$sが開かれました。広告による移動の可能性があります。</string>
+    <string name="adult_transition_warn_message">同じアプリから短時間に繰り返し%1$sが開かれています。広告による移動の可能性があります。</string>
+    <string name="adult_go_back">戻る</string>
+    <string name="adult_proceed">このまま進む</string>
+    <string name="adult_scareware_title">偽の警告の可能性があります</string>
+    <string name="adult_scareware_message">「ウイルスに感染」「バッテリーが損傷」などの表示は、広告による偽の警告であることがよくあります。表示内のボタンやリンクは押さずに画面を閉じてください。</string>
+    <string name="adult_close">閉じる</string>
 </resources>
