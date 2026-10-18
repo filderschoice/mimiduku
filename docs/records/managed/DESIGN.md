@@ -34,23 +34,40 @@
 | FR-6 | 利用モード（既定はこども）。こども: 外部遷移を自動で戻して警告（同じ遷移元から30秒以内の4回目以降は警告のみ）。おとな: 自動で戻さず「戻る」「このまま進む」を出す。スケアウェアはどちらも警告のみ | `UsageMode`、`InterventionPolicy`、`UsageModeStore` |
 | FR-7 | 警告バナーを画面上部に出す。自分の領域のタッチだけを受け取り、外は下のアプリへ通す。警告は8秒、確認は20秒で自動で消える。文言はこども向け・おとな向けを文字列リソースに分ける | `BannerSpec`、`OverlayController`、`strings.xml` |
 | FR-8 | 検知ログ（日時・遷移元/遷移先のパッケージ名・検知の種類・ルール ID・介入の内容・直前のクリックの有無・利用モード）をアプリ内ストレージへ最新500件まで保存する | `DetectionLog` |
-| FR-9 | 設定画面: 見張りの状態、アクセシビリティ設定を開くボタン、Android 13 以降でオフのときの「制限された設定」の解除手順とアプリ情報を開くボタン、利用モードの切替、検知ログの件数 | `MainActivity`、`SetupStatus` |
+| FR-9 | 設定画面: 見張りの状態、アクセシビリティ設定を開くボタン、Android 13 以降でオフのときの「制限された設定」の解除手順とアプリ情報を開くボタン、利用モードの切替、検知ログの件数 | `MainActivity`、`SettingsController`、`SettingsScreen`、`SetupStatus` |
+| FR-10 | 保護者 PIN（4〜8桁の数字）。塩16バイトの PBKDF2WithHmacSHA256（反復10万回、保存形式 `v1:反復回数:塩:ハッシュ`）で保存し平文を残さない。5回続けて間違えたら30秒、以降は倍で上限30分待たせ、成功で戻す。保存値が壊れたら照合不能（PIN なしとはみなさない） | `PinHasher`、`PinManager` |
+| FR-11 | PIN を設定している場合、保護を弱める操作（おとなモードへの切替・PIN の変更と削除・一時停止・ログの消去）で PIN を求める。こどもモードへの切替・再開・バッジの表示切替は求めない | `PinPolicy`、`SettingsController`、`PinDialogs` |
+| FR-12 | 一時停止（15・30・60分）。停止中は検知も介入もせずバッジも消す。端末の時刻で期限を持ち再起動後も保つ。時刻が開始より前へ戻されたら停止を終える | `PauseStore` |
+| FR-13 | ログ閲覧画面: 新しい順、日時・アプリ名（分からなければパッケージ名）・検知の種類・介入の内容。消去は PIN つき | `LogRows`、`LogScreen` |
+| FR-14 | 広告画面の判定: 前面のクラス名が広告 SDK の接頭辞で始まる、または画面の文言の重みの合計が3以上。短いラベルはノードの文字全体の一致に限る。同じ ID の文言は1回だけ数える。広告画面はログに残さない | `AdScreenDetector`、`DetectionRules.adActivityPrefixes`・`adTextMarkers` |
+| FR-15 | 広告画面のあいだ、画面下部に案内パネル（残り秒数・「さわらないでね」・大きな「もどる」）を出す。残り秒数は単位つきの表記（「あと5秒」「Skip in 5」等）から1〜120秒を読み、単位のない数字は読まない | `CountdownParser`、`AdPanelSpec`、`OverlayController` |
+| FR-16 | こどもモードで全画面広告（クラス名で判定できたもの）のとき、半透明でタップを吸収する全画面のシールドを張り、案内パネルをその上に置く。同じ広告画面で60秒まで、時間切れ後はその広告画面が終わるまで張り直さない | `ShieldTimer`、`OverlayController` |
+| FR-17 | 案内パネルの「もどる」を押したときだけ、閉じる・スキップの文言に完全一致し、クリック可能・表示中・画面内・大きさが画面の25%以下のノードへ ACTION_CLICK を送る（閉じるを優先）。無ければ GLOBAL_ACTION_BACK | `CloseButtonFinder`、`CloseButtonClicker` |
+| FR-18 | みみづくバッジ: 画面右端中央に 44dp、タッチは通す。表情は平常（うとうと）・広告画面（羽角が立つ）・危険な検知から10秒（目が大きい）。表示は設定で切り替え（既定は表示）。画像とアプリアイコンは差し替え可能な仮の自作ベクター画像 | `BadgeExpression`、`BadgeSettings`、`res/drawable/badge_owl_*.xml` |
 
 ## 設計方針
 
 - アーキテクチャ方針
-  - 判定は Android 非依存のクラス（`rules`・`detect`・`mode`・`log`・`ProtectionEngine`・`BannerSpec`・`SetupStatus`）に
-    置き、JVM の単体テストで確かめる。`MimidukuAccessibilityService` と `OverlayController` は Android との受け渡しだけを持つ。
+  - 判定は Android 非依存のクラス（`rules`・`detect`・`mode`・`log`・`pin`・`ProtectionEngine`・`BannerSpec`・`AdPanelSpec`・
+    `ShieldTimer`・`BadgeExpression`・`SetupStatus`・`PinPolicy`・`SettingsController`・`LogRows`）に置き、JVM の単体テストで確かめる。
+    `MimidukuAccessibilityService`・`OverlayController`・`CloseButtonClicker`・`MainActivity` は Android との受け渡しだけを持つ。
   - サービスはイベントを `EngineEvent` に変換して `ProtectionEngine.handle` へ渡し、返った `Detection` ごとに
     「（こどもモードなら）`GLOBAL_ACTION_BACK` → バナー表示 → ログ保存（単一スレッドの Executor）」を行う。
   - ブラウザ・ランチャー・キーボードの一覧は、サービス接続時に端末から取得してルールの一覧に足す
     （`queryIntentActivities` の `VIEW https` と `MAIN/HOME`、`InputMethodManager.inputMethodList`）。
+  - `ProtectionEngine` は照合のたびに画面の文字を1回だけ読み、広告画面の判定とスケアウェアの照合に使う。サービスは
+    処理のたびに `adScreen` を見て案内パネル・シールド・バッジを合わせる。一時停止中はイベントを処理せずバッジだけ消す。
+  - 設定画面の状態は `SettingsController`（Compose の状態を持つが Android 非依存）、端末側の操作は `SettingsPlatform`
+    （`MainActivity` が実装）に分ける。操作は `SettingsActions`・`LogActions` の interface。
 - データ設計方針
   - ログは JSON 配列のファイル（`files/detection-log.json`）。一時ファイルへ書いて `ATOMIC_MOVE` で置き換える。
     読めないファイルは空として扱い、次の追記で置き換える。日時は実時刻、判定の時刻は `elapsedRealtime` を使う。
-  - 利用モードは SharedPreferences（`mimiduku` / `usage_mode`）。未知の値は既定（こども）に戻す。
+  - 設定は SharedPreferences（名前 `mimiduku`）。`usage_mode`（未知の値は既定のこどもへ）、`pin_hash`・`pin_failures`・
+    `pin_locked_until`、`pause_started_at`・`pause_until`、`badge_visible`（非表示のときだけ `false`）。
+    読み書きは `StringStore` 経由にし、単体テストではメモリ上の実装を使う。
 - UI/UX方針
-  - オーバーレイは View（`overlay_banner.xml`）、設定画面は Jetpack Compose（Material 3）。
+  - オーバーレイは View（警告バナー `overlay_banner.xml`、案内パネル `overlay_ad_panel.xml`、シールド、バッジ）、
+    設定画面とログ閲覧画面は Jetpack Compose（Material 3）。配置は `OverlayLayout` にまとめる。
   - こども向けの文言はひらがな中心で怖がらせない。おとな向けは検知理由（遷移先の種類）を具体的に示す。
 
 ## 非機能要件
@@ -75,11 +92,11 @@
 
 ## エージェント実装指示
 
-- 初回実装時の出力要件: 上記 FR-1〜FR-9 を満たし、判定ロジックごとに単体テストを置く。README にセットアップ・
+- 初回実装時の出力要件: 上記 FR-1〜FR-18 を満たし、判定ロジックごとに単体テストを置く。README にセットアップ・
   ビルド・サイドロード・更新・ロールバックの手順、`docs/TESTING.md` に実機確認の手順と記録欄を書く。
 - 追加実装時の出力要件: 変更が判定に関わる場合は Android 非依存のクラスへ置いて単体テストを足す。
   検知ルールを変えたら `rules.json` と `DetectionRules.DEFAULT` を同時に更新する（一致は `RulesLoaderTest` で検査）。
   文言を変えたら `strings.xml` だけを更新する。
-- 要件トレーサビリティ要件: 未着手の範囲（広告画面の判定・タップシールド・代理タップ・保護者 PIN・みみづくバッジ）は
-  BACKLOG の BL-014〜BL-022 で扱う。PIN を入れる際は、こども→おとなへのモード切替を PIN で保護する。
+- 要件トレーサビリティ要件: 未対応の事項は BACKLOG で扱う。アプリ内バナー広告の部分シールドは BL-025（人手検証）、
+  Google Play での配布は BL-024（要確認。広告の妨害を禁じるポリシーとの関係で、シールド・自動の「戻る」の扱いが論点）。
 <!-- COPILOT_RECORDS:END -->
