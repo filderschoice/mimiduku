@@ -12,6 +12,7 @@ import com.mimiduku.mobile.detect.ExternalTransitionDetector
 import com.mimiduku.mobile.detect.PackageClassifier
 import com.mimiduku.mobile.log.DetectionLog
 import com.mimiduku.mobile.log.InterventionAction
+import com.mimiduku.mobile.mode.PauseStore
 import com.mimiduku.mobile.mode.UsageModeStore
 import com.mimiduku.mobile.overlay.BannerSpec
 import com.mimiduku.mobile.overlay.OverlayController
@@ -33,6 +34,7 @@ class MimidukuAccessibilityService : AccessibilityService() {
     private var overlay: OverlayController? = null
     private lateinit var detectionLog: DetectionLog
     private lateinit var modeStore: UsageModeStore
+    private lateinit var pauseStore: PauseStore
 
     /** ログの書き込みは画面の処理を止めないよう別スレッドで行う。 */
     private val logExecutor: ExecutorService = Executors.newSingleThreadExecutor()
@@ -41,6 +43,7 @@ class MimidukuAccessibilityService : AccessibilityService() {
         super.onServiceConnected()
         detectionLog = detectionLog(this)
         modeStore = usageModeStore(this)
+        pauseStore = pauseStore(this)
         val rules = RulesLoader.parse(readRulesAsset()).rules
         val classifier =
             PackageClassifier(
@@ -60,7 +63,8 @@ class MimidukuAccessibilityService : AccessibilityService() {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
-        val engine = engine ?: return
+        // 保護者が PIN で一時停止している間は、検知も介入もしない。
+        val engine = engine?.takeUnless { pauseStore.isPaused() } ?: return
         val engineEvent = EngineEvent.from(event.eventType, event.packageName, SystemClock.elapsedRealtime()) ?: return
         val detections = engine.handle(engineEvent) { NodeTextCollector.collect(rootInActiveWindow) }
         detections.forEach(::intervene)
@@ -112,5 +116,7 @@ class MimidukuAccessibilityService : AccessibilityService() {
         fun detectionLog(context: Context) = DetectionLog(File(context.filesDir, DetectionLog.FILE_NAME))
 
         fun usageModeStore(context: Context) = UsageModeStore(SharedPreferencesStringStore.of(context))
+
+        fun pauseStore(context: Context) = PauseStore(SharedPreferencesStringStore.of(context))
     }
 }

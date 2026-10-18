@@ -23,6 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.mimiduku.mobile.R
+import com.mimiduku.mobile.mode.PauseStore
 import com.mimiduku.mobile.mode.UsageMode
 
 /** 設定画面に出す状態。 */
@@ -32,17 +33,28 @@ data class SettingsState(
     val mode: UsageMode,
     val logCount: Int,
     val pinSet: Boolean,
+    /** 一時停止の残り時間（分、切り上げ）。停止していなければ 0。 */
+    val pauseRemainingMinutes: Int,
 )
 
-/** 設定画面の操作。PIN が要るかの判定は呼び出し側（MainActivity）で行う。 */
-class SettingsActions(
-    val openAccessibilitySettings: () -> Unit,
-    val openAppDetails: () -> Unit,
-    val selectMode: (UsageMode) -> Unit,
-    val setPin: () -> Unit,
-    val changePin: () -> Unit,
-    val removePin: () -> Unit,
-)
+/** 設定画面の操作。PIN が要るかの判定は実装側（[SettingsController]）で行う。 */
+interface SettingsActions {
+    fun openAccessibilitySettings()
+
+    fun openAppDetails()
+
+    fun selectMode(mode: UsageMode)
+
+    fun setPin()
+
+    fun changePin()
+
+    fun removePin()
+
+    fun pause(minutes: Int)
+
+    fun resume()
+}
 
 @Composable
 fun SettingsScreen(
@@ -60,10 +72,11 @@ fun SettingsScreen(
         Text(text = stringResource(R.string.app_name), style = MaterialTheme.typography.headlineMedium)
         Text(text = stringResource(R.string.settings_intro))
         ServiceCard(state, actions)
+        PauseCard(state, actions)
         if (state.showRestrictedGuide && !state.serviceEnabled) {
             SettingsCard(title = stringResource(R.string.settings_restricted_title)) {
                 Text(text = stringResource(R.string.settings_restricted_steps))
-                OutlinedButton(onClick = actions.openAppDetails) {
+                OutlinedButton(onClick = actions::openAppDetails) {
                     Text(text = stringResource(R.string.settings_open_app_details))
                 }
             }
@@ -90,8 +103,34 @@ private fun ServiceCard(
         val status =
             if (state.serviceEnabled) R.string.settings_service_enabled else R.string.settings_service_disabled
         Text(text = stringResource(status), style = MaterialTheme.typography.titleMedium)
-        Button(onClick = actions.openAccessibilitySettings) {
+        Button(onClick = actions::openAccessibilitySettings) {
             Text(text = stringResource(R.string.settings_open_accessibility))
+        }
+    }
+}
+
+@Composable
+private fun PauseCard(
+    state: SettingsState,
+    actions: SettingsActions,
+) {
+    SettingsCard(title = stringResource(R.string.settings_pause_title)) {
+        if (state.pauseRemainingMinutes > 0) {
+            Text(
+                text = stringResource(R.string.settings_pause_active, state.pauseRemainingMinutes),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.error,
+            )
+            Button(onClick = actions::resume) { Text(stringResource(R.string.settings_pause_resume)) }
+        } else {
+            Text(text = stringResource(R.string.settings_pause_description))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                PauseStore.DURATIONS_MINUTES.forEach { minutes ->
+                    OutlinedButton(onClick = { actions.pause(minutes) }) {
+                        Text(stringResource(R.string.settings_pause_minutes, minutes))
+                    }
+                }
+            }
         }
     }
 }
@@ -106,11 +145,11 @@ private fun PinCard(
         Text(text = stringResource(status))
         if (state.pinSet) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(onClick = actions.changePin) { Text(stringResource(R.string.settings_pin_change)) }
-                OutlinedButton(onClick = actions.removePin) { Text(stringResource(R.string.settings_pin_remove)) }
+                OutlinedButton(onClick = actions::changePin) { Text(stringResource(R.string.settings_pin_change)) }
+                OutlinedButton(onClick = actions::removePin) { Text(stringResource(R.string.settings_pin_remove)) }
             }
         } else {
-            Button(onClick = actions.setPin) { Text(stringResource(R.string.settings_pin_setup)) }
+            Button(onClick = actions::setPin) { Text(stringResource(R.string.settings_pin_setup)) }
         }
         Text(text = stringResource(R.string.settings_pin_note), style = MaterialTheme.typography.bodySmall)
     }
