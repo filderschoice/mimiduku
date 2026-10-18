@@ -5,6 +5,44 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-10-19 16:50
+  summary: みみづくバッジの常駐表示と表情の切り替えを実装する（BL-022）
+  details:
+    変更内容: >-
+      BadgeExpression（平常はうとうと、広告画面では羽角が立つ、外部遷移・偽の警告の検知から10秒は目が大きい。
+      表示しない設定か一時停止中は出さない）と BadgeSettings（既定は表示）を追加した。バッジは画面の右端中央に
+      44dp で出し、タッチは受け取らず下のアプリへ通す。サービスは一時停止中もイベントごとにバッジを更新する。
+      設定画面に表示の切り替えを足した（保護の強さに関わらないため PIN は求めない）。
+      キャラクター3種とアプリアイコン（アダプティブアイコン）を仮の自作ベクター画像で用意した。
+      detekt の関数の数の指摘に合わせ、ウィンドウの配置を OverlayLayout へ分けた。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/overlay/BadgeExpression.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/overlay/OverlayController.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/overlay/OverlayLayout.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/mode/BadgeSettings.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/MimidukuAccessibilityService.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/SettingsController.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/SettingsScreen.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/MainActivity.kt
+      - mobile/src/main/AndroidManifest.xml
+      - mobile/src/main/res/drawable/badge_owl_sleepy.xml
+      - mobile/src/main/res/drawable/badge_owl_alert.xml
+      - mobile/src/main/res/drawable/badge_owl_wide.xml
+      - mobile/src/main/res/drawable/ic_launcher_foreground.xml
+      - mobile/src/main/res/mipmap-anydpi/ic_launcher.xml
+      - mobile/src/main/res/values/ic_launcher_background.xml
+      - mobile/src/main/res/values/strings.xml
+      - mobile/src/test/kotlin/com/mimiduku/mobile/overlay/BadgeExpressionTest.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/settings/SettingsControllerTest.kt
+      - docs/records/managed/BACKLOG.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintDebug testDebugUnitTest assembleDebug、
+      npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml、python scripts/validate-records.py
+    検証結果: >-
+      成功 - detekt の関数の数の指摘を直して再実行し、いずれも終了コード0、単体テスト132件成功。
+      Android Lint のアイコン未設定の警告は解消した
+    関連ID:
+      - BL-022
 - date: 2026-10-19 16:00
   summary: 広告画面の閉じるボタンの代理タップを実装する（BL-021）
   details:

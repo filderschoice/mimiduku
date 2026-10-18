@@ -15,9 +15,11 @@ import com.mimiduku.mobile.detect.ExternalTransitionDetector
 import com.mimiduku.mobile.detect.PackageClassifier
 import com.mimiduku.mobile.log.DetectionLog
 import com.mimiduku.mobile.log.InterventionAction
+import com.mimiduku.mobile.mode.BadgeSettings
 import com.mimiduku.mobile.mode.PauseStore
 import com.mimiduku.mobile.mode.UsageModeStore
 import com.mimiduku.mobile.overlay.AdPanelSpec
+import com.mimiduku.mobile.overlay.BadgeExpression
 import com.mimiduku.mobile.overlay.BannerSpec
 import com.mimiduku.mobile.overlay.OverlayController
 import com.mimiduku.mobile.overlay.ShieldTimer
@@ -38,6 +40,8 @@ class MimidukuAccessibilityService : AccessibilityService() {
     private var engine: ProtectionEngine? = null
     private var overlay: OverlayController? = null
     private val shieldTimer = ShieldTimer()
+    private lateinit var badgeSettings: BadgeSettings
+    private var lastDangerAt: Long? = null
     private lateinit var detectionLog: DetectionLog
     private lateinit var modeStore: UsageModeStore
     private lateinit var pauseStore: PauseStore
@@ -50,6 +54,7 @@ class MimidukuAccessibilityService : AccessibilityService() {
         detectionLog = detectionLog(this)
         modeStore = usageModeStore(this)
         pauseStore = pauseStore(this)
+        badgeSettings = badgeSettings(this)
         val rules = RulesLoader.parse(readRulesAsset()).rules
         val classifier =
             PackageClassifier(
@@ -72,11 +77,21 @@ class MimidukuAccessibilityService : AccessibilityService() {
                 onGoBack = { performGlobalAction(GLOBAL_ACTION_BACK) },
                 onAdClose = ::closeAd,
             )
+        updateBadge(paused = pauseStore.isPaused(), onAdScreen = false)
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
-        // 保護者が PIN で一時停止している間は、検知も介入もしない。
-        val engine = engine?.takeUnless { pauseStore.isPaused() } ?: return
+        val engine = engine ?: return
+        // 保護者が PIN で一時停止している間は、検知も介入もしない（バッジも消す）。
+        val paused = pauseStore.isPaused()
+        if (!paused) process(engine, event)
+        updateBadge(paused, onAdScreen = !paused && engine.adScreen != null)
+    }
+
+    private fun process(
+        engine: ProtectionEngine,
+        event: AccessibilityEvent,
+    ) {
         val engineEvent =
             EngineEvent.from(event.eventType, event.packageName, SystemClock.elapsedRealtime(), event.className)
                 ?: return
@@ -88,6 +103,7 @@ class MimidukuAccessibilityService : AccessibilityService() {
     }
 
     private fun intervene(detection: Detection) {
+        lastDangerAt = SystemClock.elapsedRealtime()
         if (detection.intervention.action == InterventionAction.BACK_AND_WARN) {
             performGlobalAction(GLOBAL_ACTION_BACK)
         }
@@ -95,6 +111,21 @@ class MimidukuAccessibilityService : AccessibilityService() {
         // ログの日時は経過時間ではなく実時刻で残す（保護者が後から読むため）。
         val entry = detection.logEntry.copy(atMillis = System.currentTimeMillis())
         logExecutor.execute { runCatching { detectionLog.append(entry) } }
+    }
+
+    private fun updateBadge(
+        paused: Boolean,
+        onAdScreen: Boolean,
+    ) {
+        val expression =
+            BadgeExpression.of(
+                visible = badgeSettings.isVisible(),
+                paused = paused,
+                onAdScreen = onAdScreen,
+                lastDangerAtMillis = lastDangerAt,
+                nowMillis = SystemClock.elapsedRealtime(),
+            )
+        overlay?.setBadge(expression)
     }
 
     /** 利用者が案内パネルの「もどる」を押したとき。本物の閉じるボタンを押せなければ「戻る」で代える。 */
@@ -150,5 +181,7 @@ class MimidukuAccessibilityService : AccessibilityService() {
         fun usageModeStore(context: Context) = UsageModeStore(SharedPreferencesStringStore.of(context))
 
         fun pauseStore(context: Context) = PauseStore(SharedPreferencesStringStore.of(context))
+
+        fun badgeSettings(context: Context) = BadgeSettings(SharedPreferencesStringStore.of(context))
     }
 }

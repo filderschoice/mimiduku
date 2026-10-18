@@ -4,6 +4,7 @@ import com.mimiduku.mobile.log.DetectionKind
 import com.mimiduku.mobile.log.DetectionLog
 import com.mimiduku.mobile.log.DetectionLogEntry
 import com.mimiduku.mobile.log.InterventionAction
+import com.mimiduku.mobile.mode.BadgeSettings
 import com.mimiduku.mobile.mode.PauseStore
 import com.mimiduku.mobile.mode.UsageMode
 import com.mimiduku.mobile.mode.UsageModeStore
@@ -37,6 +38,7 @@ class SettingsControllerTest {
                 detectionLog = DetectionLog(logFile),
                 pinManager = pinManager,
                 pauseStore = pauseStore,
+                badgeSettings = BadgeSettings(store),
             ),
             FakePlatform(),
             zone = { ZoneOffset.UTC },
@@ -193,6 +195,16 @@ class SettingsControllerTest {
         controller.closeLog()
 
         assertNull(controller.logRows)
+    }
+
+    @Test
+    fun `the badge can be hidden without the pin`() {
+        pinManager.set("1234")
+
+        controller.setBadgeVisible(false)
+
+        assertFalse(controller.state.badgeVisible)
+        assertNull(controller.dialog)
     }
 
     private fun entry(

@@ -15,6 +15,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -35,6 +36,7 @@ data class SettingsState(
     val pinSet: Boolean,
     /** 一時停止の残り時間（分、切り上げ）。停止していなければ 0。 */
     val pauseRemainingMinutes: Int,
+    val badgeVisible: Boolean,
 )
 
 /** 設定画面の操作。PIN が要るかの判定は実装側（[SettingsController]）で行う。 */
@@ -56,6 +58,8 @@ interface SettingsActions {
     fun resume()
 
     fun openLog()
+
+    fun setBadgeVisible(visible: Boolean)
 }
 
 /** ログ閲覧画面の操作。 */
@@ -96,6 +100,16 @@ fun SettingsScreen(
             }
         }
         PinCard(state, actions)
+        SettingsCard(title = stringResource(R.string.settings_badge_title)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(text = stringResource(R.string.settings_badge_description), modifier = Modifier.weight(1f))
+                Switch(checked = state.badgeVisible, onCheckedChange = actions::setBadgeVisible)
+            }
+        }
         SettingsCard(title = stringResource(R.string.settings_log_title)) {
             Text(text = stringResource(R.string.settings_log_count, state.logCount))
             Text(text = stringResource(R.string.settings_log_privacy), style = MaterialTheme.typography.bodySmall)

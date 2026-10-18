@@ -1,7 +1,6 @@
 package com.mimiduku.mobile.overlay
 
 import android.content.Context
-import android.graphics.PixelFormat
 import android.os.Handler
 import android.os.Looper
 import android.view.Gravity
@@ -9,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import com.mimiduku.mobile.R
 
@@ -32,6 +32,8 @@ class OverlayController(
     private var adPanel: View? = null
     private var adPanelSpec: AdPanelSpec? = null
     private var shield: View? = null
+    private var badge: ImageView? = null
+    private var badgeExpression: BadgeExpression? = null
     private val shieldTimeoutRunnable = Runnable { setShield(false) }
 
     fun show(spec: BannerSpec) {
@@ -54,7 +56,7 @@ class OverlayController(
                 setOnClickListener { dismiss() }
             }
         }
-        windowManager.addView(view, layoutParams(Gravity.TOP))
+        windowManager.addView(view, OverlayLayout.edge(Gravity.TOP))
         current = view
         handler.postDelayed(dismissRunnable, spec.autoDismissMillis)
     }
@@ -73,7 +75,7 @@ class OverlayController(
         val view =
             adPanel ?: LayoutInflater.from(context).inflate(R.layout.overlay_ad_panel, null).also { panel ->
                 panel.findViewById<Button>(R.id.ad_panel_back).setOnClickListener { onAdClose() }
-                windowManager.addView(panel, layoutParams(Gravity.BOTTOM))
+                windowManager.addView(panel, OverlayLayout.edge(Gravity.BOTTOM))
                 adPanel = panel
             }
         view.findViewById<TextView>(R.id.ad_panel_message).text =
@@ -102,22 +104,44 @@ class OverlayController(
                 setOnTouchListener { touched, _ -> touched.performClick() }
                 setOnClickListener { }
             }
-        windowManager.addView(view, shieldLayoutParams())
+        windowManager.addView(view, OverlayLayout.shield())
         shield = view
         handler.postDelayed(shieldTimeoutRunnable, ShieldTimer.MAX_SHIELD_MILLIS)
         // 案内パネルをシールドより上に置くため、出ていれば付け直す。
         adPanel?.let { panel ->
             runCatching { windowManager.removeView(panel) }
-            windowManager.addView(panel, layoutParams(Gravity.BOTTOM))
+            windowManager.addView(panel, OverlayLayout.edge(Gravity.BOTTOM))
         }
     }
 
-    /** 警告バナー・広告画面の案内パネル・シールドをすべて消す。 */
+    /**
+     * みみづくバッジを画面の右端に出す（[expression] が null なら消す）。タッチは受け取らず、下のアプリへ通す。
+     */
+    fun setBadge(expression: BadgeExpression?) {
+        if (expression == badgeExpression) return
+        badgeExpression = expression
+        if (expression == null) {
+            badge?.let { runCatching { windowManager.removeView(it) } }
+            badge = null
+            return
+        }
+        val view =
+            badge ?: ImageView(context).also { image ->
+                image.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                image.alpha = BADGE_ALPHA
+                windowManager.addView(image, OverlayLayout.badge(context))
+                badge = image
+            }
+        view.setImageResource(expression.drawableRes)
+    }
+
+    /** 警告バナー・広告画面の案内パネル・シールド・バッジをすべて消す。 */
     fun dismissAll() {
         dismiss()
         adPanelSpec = null
         removeAdPanel()
         setShield(false)
+        setBadge(null)
     }
 
     private fun removeAdPanel() {
@@ -140,29 +164,11 @@ class OverlayController(
         arg: String?,
     ): String = if (arg == null) context.getString(res) else context.getString(res, arg)
 
-    private fun shieldLayoutParams() =
-        WindowManager.LayoutParams(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
-            PixelFormat.TRANSLUCENT,
-        )
-
-    private fun layoutParams(gravity: Int) =
-        WindowManager
-            .LayoutParams(
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
-                PixelFormat.TRANSLUCENT,
-            ).also { it.gravity = gravity }
-
     private companion object {
         /** 広告が透けて見える程度の半透明の黒。 */
         const val SHIELD_COLOR = 0x66000000
+
+        /** 止まり木にいる小さなバッジが画面の邪魔にならない濃さ。 */
+        const val BADGE_ALPHA = 0.85f
     }
 }

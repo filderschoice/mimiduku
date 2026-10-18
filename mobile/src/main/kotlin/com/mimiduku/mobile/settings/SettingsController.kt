@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.mimiduku.mobile.log.DetectionLog
+import com.mimiduku.mobile.mode.BadgeSettings
 import com.mimiduku.mobile.mode.PauseStore
 import com.mimiduku.mobile.mode.UsageMode
 import com.mimiduku.mobile.mode.UsageModeStore
@@ -17,6 +18,7 @@ class SettingsStores(
     val detectionLog: DetectionLog,
     val pinManager: PinManager,
     val pauseStore: PauseStore,
+    val badgeSettings: BadgeSettings,
 )
 
 /** 端末側の操作（Activity が実装する）。 */
@@ -127,6 +129,11 @@ class SettingsController(
             refresh()
         }
 
+    override fun setBadgeVisible(visible: Boolean) {
+        stores.badgeSettings.setVisible(visible)
+        refresh()
+    }
+
     override fun openLog() {
         logRows = LogRows.from(stores.detectionLog.entries(), zone(), platform::appLabel)
     }
@@ -157,6 +164,7 @@ class SettingsController(
             logCount = stores.detectionLog.entries().size,
             pinSet = stores.pinManager.isSet(),
             pauseRemainingMinutes = toMinutesRoundedUp(stores.pauseStore.remainingMillis()),
+            badgeVisible = stores.badgeSettings.isVisible(),
         )
 
     companion object {

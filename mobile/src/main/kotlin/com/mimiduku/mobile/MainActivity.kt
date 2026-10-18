@@ -41,6 +41,7 @@ class MainActivity :
                 detectionLog = MimidukuAccessibilityService.detectionLog(this),
                 pinManager = PinManager(SharedPreferencesStringStore.of(this)),
                 pauseStore = MimidukuAccessibilityService.pauseStore(this),
+                badgeSettings = MimidukuAccessibilityService.badgeSettings(this),
             )
         setContent {
             val controller = remember { SettingsController(stores, this) }

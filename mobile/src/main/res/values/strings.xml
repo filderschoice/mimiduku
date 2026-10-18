@@ -76,6 +76,10 @@
     <string name="settings_pause_active">停止中です（残り約 %1$d 分）。検知も介入もしません。</string>
     <string name="settings_pause_resume">今すぐ再開する</string>
 
+    <!-- みみづくバッジ -->
+    <string name="settings_badge_title">みみづくバッジ</string>
+    <string name="settings_badge_description">画面の右端にみみづくを出します。広告を見つけると耳が立ち、あやしい動きを止めると目が大きくなります。</string>
+
     <!-- 保護者 PIN -->
     <string name="settings_pin_title">保護者 PIN</string>
     <string name="settings_pin_set">設定済みです。おとなモードへの切替・一時停止・ログの消去・PIN の変更には PIN が必要です。</string>
