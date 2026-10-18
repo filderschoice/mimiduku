@@ -58,16 +58,18 @@
 ### 2.4 README 冒頭文（案）
 
 > mimiduku（みみづく）は、子供の Android 画面に止まって見張り、悪質な広告に気づいて知らせるフロートアプリです。
-
+>
 > 名前の由来：「ミミズク」の旧仮名遣い「みみづく」から。耳ざとく、先に気づく——そんな見張り番を目指しています。
 
 ### 2.5 キャラクターと警告文言（案）
 
-**キャラクター**
+#### キャラクター
+
 - 画面の端の止まり木にいて、広告が出ると羽角（耳）がぴんと立つ
 - 危険度が高いと目が大きくなり、安全なときはうとうとしている
 
-**警告文言（子供向け。怖がらせない・短い・ひらがな中心）**
+#### 警告文言（子供向け。怖がらせない・短い・ひらがな中心）
+
 - 「みみづくが気づいたよ。これは広告かも。」
 - 「みみづくが止めたよ。ここから先は行かないでね。」
 - 「ほー、あやしいリンクだよ。パパ・ママに聞いてみよう。」
@@ -145,14 +147,15 @@ API レベルごとの差異を踏まえて設計してください（記述は�
 - **API 33（Android 13）**：サイドロードアプリのアクセシビリティ有効化に「制限された設定」の解除が必要。通知権限（`POST_NOTIFICATIONS`）
 - **API 34（Android 14）以降**：フォアグラウンドサービスの種別指定。常駐通知を出す場合の type（`specialUse` 等）の妥当性
 - **最新 OS**：アクセシビリティ API の利用制限（高度な保護モード等）が、保護者用の自作アプリにどう影響するか
-- `AccessibilityServiceInfo` の設定（`canRetrieveWindowContent`、`flagIncludeNotImportantViews`、`flagReportViewIds`、`canPerformGestures` など）の最適な組み合わせ
+- `AccessibilityServiceInfo` の設定（`canRetrieveWindowContent`、`flagIncludeNotImportantViews`、
+  `flagReportViewIds`、`canPerformGestures` など）の最適な組み合わせ
 - バッテリー最適化・プロセス終了対策（サービスが落とされないための運用）
 
 ---
 
 ## 6. 設計案（たたき台。見直してよい）
 
-```
+```text
 AccessibilityService
  ├─ onAccessibilityEvent
  │   ├─ WINDOW_STATE_CHANGED → 前面 pkg/class 更新、広告 Activity 判定
