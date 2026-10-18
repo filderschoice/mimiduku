@@ -5,6 +5,30 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-10-18 16:20
+  summary: 大人も使えるように利用モード（こども／おとな）を実装する（BL-013）
+  details:
+    変更内容: >-
+      UsageMode（既定はこども）と InterventionPolicy を追加した。こどもモードは外部遷移を自動で戻して警告し、
+      同じ遷移元から30秒以内に4回目以降の遷移が来たら警告だけにする。おとなモードは自動では戻さず、
+      「戻る」「このまま進む」を出す。スケアウェアはどちらのモードでも警告だけにする。
+      UsageModeStore は StringStore 経由で SharedPreferences へ保存し、未知の保存値は既定へ戻す。
+      検知ログに利用モードの項目を足した。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/mode/UsageMode.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/mode/UsageModeStore.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/log/DetectionLog.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/mode/UsageModeTest.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/log/DetectionLogTest.kt
+      - docs/records/managed/BACKLOG.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintDebug testDebugUnitTest assembleDebug、
+      npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml、python scripts/validate-records.py
+    検証結果: >-
+      成功 - 初回は detekt の行長の指摘1件で失敗し、テストの書き方を直して再実行。
+      いずれも終了コード0、単体テスト42件成功
+    関連ID:
+      - BL-013
 - date: 2026-10-18 16:00
   summary: 検知ログの保存を実装する（BL-005）
   details:

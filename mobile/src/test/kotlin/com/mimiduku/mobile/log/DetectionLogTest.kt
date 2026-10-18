@@ -78,7 +78,17 @@ class DetectionLogTest {
         DetectionLog(file).append(entry(1, ruleId = "virus-infected-ja"))
 
         val keys = Regex("\"(\\w+)\":").findAll(file.readText()).map { it.groupValues[1] }.toSet()
-        val allowed = setOf("atMillis", "kind", "sourcePackage", "targetPackage", "ruleId", "action", "clickedRecently")
+        val allowed =
+            setOf(
+                "atMillis",
+                "kind",
+                "sourcePackage",
+                "targetPackage",
+                "ruleId",
+                "action",
+                "clickedRecently",
+                "usageMode",
+            )
         assertTrue(keys.isNotEmpty() && allowed.containsAll(keys))
     }
 

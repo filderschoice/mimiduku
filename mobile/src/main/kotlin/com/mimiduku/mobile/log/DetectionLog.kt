@@ -1,5 +1,6 @@
 package com.mimiduku.mobile.log
 
+import com.mimiduku.mobile.mode.UsageMode
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
@@ -30,7 +31,7 @@ enum class InterventionAction {
  * 検知ログ1件。
  *
  * プライバシーのため、画面の文字・URL は持たない。残すのは日時・パッケージ名・検知の種類・一致したルールの ID・
- * 介入の内容・直前のクリックの有無だけ（MVP_DESIGN.md 10章）。
+ * 介入の内容・直前のクリックの有無・利用モードだけ（MVP_DESIGN.md 10章）。
  */
 @Serializable
 data class DetectionLogEntry(
@@ -41,6 +42,7 @@ data class DetectionLogEntry(
     val ruleId: String? = null,
     val action: InterventionAction,
     val clickedRecently: Boolean? = null,
+    val usageMode: UsageMode? = null,
 )
 
 /**
