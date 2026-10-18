@@ -54,6 +54,15 @@ interface SettingsActions {
     fun pause(minutes: Int)
 
     fun resume()
+
+    fun openLog()
+}
+
+/** ログ閲覧画面の操作。 */
+interface LogActions {
+    fun closeLog()
+
+    fun clearLog()
 }
 
 @Composable
@@ -90,6 +99,7 @@ fun SettingsScreen(
         SettingsCard(title = stringResource(R.string.settings_log_title)) {
             Text(text = stringResource(R.string.settings_log_count, state.logCount))
             Text(text = stringResource(R.string.settings_log_privacy), style = MaterialTheme.typography.bodySmall)
+            OutlinedButton(onClick = actions::openLog) { Text(stringResource(R.string.settings_log_open)) }
         }
     }
 }

@@ -9,6 +9,7 @@ import com.mimiduku.mobile.mode.UsageMode
 import com.mimiduku.mobile.mode.UsageModeStore
 import com.mimiduku.mobile.pin.PinCheck
 import com.mimiduku.mobile.pin.PinManager
+import java.time.ZoneId
 
 /** 設定画面が読み書きする保存先。 */
 class SettingsStores(
@@ -27,6 +28,9 @@ interface SettingsPlatform {
     fun openAccessibilitySettings()
 
     fun openAppDetails()
+
+    /** アプリ名。パッケージ可視性などで分からなければ null。 */
+    fun appLabel(packageName: String): String?
 }
 
 /** 表示中のダイアログ。 */
@@ -47,10 +51,16 @@ sealed interface SettingsDialog {
 class SettingsController(
     private val stores: SettingsStores,
     private val platform: SettingsPlatform,
-) : SettingsActions {
+    private val zone: () -> ZoneId = ZoneId::systemDefault,
+) : SettingsActions,
+    LogActions {
     var state by mutableStateOf(load())
         private set
     var dialog by mutableStateOf<SettingsDialog?>(null)
+        private set
+
+    /** ログ閲覧画面に出す行。閲覧画面を閉じているときは null。 */
+    var logRows by mutableStateOf<List<LogRow>?>(null)
         private set
 
     /** 画面へ戻ったときなどに、保存先と端末の状態を読み直す。 */
@@ -115,6 +125,21 @@ class SettingsController(
         guarded(GuardedAction.RESUME_PROTECTION) {
             stores.pauseStore.resume()
             refresh()
+        }
+
+    override fun openLog() {
+        logRows = LogRows.from(stores.detectionLog.entries(), zone(), platform::appLabel)
+    }
+
+    override fun closeLog() {
+        logRows = null
+        refresh()
+    }
+
+    override fun clearLog() =
+        guarded(GuardedAction.CLEAR_LOG) {
+            stores.detectionLog.clear()
+            openLog()
         }
 
     private fun guarded(

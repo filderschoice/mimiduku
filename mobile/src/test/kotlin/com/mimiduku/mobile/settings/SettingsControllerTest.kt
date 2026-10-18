@@ -1,6 +1,9 @@
 package com.mimiduku.mobile.settings
 
+import com.mimiduku.mobile.log.DetectionKind
 import com.mimiduku.mobile.log.DetectionLog
+import com.mimiduku.mobile.log.DetectionLogEntry
+import com.mimiduku.mobile.log.InterventionAction
 import com.mimiduku.mobile.mode.PauseStore
 import com.mimiduku.mobile.mode.UsageMode
 import com.mimiduku.mobile.mode.UsageModeStore
@@ -16,6 +19,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.File
+import java.time.ZoneOffset
 
 class SettingsControllerTest {
     @get:Rule
@@ -30,11 +34,12 @@ class SettingsControllerTest {
         SettingsController(
             SettingsStores(
                 modeStore = UsageModeStore(store),
-                detectionLog = DetectionLog(File(folder.root, "log.json")),
+                detectionLog = DetectionLog(logFile),
                 pinManager = pinManager,
                 pauseStore = pauseStore,
             ),
             FakePlatform(),
+            zone = { ZoneOffset.UTC },
         )
     }
 
@@ -46,7 +51,11 @@ class SettingsControllerTest {
         override fun openAccessibilitySettings() = Unit
 
         override fun openAppDetails() = Unit
+
+        override fun appLabel(packageName: String) = if (packageName == "com.example.game") "ゲーム" else null
     }
+
+    private val logFile get() = File(folder.root, "log.json")
 
     @Test
     fun `without a pin the mode switches immediately`() {
@@ -147,4 +156,53 @@ class SettingsControllerTest {
         assertEquals(1, SettingsController.toMinutesRoundedUp(60_000))
         assertEquals(2, SettingsController.toMinutesRoundedUp(60_001))
     }
+
+    @Test
+    fun `the log screen lists entries newest first with app labels`() {
+        DetectionLog(logFile).apply {
+            append(entry(at = 0, target = "com.android.chrome"))
+            append(entry(at = 3_600_000, target = null))
+        }
+
+        controller.openLog()
+
+        val rows = controller.logRows!!
+        assertEquals(listOf("1970/01/01 01:00:00", "1970/01/01 00:00:00"), rows.map { it.time })
+        assertEquals("ゲーム", rows[1].sourceApp)
+        assertEquals("com.android.chrome", rows[1].targetApp)
+        assertNull(rows[0].targetApp)
+    }
+
+    @Test
+    fun `clearing the log requires the pin`() {
+        DetectionLog(logFile).append(entry(at = 0, target = null))
+        pinManager.set("1234")
+        controller.openLog()
+
+        controller.clearLog()
+        assertEquals(1, controller.logRows!!.size)
+
+        controller.onPinVerified()
+        assertTrue(controller.logRows!!.isEmpty())
+    }
+
+    @Test
+    fun `closing the log returns to the settings`() {
+        controller.openLog()
+
+        controller.closeLog()
+
+        assertNull(controller.logRows)
+    }
+
+    private fun entry(
+        at: Long,
+        target: String?,
+    ) = DetectionLogEntry(
+        atMillis = at,
+        kind = if (target == null) DetectionKind.SCAREWARE else DetectionKind.EXTERNAL_TRANSITION,
+        sourcePackage = "com.example.game",
+        targetPackage = target,
+        action = InterventionAction.WARN_ONLY,
+    )
 }

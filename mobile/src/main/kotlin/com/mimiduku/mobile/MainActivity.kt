@@ -1,6 +1,7 @@
 package com.mimiduku.mobile
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -17,6 +18,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import com.mimiduku.mobile.pin.PinManager
 import com.mimiduku.mobile.service.MimidukuAccessibilityService
+import com.mimiduku.mobile.settings.LogScreen
 import com.mimiduku.mobile.settings.PinEntryDialog
 import com.mimiduku.mobile.settings.PinSetupDialog
 import com.mimiduku.mobile.settings.SettingsController
@@ -46,7 +48,12 @@ class MainActivity :
             LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { controller.refresh() }
             MaterialTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    SettingsScreen(state = controller.state, actions = controller)
+                    val logRows = controller.logRows
+                    if (logRows == null) {
+                        SettingsScreen(state = controller.state, actions = controller)
+                    } else {
+                        LogScreen(rows = logRows, actions = controller)
+                    }
                     SettingsDialogHost(controller)
                 }
             }
@@ -66,6 +73,12 @@ class MainActivity :
     override fun openAccessibilitySettings() {
         startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
     }
+
+    override fun appLabel(packageName: String): String? =
+        runCatching {
+            packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, 0)).toString()
+        }.onFailure { if (it !is PackageManager.NameNotFoundException) throw it }
+            .getOrNull()
 
     override fun openAppDetails() {
         startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName")))

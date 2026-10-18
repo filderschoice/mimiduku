@@ -5,6 +5,31 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-10-19 13:00
+  summary: 保護者向けの検知ログ閲覧画面を実装する（BL-017）
+  details:
+    変更内容: >-
+      LogRows（ログを新しい順に並べ、日時の書式化・アプリ名の解決（分からなければパッケージ名）・検知の種類と
+      介入の内容の文言を決める）と LogScreen（一覧、ログの消去、戻るキーで設定画面へ戻る）を追加した。
+      ログの消去は PIN を求める。SettingsController に閲覧画面の状態を足し、操作の interface を
+      SettingsActions と LogActions に分けた。あわせて Google Play での配布の検討を BL-024（要確認）として登録した。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/LogRows.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/LogScreen.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/SettingsController.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/SettingsScreen.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/MainActivity.kt
+      - mobile/src/main/res/values/strings.xml
+      - mobile/src/test/kotlin/com/mimiduku/mobile/settings/SettingsControllerTest.kt
+      - docs/records/managed/BACKLOG.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintDebug testDebugUnitTest assembleDebug、
+      npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml、python scripts/validate-records.py
+    検証結果: >-
+      成功 - detekt の interface の関数の数の指摘を直して再実行し、いずれも終了コード0、単体テスト95件成功
+    関連ID:
+      - BL-017
+      - BL-024
 - date: 2026-10-19 12:00
   summary: PIN による保護の一時停止を実装する（BL-016）
   details:

@@ -49,6 +49,20 @@
     <string name="settings_log_count">これまでの検知：%1$d 件（最新500件まで保存）</string>
     <string name="settings_log_privacy">ログに残すのは日時・アプリ名・検知の種類だけです。画面の文字や URL は保存せず、外部へも送信しません。</string>
 
+    <!-- 検知ログの閲覧 -->
+    <string name="settings_log_open">ログを見る</string>
+    <string name="log_title">検知ログ</string>
+    <string name="log_close">閉じる</string>
+    <string name="log_empty">まだ検知はありません。</string>
+    <string name="log_clear">ログをすべて消去する</string>
+    <string name="log_kind_external_transition">外部への移動</string>
+    <string name="log_kind_scareware">偽の警告</string>
+    <string name="log_action_back_and_warn">自動で戻した</string>
+    <string name="log_action_warn_only">警告のみ</string>
+    <string name="log_action_ask_user">利用者に確認</string>
+    <string name="log_apps_transition">%1$s → %2$s</string>
+    <string name="log_apps_single">%1$s</string>
+
     <!-- 一時停止 -->
     <string name="settings_pause_title">一時停止</string>
     <string name="settings_pause_description">保護者が一緒に使うときなど、見張りを一定時間止めます。PIN を設定している場合は PIN が必要です。</string>
