@@ -33,7 +33,7 @@ Claude Code 固有の差分と追加規約です。全エージェント共通�
 | Android Lint | `./gradlew lintDebug` | 終了コード0 |
 | 型検査・ビルド | `./gradlew assembleDebug` | 終了コード0 |
 | 単体テスト | `./gradlew testDebugUnitTest` | 全件成功 |
-| 脆弱性チェック | （未導入。導入可否は BACKLOG の BL-011 で要確認） | 導入した場合は本行を実コマンドへ更新する |
+| 脆弱性チェック | （未導入。リポジトリの公開後に GitHub の Dependabot で依存の脆弱性を確認する想定） | 導入した場合は本行を実コマンドへ更新する |
 | Markdown の静的解析 | `npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml` | `Summary: 0 issues`、かつ出力の `Linting: N files` が `git ls-files --cached --others --exclude-standard "*.md"` の件数と一致（対象漏れの検出） |
 | 記録ファイルの検証 | `python scripts/validate-records.py`（PyYAMLが必要） | 終了コード0 |
 

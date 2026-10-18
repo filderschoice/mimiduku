@@ -81,5 +81,5 @@
   検知ルールを変えたら `rules.json` と `DetectionRules.DEFAULT` を同時に更新する（一致は `RulesLoaderTest` で検査）。
   文言を変えたら `strings.xml` だけを更新する。
 - 要件トレーサビリティ要件: 未着手の範囲（広告画面の判定・タップシールド・代理タップ・保護者 PIN・みみづくバッジ）は
-  BACKLOG の BL-012 で扱う。PIN を入れる際は、こども→おとなへのモード切替を PIN で保護する。
+  BACKLOG の BL-014〜BL-022 で扱う。PIN を入れる際は、こども→おとなへのモード切替を PIN で保護する。
 <!-- COPILOT_RECORDS:END -->
