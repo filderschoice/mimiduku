@@ -12,3 +12,5 @@
 - 脆弱性チェックは未導入のまま、リポジトリ公開後に GitHub の Dependabot で確認する方針とした（BL-011 を閉じた）
 - README・docs/TESTING.md・DESIGN.md を第2段階（PIN・一時停止・ログ閲覧・広告画面・シールド・代理タップ・バッジ）に合わせて更新した
 - Google Play のポリシー調査と配布の構成案の作成を BL-026 として登録した
+- Google Play のポリシーを調べ、Play 版（機能限定）と GitHub 版（全機能）に分ける案を含む配布の構成案を docs/design/DISTRIBUTION.md にまとめた（BL-026）
+- 全画面広告では正常に見えても悪質な場合があるため、GitHub 版では全画面広告への介入を残す方針とした（ユーザー決定）
