@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- みみづくバッジ：広告画面を見張っているとき（羽角が立つ）。仮の自作画像で、同名のファイルの差し替えで置き換えられる。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path android:pathData="M12,16 L8,1 L18,12 Z M36,16 L40,1 L30,12 Z"
+        android:fillColor="#FF6D4C41" />
+    <path android:pathData="M24,10 C34,10 40,18 40,28 C40,38 33,44 24,44 C15,44 8,38 8,28 C8,18 14,10 24,10 Z"
+        android:fillColor="#FF8D6E63" />
+    <path android:pathData="M24,16 C31,16 35,21 35,27 C35,33 30,37 24,37 C18,37 13,33 13,27 C13,21 17,16 24,16 Z"
+        android:fillColor="#FFD7CCC8" />
+    <path android:pathData="M13,25 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0 M25,25 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0"
+        android:fillColor="#FFFFFFFF" />
+    <path android:pathData="M16,25 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M28,25 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0"
+        android:fillColor="#FF3E2723" />
+    <path android:pathData="M22,30 L26,30 L24,33 Z"
+        android:fillColor="#FFFFA000" />
+</vector>

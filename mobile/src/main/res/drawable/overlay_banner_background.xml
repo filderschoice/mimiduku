@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 警告バナーの背景。白文字とのコントラストを確保するため濃い色にする。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#F01E3A5F" />
+    <corners android:radius="16dp" />
+</shape>

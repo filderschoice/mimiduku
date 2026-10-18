@@ -28,10 +28,12 @@ Claude Code 固有の差分と追加規約です。全エージェント共通�
 
 | ゲート | コマンド | 合否基準 |
 | --- | --- | --- |
-| フォーマット/静的解析 | `replace-me`（例 `npm run lint` / `cargo fmt --check && cargo clippy` / `./gradlew ktlintCheck`） | 終了コード0、指摘0件 |
-| 型検査 | `replace-me`（例 `npx tsc --noEmit` / `./gradlew compileKotlin`） | 終了コード0 |
-| 単体テスト | `replace-me`（例 `npm test` / `cargo test` / `./gradlew test`） | 全件成功 |
-| 脆弱性チェック | `replace-me`（例 `npm audit` / `cargo audit`） | 新規の高危険度の指摘が0件 |
+| コードスタイル（ktlint） | `./gradlew ktlintCheck` | 終了コード0 |
+| 静的解析（detekt） | `./gradlew detekt` | 終了コード0（`config/detekt/detekt.yml` の `maxIssues: 0`） |
+| Android Lint | `./gradlew lintGithubDebug lintPlayDebug` | 終了コード0（GitHub 版・Play 版の両方） |
+| 型検査・ビルド | `./gradlew assembleDebug` | 終了コード0（全ての版の debug をビルドする） |
+| 単体テスト | `./gradlew testGithubDebugUnitTest testPlayDebugUnitTest` | 全件成功（両方の版） |
+| 脆弱性チェック | （未導入。リポジトリの公開後に GitHub の Dependabot で依存の脆弱性を確認する想定） | 導入した場合は本行を実コマンドへ更新する |
 | Markdown の静的解析 | `npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml` | `Summary: 0 issues`、かつ出力の `Linting: N files` が `git ls-files --cached --others --exclude-standard "*.md"` の件数と一致（対象漏れの検出） |
 | 記録ファイルの検証 | `python scripts/validate-records.py`（PyYAMLが必要） | 終了コード0 |
 

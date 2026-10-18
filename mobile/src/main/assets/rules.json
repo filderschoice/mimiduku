@@ -1,0 +1,212 @@
+{
+  "version": 1,
+  "browserPackages": [
+    "com.android.chrome",
+    "com.chrome.beta",
+    "org.mozilla.firefox",
+    "com.microsoft.emmx",
+    "com.brave.browser",
+    "com.opera.browser",
+    "com.sec.android.app.sbrowser",
+    "com.duckduckgo.mobile.android",
+    "jp.co.yahoo.android.ybrowser"
+  ],
+  "storePackages": [
+    "com.android.vending"
+  ],
+  "installerPackages": [
+    "com.google.android.packageinstaller",
+    "com.android.packageinstaller"
+  ],
+  "transientPackages": [
+    "com.android.systemui",
+    "android"
+  ],
+  "ignoredSourcePackages": [
+    "com.android.settings",
+    "com.google.android.permissioncontroller"
+  ],
+  "scarewarePhrases": [
+    {
+      "id": "virus-infected-ja",
+      "text": "ウイルスに感染"
+    },
+    {
+      "id": "virus-infected-ja",
+      "text": "ウィルスに感染"
+    },
+    {
+      "id": "virus-detected-ja",
+      "text": "ウイルスが検出"
+    },
+    {
+      "id": "virus-detected-ja",
+      "text": "ウイルスを検出"
+    },
+    {
+      "id": "battery-damaged-ja",
+      "text": "バッテリーが損傷"
+    },
+    {
+      "id": "battery-damaged-ja",
+      "text": "バッテリーが破損"
+    },
+    {
+      "id": "phone-damaged-ja",
+      "text": "スマートフォンが損傷"
+    },
+    {
+      "id": "phone-damaged-ja",
+      "text": "携帯電話が損傷"
+    },
+    {
+      "id": "device-infected-en",
+      "text": "your device is infected"
+    },
+    {
+      "id": "device-infected-en",
+      "text": "your phone is infected"
+    },
+    {
+      "id": "device-infected-en",
+      "text": "has been infected with"
+    },
+    {
+      "id": "virus-detected-en",
+      "text": "virus detected"
+    },
+    {
+      "id": "virus-detected-en",
+      "text": "viruses detected"
+    },
+    {
+      "id": "battery-damaged-en",
+      "text": "battery is damaged"
+    }
+  ],
+  "adActivityPrefixes": [
+    "com.google.android.gms.ads.",
+    "com.applovin.",
+    "com.unity3d.services.ads.",
+    "com.unity3d.ads.",
+    "com.ironsource.",
+    "com.facebook.ads.",
+    "com.vungle.",
+    "com.mbridge.msdk.",
+    "com.bytedance.sdk.openadsdk.",
+    "com.chartboost.sdk.",
+    "com.five_corp.ad.",
+    "jp.maio.sdk.",
+    "net.nend.android."
+  ],
+  "adTextMarkers": [
+    {
+      "id": "ad-label",
+      "text": "広告",
+      "match": "EXACT",
+      "weight": 1
+    },
+    {
+      "id": "ad-label",
+      "text": "Ad",
+      "match": "EXACT",
+      "weight": 1
+    },
+    {
+      "id": "ad-label",
+      "text": "AD",
+      "match": "EXACT",
+      "weight": 1
+    },
+    {
+      "id": "ad-label",
+      "text": "スポンサー",
+      "match": "EXACT",
+      "weight": 1
+    },
+    {
+      "id": "ad-label",
+      "text": "Sponsored",
+      "match": "EXACT",
+      "weight": 1
+    },
+    {
+      "id": "skip",
+      "text": "スキップ",
+      "match": "EXACT",
+      "weight": 2
+    },
+    {
+      "id": "skip",
+      "text": "広告をスキップ",
+      "match": "CONTAINS",
+      "weight": 2
+    },
+    {
+      "id": "skip",
+      "text": "Skip",
+      "match": "EXACT",
+      "weight": 2
+    },
+    {
+      "id": "skip",
+      "text": "Skip Ad",
+      "match": "CONTAINS",
+      "weight": 2
+    },
+    {
+      "id": "skip",
+      "text": "Skip ad",
+      "match": "CONTAINS",
+      "weight": 2
+    },
+    {
+      "id": "skip",
+      "text": "Skip in",
+      "match": "CONTAINS",
+      "weight": 2
+    },
+    {
+      "id": "skip",
+      "text": "でスキップ",
+      "match": "CONTAINS",
+      "weight": 2
+    },
+    {
+      "id": "skip",
+      "text": "後にスキップ",
+      "match": "CONTAINS",
+      "weight": 2
+    },
+    {
+      "id": "reward",
+      "text": "報酬を獲得",
+      "match": "CONTAINS",
+      "weight": 2
+    },
+    {
+      "id": "reward",
+      "text": "Reward in",
+      "match": "CONTAINS",
+      "weight": 2
+    },
+    {
+      "id": "reward",
+      "text": "Reward granted",
+      "match": "CONTAINS",
+      "weight": 2
+    },
+    {
+      "id": "install",
+      "text": "インストール",
+      "match": "EXACT",
+      "weight": 1
+    },
+    {
+      "id": "install",
+      "text": "Install",
+      "match": "EXACT",
+      "weight": 1
+    }
+  ]
+}

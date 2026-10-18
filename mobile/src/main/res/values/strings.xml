@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 警告文言は後から差し替えやすいよう、すべてここに置く（PLAN.md 2.5）。 -->
+<resources>
+    <string name="app_name">みみづく</string>
+
+    <!-- アクセシビリティ設定画面に出る説明 -->
+    <string name="accessibility_service_label">みみづく（広告対策）</string>
+    <string name="accessibility_service_description">広告による勝手なブラウザ・ストアへの移動と、「ウイルスに感染」などの偽の警告を見つけて知らせます。画面の文字は照合にだけ使い、保存も送信もしません。</string>
+
+    <!-- 遷移先の種類 -->
+    <string name="target_browser">ブラウザ</string>
+    <string name="target_store">アプリストア</string>
+    <string name="target_installer">アプリのインストール画面</string>
+
+    <!-- こどもモード（ひらがな中心・怖がらせない・短い） -->
+    <string name="child_transition_blocked_title">みみづくが止めたよ</string>
+    <string name="child_transition_blocked_message">ここから先は行かないでね。</string>
+    <string name="child_transition_warn_title">ほー、あやしいリンクだよ</string>
+    <string name="child_transition_warn_message">パパ・ママに聞いてみよう。</string>
+    <string name="child_scareware_title">みみづくが気づいたよ</string>
+    <string name="child_scareware_message">これは広告かも。こわいことが書いてあっても、うそかもしれないよ。さわらずにパパ・ママに見せてね。</string>
+    <string name="child_close">わかった</string>
+    <!-- 自動で戻さない版（Google Play 版）のこどもモードで、外部への移動を確かめるときの文言 -->
+    <string name="child_transition_ask_title">ほー、べつの ばしょに いこうとしているよ</string>
+    <string name="child_transition_ask_message">じぶんで おしたのでなければ「もどる」を おしてね。わからないときは パパ・ママに きいてみよう。</string>
+    <string name="child_go_back">もどる</string>
+    <string name="child_proceed">このまま すすむ</string>
+
+    <string name="child_ad_panel_message">こうこくだよ。さわらないでね。</string>
+    <string name="child_ad_panel_countdown">こうこくだよ。さわらないでね。あと %1$d びょう</string>
+    <string name="child_ad_panel_back">もどる</string>
+
+    <!-- おとなモード（通常の文言で、検知理由を具体的に示す） -->
+    <string name="adult_transition_title">%1$sへの移動を検知しました</string>
+    <string name="adult_transition_message">アプリから自動的に、またはタップによって%1$sが開かれました。広告による移動の可能性があります。</string>
+    <string name="adult_transition_warn_message">同じアプリから短時間に繰り返し%1$sが開かれています。広告による移動の可能性があります。</string>
+    <string name="adult_go_back">戻る</string>
+    <string name="adult_proceed">このまま進む</string>
+    <string name="adult_scareware_title">偽の警告の可能性があります</string>
+    <string name="adult_scareware_message">「ウイルスに感染」「バッテリーが損傷」などの表示は、広告による偽の警告であることがよくあります。表示内のボタンやリンクは押さずに画面を閉じてください。</string>
+    <string name="adult_close">閉じる</string>
+    <string name="adult_ad_panel_message">広告が表示されています。広告内のボタンに注意してください。</string>
+    <string name="adult_ad_panel_countdown">広告が表示されています（残り約 %1$d 秒）。</string>
+
+    <!-- アクセシビリティ API の利用についての目立つ開示と同意（ConsentStore.CURRENT_VERSION と対応。内容を変えたら版数を上げる） -->
+    <string name="disclosure_title">はじめに：画面の読み取りについて</string>
+    <string name="disclosure_body">みみづくは、悪質な広告（偽の警告や、勝手なブラウザ・ストアへの移動）を見つけるために、Android のユーザー補助機能（アクセシビリティ サービス）を使います。
+
+・読み取るもの：前面に表示されているアプリの名前と、画面に表示されている文字
+・使い道：偽の警告の文言や広告の画面かどうかの照合と、勝手な移動の検知だけに使います
+・保存するもの：検知した日時・アプリの名前・検知の種類だけを、この端末の中に保存します。画面の文字や URL は保存しません
+・送信：インターネットへの接続権限を持たないため、読み取った内容を外部へ送ることはありません
+
+ユーザー補助機能はいつでも端末の設定からオフにできます。</string>
+    <string name="disclosure_check">上の内容を確認し、画面の読み取りに同意します</string>
+    <string name="disclosure_accept">同意して進む</string>
+
+    <!-- 設定画面 -->
+    <string name="settings_intro">広告による勝手なブラウザ・ストアへの移動と、偽の警告を見つけて知らせます。</string>
+    <string name="settings_service_title">見張りの状態</string>
+    <string name="settings_service_enabled">見張っています（アクセシビリティ：オン）</string>
+    <string name="settings_service_disabled">止まっています（アクセシビリティ：オフ）</string>
+    <string name="settings_open_accessibility">アクセシビリティ設定を開く</string>
+    <string name="settings_restricted_title">オンにできないとき（Android 13 以降）</string>
+    <string name="settings_restricted_steps">ブラウザなどからインストールしたアプリは、アクセシビリティをオンにする前に「制限された設定」の許可が必要です。\n1. 下のボタンで「アプリ情報」を開く\n2. 右上の「︙」から「制限された設定を許可」を選ぶ（一度アクセシビリティ設定でオンにしようとした後に表示されます）\n3. アクセシビリティ設定に戻り、「みみづく（広告対策）」をオンにする</string>
+    <string name="settings_open_app_details">アプリ情報を開く</string>
+    <string name="settings_mode_title">利用モード</string>
+    <string name="settings_mode_child">こども</string>
+    <string name="settings_mode_child_desc">外部への移動を自動で戻し、やさしい言葉で知らせます。</string>
+    <string name="settings_mode_child_desc_ask">勝手な外部への移動を知らせ、やさしい言葉で「もどる」か選ばせます。</string>
+    <string name="settings_mode_adult">おとな</string>
+    <string name="settings_mode_adult_desc">自動では戻さず、「戻る」か「このまま進む」を選べます。</string>
+    <string name="settings_log_title">検知ログ</string>
+    <string name="settings_log_count">これまでの検知：%1$d 件（最新500件まで保存）</string>
+    <string name="settings_log_privacy">ログに残すのは日時・アプリ名・検知の種類だけです。画面の文字や URL は保存せず、外部へも送信しません。</string>
+
+    <!-- 検知ログの閲覧 -->
+    <string name="settings_log_open">ログを見る</string>
+    <string name="log_title">検知ログ</string>
+    <string name="log_close">閉じる</string>
+    <string name="log_empty">まだ検知はありません。</string>
+    <string name="log_clear">ログをすべて消去する</string>
+    <string name="log_kind_external_transition">外部への移動</string>
+    <string name="log_kind_scareware">偽の警告</string>
+    <string name="log_action_back_and_warn">自動で戻した</string>
+    <string name="log_action_warn_only">警告のみ</string>
+    <string name="log_action_ask_user">利用者に確認</string>
+    <string name="log_apps_transition">%1$s → %2$s</string>
+    <string name="log_apps_single">%1$s</string>
+
+    <!-- 一時停止 -->
+    <string name="settings_pause_title">一時停止</string>
+    <string name="settings_pause_description">保護者が一緒に使うときなど、見張りを一定時間止めます。PIN を設定している場合は PIN が必要です。</string>
+    <string name="settings_pause_minutes">%1$d分</string>
+    <string name="settings_pause_active">停止中です（残り約 %1$d 分）。検知も介入もしません。</string>
+    <string name="settings_pause_resume">今すぐ再開する</string>
+
+    <!-- みみづくバッジ -->
+    <string name="settings_badge_title">みみづくバッジ</string>
+    <string name="settings_badge_description">画面の右端にみみづくを出します。広告を見つけると耳が立ち、あやしい動きを止めると目が大きくなります。</string>
+    <string name="settings_badge_description_limited">画面の右端にみみづくを出します。あやしい動きに気づくと目が大きくなります。</string>
+    <string name="settings_distribution_github">GitHub 版（全機能）</string>
+    <string name="settings_distribution_play">Google Play 版</string>
+
+    <!-- 保護者 PIN -->
+    <string name="settings_pin_title">保護者 PIN</string>
+    <string name="settings_pin_set">設定済みです。おとなモードへの切替・一時停止・ログの消去・PIN の変更には PIN が必要です。</string>
+    <string name="settings_pin_not_set">未設定です。子供の端末では設定してください。</string>
+    <string name="settings_pin_setup">PIN を設定する</string>
+    <string name="settings_pin_change">変更する</string>
+    <string name="settings_pin_remove">削除する</string>
+    <string name="settings_pin_note">PIN を忘れた場合は、アプリをアンインストールして入れ直してください（設定とログは消えます）。</string>
+    <string name="pin_entry_title">保護者 PIN を入力</string>
+    <string name="pin_setup_title">保護者 PIN の設定</string>
+    <string name="pin_setup_hint">4〜8桁の数字を入力してください。</string>
+    <string name="pin_field_label">PIN</string>
+    <string name="pin_field_new">新しい PIN</string>
+    <string name="pin_field_confirm">もう一度入力</string>
+    <string name="pin_ok">OK</string>
+    <string name="pin_save">保存</string>
+    <string name="pin_cancel">キャンセル</string>
+    <string name="pin_error_wrong">PIN が違います。</string>
+    <string name="pin_error_locked_now">PIN が続けて違ったため、しばらく入力できません。</string>
+    <string name="pin_error_locked">続けて間違えたため、しばらく入力できません。時間をおいて試してください。</string>
+    <string name="pin_error_not_set">PIN が設定されていません。</string>
+    <string name="pin_error_corrupted">PIN の保存データが読めません。アプリを入れ直してください。</string>
+    <string name="pin_error_format">PIN は4〜8桁の数字にしてください。</string>
+    <string name="pin_error_mismatch">2回の入力が一致しません。</string>
+</resources>

@@ -1,0 +1,17 @@
+build:
+  maxIssues: 0
+
+style:
+  MagicNumber:
+    active: false
+
+naming:
+  FunctionNaming:
+    ignoreAnnotated: ['Composable']
+
+complexity:
+  LongMethod:
+    threshold: 60
+  # interface の実装（画面の操作を1つの interface にまとめたもの等）は関数の数に含めない。
+  TooManyFunctions:
+    ignoreOverridden: true
