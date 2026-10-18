@@ -22,6 +22,8 @@ import com.mimiduku.mobile.R
 class OverlayController(
     private val context: Context,
     private val onGoBack: () -> Unit,
+    /** 案内パネルの「もどる」。本物の閉じるボタンの代理タップを試し、だめなら戻る（BL-021）。 */
+    private val onAdClose: () -> Unit = onGoBack,
 ) {
     private val windowManager = context.getSystemService(WindowManager::class.java)
     private val handler = Handler(Looper.getMainLooper())
@@ -70,7 +72,7 @@ class OverlayController(
         }
         val view =
             adPanel ?: LayoutInflater.from(context).inflate(R.layout.overlay_ad_panel, null).also { panel ->
-                panel.findViewById<Button>(R.id.ad_panel_back).setOnClickListener { onGoBack() }
+                panel.findViewById<Button>(R.id.ad_panel_back).setOnClickListener { onAdClose() }
                 windowManager.addView(panel, layoutParams(Gravity.BOTTOM))
                 adPanel = panel
             }

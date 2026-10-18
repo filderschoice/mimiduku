@@ -5,6 +5,29 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-10-19 16:00
+  summary: 広告画面の閉じるボタンの代理タップを実装する（BL-021）
+  details:
+    変更内容: >-
+      CloseButtonFinder（Android 非依存）を追加した。文字か説明が閉じる・スキップの文言に完全一致し、クリックでき、
+      表示されていて、画面内に収まり、大きさが0でなく、画面の25%以下のノードだけを候補にし、閉じるをスキップより
+      優先する。CloseButtonClicker が前面のノードツリー（最大400ノード）から候補を選んで ACTION_CLICK を送る。
+      案内パネルの「もどる」を押したときだけ代理タップを試し、候補が無いか失敗したら GLOBAL_ACTION_BACK で代える。
+      自動ではクリックしない（PLAN.md 7章の非目標「広告の自動クリック」に当たらないようにするため）。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/detect/CloseButtonFinder.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/CloseButtonClicker.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/MimidukuAccessibilityService.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/overlay/OverlayController.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/detect/CloseButtonFinderTest.kt
+      - docs/records/managed/BACKLOG.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintDebug testDebugUnitTest assembleDebug、
+      npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml、python scripts/validate-records.py
+    検証結果: >-
+      成功 - テストの補助関数の引数の数・行長の指摘を直して再実行し、いずれも終了コード0、単体テスト125件成功
+    関連ID:
+      - BL-021
 - date: 2026-10-19 15:20
   summary: 全画面広告のタップシールドを実装する（BL-020）
   details:

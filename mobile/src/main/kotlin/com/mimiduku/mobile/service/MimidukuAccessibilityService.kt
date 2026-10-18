@@ -5,7 +5,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.SystemClock
+import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import android.view.inputmethod.InputMethodManager
 import com.mimiduku.mobile.detect.AdScreenDetector
@@ -64,7 +66,12 @@ class MimidukuAccessibilityService : AccessibilityService() {
                 modeProvider = modeStore::load,
                 adDetector = AdScreenDetector(rules),
             )
-        overlay = OverlayController(this) { performGlobalAction(GLOBAL_ACTION_BACK) }
+        overlay =
+            OverlayController(
+                context = this,
+                onGoBack = { performGlobalAction(GLOBAL_ACTION_BACK) },
+                onAdClose = ::closeAd,
+            )
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
@@ -89,6 +96,21 @@ class MimidukuAccessibilityService : AccessibilityService() {
         val entry = detection.logEntry.copy(atMillis = System.currentTimeMillis())
         logExecutor.execute { runCatching { detectionLog.append(entry) } }
     }
+
+    /** 利用者が案内パネルの「もどる」を押したとき。本物の閉じるボタンを押せなければ「戻る」で代える。 */
+    private fun closeAd() {
+        val (width, height) = screenSize()
+        val clicked = CloseButtonClicker.clickClose(rootInActiveWindow, width, height)
+        if (!clicked) performGlobalAction(GLOBAL_ACTION_BACK)
+    }
+
+    private fun screenSize(): Pair<Int, Int> =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val bounds = getSystemService(WindowManager::class.java).maximumWindowMetrics.bounds
+            bounds.width() to bounds.height()
+        } else {
+            resources.displayMetrics.let { it.widthPixels to it.heightPixels }
+        }
 
     override fun onInterrupt() {
         overlay?.dismissAll()
