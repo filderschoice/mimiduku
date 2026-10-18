@@ -27,6 +27,8 @@ class OverlayController(
     private val handler = Handler(Looper.getMainLooper())
     private val dismissRunnable = Runnable { dismiss() }
     private var current: View? = null
+    private var adPanel: View? = null
+    private var adPanelSpec: AdPanelSpec? = null
 
     fun show(spec: BannerSpec) {
         dismiss()
@@ -48,9 +50,46 @@ class OverlayController(
                 setOnClickListener { dismiss() }
             }
         }
-        windowManager.addView(view, layoutParams())
+        windowManager.addView(view, layoutParams(Gravity.TOP))
         current = view
         handler.postDelayed(dismissRunnable, spec.autoDismissMillis)
+    }
+
+    /**
+     * 広告画面の案内パネルを画面下部に出す（[spec] が null なら消す）。内容が変わらなければ何もしない。
+     * 警告バナーとは別のウィンドウで、広告画面にいる間は出し続ける。
+     */
+    fun showAdPanel(spec: AdPanelSpec?) {
+        if (spec == adPanelSpec) return
+        adPanelSpec = spec
+        if (spec == null) {
+            removeAdPanel()
+            return
+        }
+        val view =
+            adPanel ?: LayoutInflater.from(context).inflate(R.layout.overlay_ad_panel, null).also { panel ->
+                panel.findViewById<Button>(R.id.ad_panel_back).setOnClickListener { onGoBack() }
+                windowManager.addView(panel, layoutParams(Gravity.BOTTOM))
+                adPanel = panel
+            }
+        view.findViewById<TextView>(R.id.ad_panel_message).text =
+            spec.countdownSeconds?.let { context.getString(spec.countdownMessageRes, it) }
+                ?: context.getString(spec.messageRes)
+        view.findViewById<Button>(R.id.ad_panel_back).setText(spec.backLabelRes)
+    }
+
+    /** 警告バナーと広告画面の案内パネルをすべて消す。 */
+    fun dismissAll() {
+        dismiss()
+        adPanelSpec = null
+        removeAdPanel()
+    }
+
+    private fun removeAdPanel() {
+        adPanel?.let { view ->
+            runCatching { windowManager.removeView(view) }
+            adPanel = null
+        }
     }
 
     fun dismiss() {
@@ -66,7 +105,7 @@ class OverlayController(
         arg: String?,
     ): String = if (arg == null) context.getString(res) else context.getString(res, arg)
 
-    private fun layoutParams() =
+    private fun layoutParams(gravity: Int) =
         WindowManager
             .LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,
@@ -76,5 +115,5 @@ class OverlayController(
                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
                 PixelFormat.TRANSLUCENT,
-            ).apply { gravity = Gravity.TOP }
+            ).also { it.gravity = gravity }
 }

@@ -5,6 +5,38 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-10-19 14:40
+  summary: 広告画面のカウントダウン表示と大きな「戻る」ボタンを実装する（BL-019）
+  details:
+    変更内容: >-
+      EngineEvent.WindowChanged に前面のクラス名を持たせ、ProtectionEngine が画面の文字を1回だけ読んで
+      広告画面の判定とスケアウェアの照合に使うようにした。広告画面のあいだは adScreen（残り秒数と利用モード）を保ち、
+      外部遷移・別アプリへの切替・広告の文言が消えたときに解除する（キーボード等の一時的な前面では保つ）。
+      CountdownParser は「あと5秒」「12秒後」「Skip in 5」「8 seconds remaining」などから1〜120秒を読み取り、
+      単位のない数字は読まない。サービスは処理のたびに案内パネル（画面下部、こども向け・おとな向けの文言、
+      大きな「もどる」ボタンで GLOBAL_ACTION_BACK）を出し入れする。広告画面はログに残さない。
+      「Skip in 5」形式を拾えるよう、スキップの文言ルールを3件追加した。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/ProtectionEngine.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/MimidukuAccessibilityService.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/detect/CountdownParser.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/overlay/AdPanelSpec.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/overlay/OverlayController.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/rules/DetectionRules.kt
+      - mobile/src/main/assets/rules.json
+      - mobile/src/main/res/layout/overlay_ad_panel.xml
+      - mobile/src/main/res/values/strings.xml
+      - mobile/src/test/kotlin/com/mimiduku/mobile/detect/CountdownParserTest.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/service/ProtectionEngineTest.kt
+      - docs/records/managed/BACKLOG.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintDebug testDebugUnitTest assembleDebug、
+      npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml、python scripts/validate-records.py
+    検証結果: >-
+      成功 - 行長の指摘と、「Skip in 5」を広告と判定できない不足（単体テストで検出）を直して再実行し、
+      いずれも終了コード0、単体テスト113件成功
+    関連ID:
+      - BL-019
 - date: 2026-10-19 13:40
   summary: 広告画面の判定を実装する（BL-018）
   details:

@@ -161,6 +161,24 @@
       "weight": 2
     },
     {
+      "id": "skip",
+      "text": "Skip in",
+      "match": "CONTAINS",
+      "weight": 2
+    },
+    {
+      "id": "skip",
+      "text": "でスキップ",
+      "match": "CONTAINS",
+      "weight": 2
+    },
+    {
+      "id": "skip",
+      "text": "後にスキップ",
+      "match": "CONTAINS",
+      "weight": 2
+    },
+    {
       "id": "reward",
       "text": "報酬を獲得",
       "match": "CONTAINS",

@@ -2,6 +2,8 @@ package com.mimiduku.mobile.service
 
 import android.view.accessibility.AccessibilityEvent
 import com.mimiduku.mobile.R
+import com.mimiduku.mobile.detect.AdScreenDetector
+import com.mimiduku.mobile.detect.AdScreenState
 import com.mimiduku.mobile.detect.ExternalTransitionDetector
 import com.mimiduku.mobile.detect.PackageClassifier
 import com.mimiduku.mobile.log.DetectionKind
@@ -26,6 +28,7 @@ class ProtectionEngineTest {
             detector = ExternalTransitionDetector(PackageClassifier(DetectionRules.DEFAULT, OWN)),
             matcher = ScarewareMatcher(DetectionRules.DEFAULT.scarewarePhrases),
             modeProvider = { mode },
+            adDetector = AdScreenDetector(DetectionRules.DEFAULT),
         )
 
     private fun handle(event: EngineEvent) =
@@ -141,9 +144,60 @@ class ProtectionEngineTest {
         assertTrue(handle(EngineEvent.Clicked(GAME, 0)).isEmpty())
     }
 
+    @Test
+    fun `the class name of the window is passed through`() {
+        assertEquals(
+            EngineEvent.WindowChanged(GAME, 1, AD_ACTIVITY),
+            EngineEvent.from(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED, GAME, 1, AD_ACTIVITY),
+        )
+    }
+
+    @Test
+    fun `an ad activity in the foreground sets the ad screen state`() {
+        screen = listOf("あと5秒でスキップ")
+
+        handle(EngineEvent.WindowChanged(GAME, 0, AD_ACTIVITY))
+
+        assertEquals(AdScreenState(countdownSeconds = 5, mode = UsageMode.CHILD), engine.adScreen)
+    }
+
+    @Test
+    fun `the countdown follows content changes and the state clears when the ad closes`() {
+        screen = listOf("Ad", "Skip in 5")
+        handle(EngineEvent.WindowChanged(GAME, 0, "com.example.game.MainActivity"))
+        assertEquals(5, engine.adScreen?.countdownSeconds)
+
+        screen = listOf("Ad", "Skip in 4")
+        handle(EngineEvent.ContentChanged(GAME, 1_000))
+        assertEquals(4, engine.adScreen?.countdownSeconds)
+
+        screen = listOf("スタート")
+        handle(EngineEvent.ContentChanged(GAME, 2_000))
+        assertNull(engine.adScreen)
+    }
+
+    @Test
+    fun `a keyboard over the ad keeps the ad screen state`() {
+        handle(EngineEvent.WindowChanged(GAME, 0, AD_ACTIVITY))
+
+        handle(EngineEvent.WindowChanged("com.android.systemui", 100, "android.widget.FrameLayout"))
+
+        assertTrue(engine.adScreen != null)
+    }
+
+    @Test
+    fun `an external transition clears the ad screen state`() {
+        handle(EngineEvent.WindowChanged(GAME, 0, AD_ACTIVITY))
+
+        handle(EngineEvent.WindowChanged(CHROME, 100))
+
+        assertNull(engine.adScreen)
+    }
+
     private companion object {
         const val OWN = "com.mimiduku.mobile"
         const val GAME = "com.example.game"
         const val CHROME = "com.android.chrome"
+        const val AD_ACTIVITY = "com.google.android.gms.ads.AdActivity"
     }
 }

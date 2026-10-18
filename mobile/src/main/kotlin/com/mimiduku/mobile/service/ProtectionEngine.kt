@@ -1,6 +1,9 @@
 package com.mimiduku.mobile.service
 
 import android.view.accessibility.AccessibilityEvent
+import com.mimiduku.mobile.detect.AdScreenDetector
+import com.mimiduku.mobile.detect.AdScreenState
+import com.mimiduku.mobile.detect.CountdownParser
 import com.mimiduku.mobile.detect.ExternalTransition
 import com.mimiduku.mobile.detect.ExternalTransitionDetector
 import com.mimiduku.mobile.log.DetectionKind
@@ -18,6 +21,8 @@ sealed interface EngineEvent {
     data class WindowChanged(
         override val packageName: String,
         override val atMillis: Long,
+        /** 前面に出たウィンドウのクラス名（Activity 名など）。広告画面の判定に使う。 */
+        val className: String? = null,
     ) : EngineEvent
 
     data class ContentChanged(
@@ -36,10 +41,11 @@ sealed interface EngineEvent {
             eventType: Int,
             packageName: CharSequence?,
             atMillis: Long,
+            className: CharSequence? = null,
         ): EngineEvent? {
             val name = packageName?.toString()?.takeIf { it.isNotEmpty() } ?: return null
             return when (eventType) {
-                AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> WindowChanged(name, atMillis)
+                AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> WindowChanged(name, atMillis, className?.toString())
                 AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> ContentChanged(name, atMillis)
                 AccessibilityEvent.TYPE_VIEW_CLICKED -> Clicked(name, atMillis)
                 else -> null
@@ -61,14 +67,20 @@ data class Detection(
  *
  * スケアウェアの照合は、前面が変わったときと、文字の変化イベントが [scanIntervalMillis] 以上空いたときに行う。
  * 同じアプリ・同じ文言の警告は [scarewareRepeatMillis] の間は繰り返さない（警告が出続けて操作できなくなるのを防ぐ）。
+ * 同じ時機に広告画面の判定も行い、結果を [adScreen] に置く（ログには残さない。広告そのものは悪質とは限らないため）。
  */
 class ProtectionEngine(
     private val detector: ExternalTransitionDetector,
     private val matcher: ScarewareMatcher,
     private val modeProvider: () -> UsageMode,
+    private val adDetector: AdScreenDetector? = null,
     private val scanIntervalMillis: Long = DEFAULT_SCAN_INTERVAL_MILLIS,
     private val scarewareRepeatMillis: Long = DEFAULT_SCAREWARE_REPEAT_MILLIS,
 ) {
+    /** 前面が広告画面なら、その状態。広告画面でなければ null。サービスは処理のたびにこれを見て表示を合わせる。 */
+    var adScreen: AdScreenState? = null
+        private set
+    private var foregroundClassName: String? = null
     private var lastScanPackage: String? = null
     private var lastScanAt = Long.MIN_VALUE
     private val lastScarewareWarnedAt = mutableMapOf<Pair<String, String>, Long>()
@@ -85,13 +97,15 @@ class ProtectionEngine(
             }
             is EngineEvent.WindowChanged -> {
                 val transition = detector.onWindowStateChanged(event.packageName, event.atMillis)
+                if (event.packageName == detector.currentForeground) foregroundClassName = event.className
                 if (transition != null) {
+                    adScreen = null
                     listOf(transitionDetection(transition, event.atMillis))
                 } else {
-                    listOfNotNull(scanScareware(event, textsProvider, force = true))
+                    listOfNotNull(scan(event, textsProvider, force = true))
                 }
             }
-            is EngineEvent.ContentChanged -> listOfNotNull(scanScareware(event, textsProvider, force = false))
+            is EngineEvent.ContentChanged -> listOfNotNull(scan(event, textsProvider, force = false))
         }
 
     private fun transitionDetection(
@@ -113,7 +127,8 @@ class ProtectionEngine(
         return Detection(intervention, entry, transition)
     }
 
-    private fun scanScareware(
+    /** 画面の文字を1回だけ読み、広告画面の判定とスケアウェアの照合に使う。 */
+    private fun scan(
         event: EngineEvent,
         textsProvider: () -> List<String>,
         force: Boolean,
@@ -126,10 +141,22 @@ class ProtectionEngine(
         if (!due) return null
         lastScanPackage = packageName
         lastScanAt = event.atMillis
+        val texts = textsProvider()
+        updateAdScreen(texts)
         return matcher
-            .findMatch(textsProvider())
+            .findMatch(texts)
             ?.takeIf { shouldWarn(packageName, it.id, event.atMillis) }
             ?.let { phrase -> scarewareDetection(packageName, phrase.id, event.atMillis) }
+    }
+
+    private fun updateAdScreen(texts: List<String>) {
+        val verdict = adDetector?.evaluate(foregroundClassName, texts)
+        adScreen =
+            if (verdict?.isAd == true) {
+                AdScreenState(countdownSeconds = CountdownParser.parse(texts), mode = modeProvider())
+            } else {
+                null
+            }
     }
 
     private fun shouldWarn(

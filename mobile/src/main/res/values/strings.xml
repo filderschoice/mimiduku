@@ -21,6 +21,10 @@
     <string name="child_scareware_message">これは広告かも。こわいことが書いてあっても、うそかもしれないよ。さわらずにパパ・ママに見せてね。</string>
     <string name="child_close">わかった</string>
 
+    <string name="child_ad_panel_message">こうこくだよ。さわらないでね。</string>
+    <string name="child_ad_panel_countdown">こうこくだよ。さわらないでね。あと %1$d びょう</string>
+    <string name="child_ad_panel_back">もどる</string>
+
     <!-- おとなモード（通常の文言で、検知理由を具体的に示す） -->
     <string name="adult_transition_title">%1$sへの移動を検知しました</string>
     <string name="adult_transition_message">アプリから自動的に、またはタップによって%1$sが開かれました。広告による移動の可能性があります。</string>
@@ -30,6 +34,8 @@
     <string name="adult_scareware_title">偽の警告の可能性があります</string>
     <string name="adult_scareware_message">「ウイルスに感染」「バッテリーが損傷」などの表示は、広告による偽の警告であることがよくあります。表示内のボタンやリンクは押さずに画面を閉じてください。</string>
     <string name="adult_close">閉じる</string>
+    <string name="adult_ad_panel_message">広告が表示されています。広告内のボタンに注意してください。</string>
+    <string name="adult_ad_panel_countdown">広告が表示されています（残り約 %1$d 秒）。</string>
 
     <!-- 設定画面 -->
     <string name="settings_intro">広告による勝手なブラウザ・ストアへの移動と、偽の警告を見つけて知らせます。</string>

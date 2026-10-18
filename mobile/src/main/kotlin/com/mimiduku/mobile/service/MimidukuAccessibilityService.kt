@@ -8,12 +8,14 @@ import android.net.Uri
 import android.os.SystemClock
 import android.view.accessibility.AccessibilityEvent
 import android.view.inputmethod.InputMethodManager
+import com.mimiduku.mobile.detect.AdScreenDetector
 import com.mimiduku.mobile.detect.ExternalTransitionDetector
 import com.mimiduku.mobile.detect.PackageClassifier
 import com.mimiduku.mobile.log.DetectionLog
 import com.mimiduku.mobile.log.InterventionAction
 import com.mimiduku.mobile.mode.PauseStore
 import com.mimiduku.mobile.mode.UsageModeStore
+import com.mimiduku.mobile.overlay.AdPanelSpec
 import com.mimiduku.mobile.overlay.BannerSpec
 import com.mimiduku.mobile.overlay.OverlayController
 import com.mimiduku.mobile.rules.RulesLoader
@@ -58,6 +60,7 @@ class MimidukuAccessibilityService : AccessibilityService() {
                 detector = ExternalTransitionDetector(classifier),
                 matcher = ScarewareMatcher(rules.scarewarePhrases),
                 modeProvider = modeStore::load,
+                adDetector = AdScreenDetector(rules),
             )
         overlay = OverlayController(this) { performGlobalAction(GLOBAL_ACTION_BACK) }
     }
@@ -65,9 +68,12 @@ class MimidukuAccessibilityService : AccessibilityService() {
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
         // 保護者が PIN で一時停止している間は、検知も介入もしない。
         val engine = engine?.takeUnless { pauseStore.isPaused() } ?: return
-        val engineEvent = EngineEvent.from(event.eventType, event.packageName, SystemClock.elapsedRealtime()) ?: return
+        val engineEvent =
+            EngineEvent.from(event.eventType, event.packageName, SystemClock.elapsedRealtime(), event.className)
+                ?: return
         val detections = engine.handle(engineEvent) { NodeTextCollector.collect(rootInActiveWindow) }
         detections.forEach(::intervene)
+        overlay?.showAdPanel(engine.adScreen?.let(AdPanelSpec::from))
     }
 
     private fun intervene(detection: Detection) {
@@ -81,11 +87,11 @@ class MimidukuAccessibilityService : AccessibilityService() {
     }
 
     override fun onInterrupt() {
-        overlay?.dismiss()
+        overlay?.dismissAll()
     }
 
     override fun onDestroy() {
-        overlay?.dismiss()
+        overlay?.dismissAll()
         overlay = null
         engine = null
         logExecutor.shutdown()
