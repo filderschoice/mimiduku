@@ -24,10 +24,17 @@ data class DetectionRules(
     val ignoredSourcePackages: List<String>,
     /** スケアウェアの文言。 */
     val scarewarePhrases: List<ScarewarePhrase>,
+    /** 広告 SDK の Activity のクラス名の接頭辞。前面のクラス名がこれで始まれば広告画面とみなす。 */
+    val adActivityPrefixes: List<String> = emptyList(),
+    /** 広告画面に出る文言。重みの合計が [AD_SCORE_THRESHOLD] 以上なら広告画面とみなす。 */
+    val adTextMarkers: List<AdTextMarker> = emptyList(),
 ) {
     companion object {
         /** 対応している形式の版。 */
         const val SUPPORTED_VERSION = 1
+
+        /** 文言による広告画面の判定に要る重みの合計。「広告」の表示だけ（重み1）では広告画面とみなさない。 */
+        const val AD_SCORE_THRESHOLD = 3
 
         /** 既定のルール。`assets/rules.json` と同じ内容を保つ（単体テストで一致を確認する）。 */
         val DEFAULT =
@@ -78,6 +85,40 @@ data class DetectionRules(
                         ScarewarePhrase("virus-detected-en", "viruses detected"),
                         ScarewarePhrase("battery-damaged-en", "battery is damaged"),
                     ),
+                adActivityPrefixes =
+                    listOf(
+                        "com.google.android.gms.ads.",
+                        "com.applovin.",
+                        "com.unity3d.services.ads.",
+                        "com.unity3d.ads.",
+                        "com.ironsource.",
+                        "com.facebook.ads.",
+                        "com.vungle.",
+                        "com.mbridge.msdk.",
+                        "com.bytedance.sdk.openadsdk.",
+                        "com.chartboost.sdk.",
+                        "com.five_corp.ad.",
+                        "jp.maio.sdk.",
+                        "net.nend.android.",
+                    ),
+                adTextMarkers =
+                    listOf(
+                        AdTextMarker("ad-label", "広告", AdTextMarker.Match.EXACT, 1),
+                        AdTextMarker("ad-label", "Ad", AdTextMarker.Match.EXACT, 1),
+                        AdTextMarker("ad-label", "AD", AdTextMarker.Match.EXACT, 1),
+                        AdTextMarker("ad-label", "スポンサー", AdTextMarker.Match.EXACT, 1),
+                        AdTextMarker("ad-label", "Sponsored", AdTextMarker.Match.EXACT, 1),
+                        AdTextMarker("skip", "スキップ", AdTextMarker.Match.EXACT, 2),
+                        AdTextMarker("skip", "広告をスキップ", AdTextMarker.Match.CONTAINS, 2),
+                        AdTextMarker("skip", "Skip", AdTextMarker.Match.EXACT, 2),
+                        AdTextMarker("skip", "Skip Ad", AdTextMarker.Match.CONTAINS, 2),
+                        AdTextMarker("skip", "Skip ad", AdTextMarker.Match.CONTAINS, 2),
+                        AdTextMarker("reward", "報酬を獲得", AdTextMarker.Match.CONTAINS, 2),
+                        AdTextMarker("reward", "Reward in", AdTextMarker.Match.CONTAINS, 2),
+                        AdTextMarker("reward", "Reward granted", AdTextMarker.Match.CONTAINS, 2),
+                        AdTextMarker("install", "インストール", AdTextMarker.Match.EXACT, 1),
+                        AdTextMarker("install", "Install", AdTextMarker.Match.EXACT, 1),
+                    ),
             )
     }
 }
@@ -88,3 +129,21 @@ data class ScarewarePhrase(
     val id: String,
     val text: String,
 )
+
+/**
+ * 広告画面に出る文言1件。短いラベル（「Ad」「スキップ」など）は単語の一部に当たらないよう [Match.EXACT]
+ * （ノードの文字全体が一致）で、長い言い回しは [Match.CONTAINS]（部分一致）で照合する。
+ * 同じ [id] の文言は何個一致しても1回分の重みしか数えない。
+ */
+@Serializable
+data class AdTextMarker(
+    val id: String,
+    val text: String,
+    val match: Match,
+    val weight: Int,
+) {
+    enum class Match {
+        EXACT,
+        CONTAINS,
+    }
+}

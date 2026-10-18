@@ -5,6 +5,27 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-10-19 13:40
+  summary: 広告画面の判定を実装する（BL-018）
+  details:
+    変更内容: >-
+      検知ルールに広告 SDK の Activity のクラス名の接頭辞（Google Mobile Ads・AppLovin・Unity・ironSource・
+      Meta Audience Network・Vungle・Mintegral・Pangle・Chartboost・FIVE・maio・nend）と、広告画面の文言
+      （ID・文字・完全一致/部分一致・重み）を追加し、rules.json と既定値を揃えた。旧形式の JSON でも読めるよう
+      新しい項目には既定値（空）を持たせた。AdScreenDetector はクラス名の接頭辞、または文言の重みの合計3以上で
+      広告画面とする。「広告」の表示だけ（重み1）では広告画面とせず、短いラベルはノードの文字全体の一致に限る。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/rules/DetectionRules.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/detect/AdScreenDetector.kt
+      - mobile/src/main/assets/rules.json
+      - mobile/src/test/kotlin/com/mimiduku/mobile/detect/AdScreenDetectorTest.kt
+      - docs/records/managed/BACKLOG.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintDebug testDebugUnitTest assembleDebug、
+      npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml、python scripts/validate-records.py
+    検証結果: 成功 - いずれも終了コード0、単体テスト103件成功
+    関連ID:
+      - BL-018
 - date: 2026-10-19 13:00
   summary: 保護者向けの検知ログ閲覧画面を実装する（BL-017）
   details:

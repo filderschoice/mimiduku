@@ -83,5 +83,112 @@
       "id": "battery-damaged-en",
       "text": "battery is damaged"
     }
+  ],
+  "adActivityPrefixes": [
+    "com.google.android.gms.ads.",
+    "com.applovin.",
+    "com.unity3d.services.ads.",
+    "com.unity3d.ads.",
+    "com.ironsource.",
+    "com.facebook.ads.",
+    "com.vungle.",
+    "com.mbridge.msdk.",
+    "com.bytedance.sdk.openadsdk.",
+    "com.chartboost.sdk.",
+    "com.five_corp.ad.",
+    "jp.maio.sdk.",
+    "net.nend.android."
+  ],
+  "adTextMarkers": [
+    {
+      "id": "ad-label",
+      "text": "広告",
+      "match": "EXACT",
+      "weight": 1
+    },
+    {
+      "id": "ad-label",
+      "text": "Ad",
+      "match": "EXACT",
+      "weight": 1
+    },
+    {
+      "id": "ad-label",
+      "text": "AD",
+      "match": "EXACT",
+      "weight": 1
+    },
+    {
+      "id": "ad-label",
+      "text": "スポンサー",
+      "match": "EXACT",
+      "weight": 1
+    },
+    {
+      "id": "ad-label",
+      "text": "Sponsored",
+      "match": "EXACT",
+      "weight": 1
+    },
+    {
+      "id": "skip",
+      "text": "スキップ",
+      "match": "EXACT",
+      "weight": 2
+    },
+    {
+      "id": "skip",
+      "text": "広告をスキップ",
+      "match": "CONTAINS",
+      "weight": 2
+    },
+    {
+      "id": "skip",
+      "text": "Skip",
+      "match": "EXACT",
+      "weight": 2
+    },
+    {
+      "id": "skip",
+      "text": "Skip Ad",
+      "match": "CONTAINS",
+      "weight": 2
+    },
+    {
+      "id": "skip",
+      "text": "Skip ad",
+      "match": "CONTAINS",
+      "weight": 2
+    },
+    {
+      "id": "reward",
+      "text": "報酬を獲得",
+      "match": "CONTAINS",
+      "weight": 2
+    },
+    {
+      "id": "reward",
+      "text": "Reward in",
+      "match": "CONTAINS",
+      "weight": 2
+    },
+    {
+      "id": "reward",
+      "text": "Reward granted",
+      "match": "CONTAINS",
+      "weight": 2
+    },
+    {
+      "id": "install",
+      "text": "インストール",
+      "match": "EXACT",
+      "weight": 1
+    },
+    {
+      "id": "install",
+      "text": "Install",
+      "match": "EXACT",
+      "weight": 1
+    }
   ]
 }
