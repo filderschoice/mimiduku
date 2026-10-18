@@ -5,6 +5,30 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-10-18 17:40
+  summary: 保護者・利用者向けの設定画面を実装する（BL-007）
+  details:
+    変更内容: >-
+      MainActivity を Compose の設定画面にした。見張りの状態（アクセシビリティのオン/オフ）とアクセシビリティ設定を
+      開くボタン、Android 13 以降でオフのときの「制限された設定」の解除手順とアプリ情報を開くボタン、
+      利用モード（こども／おとな）の切り替え、検知ログの件数とプライバシーの説明を出す。画面へ戻るたびに状態を
+      読み直す。状態判定は Android 非依存の SetupStatus に置いた（短いクラス名の形・debug 版の別パッケージにも対応）。
+      ktlint が Composable 関数の命名を指摘するため、sesami-wear と同じ .editorconfig を置いた。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/MainActivity.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/SetupStatus.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/settings/SetupStatusTest.kt
+      - mobile/src/main/res/values/strings.xml
+      - .editorconfig
+      - docs/records/managed/BACKLOG.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintDebug testDebugUnitTest assembleDebug、
+      npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml、python scripts/validate-records.py
+    検証結果: >-
+      成功 - detekt（引数の数・行長）と ktlint（Composable の命名）の指摘を直して再実行し、
+      いずれも終了コード0、単体テスト57件成功
+    関連ID:
+      - BL-007
 - date: 2026-10-18 17:00
   summary: AccessibilityService と警告バナーを実装し、判定ロジックへ接続する（BL-006）
   details:

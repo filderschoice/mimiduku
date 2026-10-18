@@ -30,4 +30,22 @@
     <string name="adult_scareware_title">偽の警告の可能性があります</string>
     <string name="adult_scareware_message">「ウイルスに感染」「バッテリーが損傷」などの表示は、広告による偽の警告であることがよくあります。表示内のボタンやリンクは押さずに画面を閉じてください。</string>
     <string name="adult_close">閉じる</string>
+
+    <!-- 設定画面 -->
+    <string name="settings_intro">広告による勝手なブラウザ・ストアへの移動と、偽の警告を見つけて知らせます。</string>
+    <string name="settings_service_title">見張りの状態</string>
+    <string name="settings_service_enabled">見張っています（アクセシビリティ：オン）</string>
+    <string name="settings_service_disabled">止まっています（アクセシビリティ：オフ）</string>
+    <string name="settings_open_accessibility">アクセシビリティ設定を開く</string>
+    <string name="settings_restricted_title">オンにできないとき（Android 13 以降）</string>
+    <string name="settings_restricted_steps">ブラウザなどからインストールしたアプリは、アクセシビリティをオンにする前に「制限された設定」の許可が必要です。\n1. 下のボタンで「アプリ情報」を開く\n2. 右上の「︙」から「制限された設定を許可」を選ぶ（一度アクセシビリティ設定でオンにしようとした後に表示されます）\n3. アクセシビリティ設定に戻り、「みみづく（広告対策）」をオンにする</string>
+    <string name="settings_open_app_details">アプリ情報を開く</string>
+    <string name="settings_mode_title">利用モード</string>
+    <string name="settings_mode_child">こども</string>
+    <string name="settings_mode_child_desc">外部への移動を自動で戻し、やさしい言葉で知らせます。</string>
+    <string name="settings_mode_adult">おとな</string>
+    <string name="settings_mode_adult_desc">自動では戻さず、「戻る」か「このまま進む」を選べます。</string>
+    <string name="settings_log_title">検知ログ</string>
+    <string name="settings_log_count">これまでの検知：%1$d 件（最新500件まで保存）</string>
+    <string name="settings_log_privacy">ログに残すのは日時・アプリ名・検知の種類だけです。画面の文字や URL は保存せず、外部へも送信しません。</string>
 </resources>
