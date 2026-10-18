@@ -12,12 +12,17 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -40,6 +45,8 @@ data class SettingsState(
     val badgeVisible: Boolean,
     /** この版で有効な機能。画面に出す説明の切り替えに使う。 */
     val features: FeatureSet = FeatureSet.GITHUB,
+    /** アクセシビリティ API の利用について同意済みか。 */
+    val consented: Boolean = true,
 )
 
 /** 設定画面の操作。PIN が要るかの判定は実装側（[SettingsController]）で行う。 */
@@ -65,6 +72,11 @@ interface SettingsActions {
     fun setBadgeVisible(visible: Boolean)
 }
 
+/** アクセシビリティ API の利用についての開示と同意の操作。 */
+interface ConsentActions {
+    fun acceptDisclosure()
+}
+
 /** ログ閲覧画面の操作。 */
 interface LogActions {
     fun closeLog()
@@ -76,6 +88,7 @@ interface LogActions {
 fun SettingsScreen(
     state: SettingsState,
     actions: SettingsActions,
+    consentActions: ConsentActions,
 ) {
     Column(
         modifier =
@@ -88,7 +101,7 @@ fun SettingsScreen(
         Text(text = stringResource(R.string.app_name), style = MaterialTheme.typography.headlineMedium)
         Text(text = stringResource(distributionLabelRes(state.features)), style = MaterialTheme.typography.labelMedium)
         Text(text = stringResource(R.string.settings_intro))
-        ServiceCard(state, actions)
+        if (state.consented) ServiceCard(state, actions) else DisclosureCard(consentActions)
         PauseCard(state, actions)
         if (state.showRestrictedGuide && !state.serviceEnabled) {
             SettingsCard(title = stringResource(R.string.settings_restricted_title)) {
@@ -124,6 +137,25 @@ fun SettingsScreen(
             Text(text = stringResource(R.string.settings_log_count, state.logCount))
             Text(text = stringResource(R.string.settings_log_privacy), style = MaterialTheme.typography.bodySmall)
             OutlinedButton(onClick = actions::openLog) { Text(stringResource(R.string.settings_log_open)) }
+        }
+    }
+}
+
+/**
+ * アクセシビリティ API の利用についての目立つ開示と同意（Google Play の要件。両方の版で出す）。
+ * 同意のチェックとボタンの操作を求め、同意するまでアクセシビリティ設定へ進めない。
+ */
+@Composable
+private fun DisclosureCard(consentActions: ConsentActions) {
+    var checked by remember { mutableStateOf(false) }
+    SettingsCard(title = stringResource(R.string.disclosure_title)) {
+        Text(text = stringResource(R.string.disclosure_body))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(checked = checked, onCheckedChange = { checked = it })
+            Text(text = stringResource(R.string.disclosure_check))
+        }
+        Button(onClick = consentActions::acceptDisclosure, enabled = checked) {
+            Text(text = stringResource(R.string.disclosure_accept))
         }
     }
 }

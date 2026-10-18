@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import com.mimiduku.mobile.feature.FeatureSet
 import com.mimiduku.mobile.log.DetectionLog
 import com.mimiduku.mobile.mode.BadgeSettings
+import com.mimiduku.mobile.mode.ConsentStore
 import com.mimiduku.mobile.mode.PauseStore
 import com.mimiduku.mobile.mode.UsageMode
 import com.mimiduku.mobile.mode.UsageModeStore
@@ -20,6 +21,7 @@ class SettingsStores(
     val pinManager: PinManager,
     val pauseStore: PauseStore,
     val badgeSettings: BadgeSettings,
+    val consentStore: ConsentStore,
 )
 
 /** 端末側の操作（Activity が実装する）。 */
@@ -57,7 +59,8 @@ class SettingsController(
     private val zone: () -> ZoneId = ZoneId::systemDefault,
     private val features: FeatureSet = FeatureSet.GITHUB,
 ) : SettingsActions,
-    LogActions {
+    LogActions,
+    ConsentActions {
     var state by mutableStateOf(load())
         private set
     var dialog by mutableStateOf<SettingsDialog?>(null)
@@ -136,6 +139,11 @@ class SettingsController(
         refresh()
     }
 
+    override fun acceptDisclosure() {
+        stores.consentStore.accept()
+        refresh()
+    }
+
     override fun openLog() {
         logRows = LogRows.from(stores.detectionLog.entries(), zone(), platform::appLabel)
     }
@@ -168,6 +176,7 @@ class SettingsController(
             pauseRemainingMinutes = toMinutesRoundedUp(stores.pauseStore.remainingMillis()),
             badgeVisible = stores.badgeSettings.isVisible(),
             features = features,
+            consented = stores.consentStore.hasConsented(),
         )
 
     companion object {

@@ -18,6 +18,7 @@ import com.mimiduku.mobile.feature.FeatureSet
 import com.mimiduku.mobile.log.DetectionLog
 import com.mimiduku.mobile.log.InterventionAction
 import com.mimiduku.mobile.mode.BadgeSettings
+import com.mimiduku.mobile.mode.ConsentStore
 import com.mimiduku.mobile.mode.PauseStore
 import com.mimiduku.mobile.mode.UsageModeStore
 import com.mimiduku.mobile.overlay.AdPanelSpec
@@ -43,6 +44,7 @@ class MimidukuAccessibilityService : AccessibilityService() {
     private var overlay: OverlayController? = null
     private val shieldTimer = ShieldTimer()
     private lateinit var badgeSettings: BadgeSettings
+    private lateinit var consentStore: ConsentStore
     private var lastDangerAt: Long? = null
     private lateinit var detectionLog: DetectionLog
     private lateinit var modeStore: UsageModeStore
@@ -57,6 +59,7 @@ class MimidukuAccessibilityService : AccessibilityService() {
         modeStore = usageModeStore(this)
         pauseStore = pauseStore(this)
         badgeSettings = badgeSettings(this)
+        consentStore = consentStore(this)
         val rules = RulesLoader.parse(readRulesAsset()).rules
         val classifier =
             PackageClassifier(
@@ -80,13 +83,14 @@ class MimidukuAccessibilityService : AccessibilityService() {
                 onGoBack = { performGlobalAction(GLOBAL_ACTION_BACK) },
                 onAdClose = ::closeAd,
             )
-        updateBadge(paused = pauseStore.isPaused(), onAdScreen = false)
+        updateBadge(paused = pauseStore.isPaused() || !consentStore.hasConsented(), onAdScreen = false)
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
         val engine = engine ?: return
-        // 保護者が PIN で一時停止している間は、検知も介入もしない（バッジも消す）。
-        val paused = pauseStore.isPaused()
+        // 保護者が PIN で一時停止している間と、アクセシビリティ API の利用に同意していない間は、
+        // 検知も介入もしない（バッジも消す）。同意なしでシステムの設定から直接オンにされた場合に備える。
+        val paused = pauseStore.isPaused() || !consentStore.hasConsented()
         if (!paused) process(engine, event)
         updateBadge(paused, onAdScreen = !paused && FEATURES.badgeReactsToAds && engine.adScreen != null)
     }
@@ -190,5 +194,7 @@ class MimidukuAccessibilityService : AccessibilityService() {
         fun pauseStore(context: Context) = PauseStore(SharedPreferencesStringStore.of(context))
 
         fun badgeSettings(context: Context) = BadgeSettings(SharedPreferencesStringStore.of(context))
+
+        fun consentStore(context: Context) = ConsentStore(SharedPreferencesStringStore.of(context))
     }
 }

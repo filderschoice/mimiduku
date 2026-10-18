@@ -5,6 +5,33 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-10-19 19:10
+  summary: アクセシビリティ API の利用についての目立つ開示と同意の画面を追加する（BL-029）
+  details:
+    変更内容: >-
+      ConsentStore（同意した開示文の版数を保存し、版数が変わったら同意を取り直す）を追加した。設定画面の最初に
+      開示（読み取るもの・使い道・保存するもの・送信しないこと・いつでもオフにできること）を出し、チェックと
+      「同意して進む」で同意を記録する。同意するまではアクセシビリティ設定を開くボタンを出さない。
+      サービスは同意がない間イベントを処理せず、バッジも出さない（同意なしにシステムの設定から直接オンにされた場合への備え）。
+      操作は ConsentActions として SettingsActions と分けた。両方の版に入れる。README・TESTING.md・DESIGN.md を更新した。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/mode/ConsentStore.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/SettingsScreen.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/SettingsController.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/MimidukuAccessibilityService.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/MainActivity.kt
+      - mobile/src/main/res/values/strings.xml
+      - mobile/src/test/kotlin/com/mimiduku/mobile/settings/SettingsControllerTest.kt
+      - README.md
+      - docs/TESTING.md
+      - docs/records/managed/DESIGN.md
+      - docs/records/managed/BACKLOG.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintGithubDebug lintPlayDebug testGithubDebugUnitTest testPlayDebugUnitTest assembleDebug、
+      npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml、python scripts/validate-records.py
+    検証結果: 成功 - いずれも終了コード0、単体テストは両方の版で各144件成功
+    関連ID:
+      - BL-029
 - date: 2026-10-19 18:30
   summary: Play 版と GitHub 版を同じソースからフラグで出し分ける（BL-028）
   details:

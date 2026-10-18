@@ -5,6 +5,7 @@ import com.mimiduku.mobile.log.DetectionLog
 import com.mimiduku.mobile.log.DetectionLogEntry
 import com.mimiduku.mobile.log.InterventionAction
 import com.mimiduku.mobile.mode.BadgeSettings
+import com.mimiduku.mobile.mode.ConsentStore
 import com.mimiduku.mobile.mode.PauseStore
 import com.mimiduku.mobile.mode.UsageMode
 import com.mimiduku.mobile.mode.UsageModeStore
@@ -39,6 +40,7 @@ class SettingsControllerTest {
                 pinManager = pinManager,
                 pauseStore = pauseStore,
                 badgeSettings = BadgeSettings(store),
+                consentStore = ConsentStore(store),
             ),
             FakePlatform(),
             zone = { ZoneOffset.UTC },
@@ -205,6 +207,23 @@ class SettingsControllerTest {
 
         assertFalse(controller.state.badgeVisible)
         assertNull(controller.dialog)
+    }
+
+    @Test
+    fun `the disclosure is shown until the user accepts it`() {
+        assertFalse(controller.state.consented)
+
+        controller.acceptDisclosure()
+
+        assertTrue(controller.state.consented)
+        assertTrue(ConsentStore(store).hasConsented())
+    }
+
+    @Test
+    fun `a consent for an older disclosure version asks again`() {
+        store.values["accessibility_consent_version"] = (ConsentStore.CURRENT_VERSION - 1).toString()
+
+        assertFalse(controller.state.consented)
     }
 
     private fun entry(

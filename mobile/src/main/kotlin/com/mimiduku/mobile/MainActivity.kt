@@ -42,6 +42,7 @@ class MainActivity :
                 pinManager = PinManager(SharedPreferencesStringStore.of(this)),
                 pauseStore = MimidukuAccessibilityService.pauseStore(this),
                 badgeSettings = MimidukuAccessibilityService.badgeSettings(this),
+                consentStore = MimidukuAccessibilityService.consentStore(this),
             )
         setContent {
             val controller =
@@ -54,7 +55,7 @@ class MainActivity :
                 Surface(modifier = Modifier.fillMaxSize()) {
                     val logRows = controller.logRows
                     if (logRows == null) {
-                        SettingsScreen(state = controller.state, actions = controller)
+                        SettingsScreen(state = controller.state, actions = controller, consentActions = controller)
                     } else {
                         LogScreen(rows = logRows, actions = controller)
                     }

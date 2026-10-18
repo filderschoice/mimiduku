@@ -42,6 +42,19 @@
     <string name="adult_ad_panel_message">広告が表示されています。広告内のボタンに注意してください。</string>
     <string name="adult_ad_panel_countdown">広告が表示されています（残り約 %1$d 秒）。</string>
 
+    <!-- アクセシビリティ API の利用についての目立つ開示と同意（ConsentStore.CURRENT_VERSION と対応。内容を変えたら版数を上げる） -->
+    <string name="disclosure_title">はじめに：画面の読み取りについて</string>
+    <string name="disclosure_body">みみづくは、悪質な広告（偽の警告や、勝手なブラウザ・ストアへの移動）を見つけるために、Android のユーザー補助機能（アクセシビリティ サービス）を使います。
+
+・読み取るもの：前面に表示されているアプリの名前と、画面に表示されている文字
+・使い道：偽の警告の文言や広告の画面かどうかの照合と、勝手な移動の検知だけに使います
+・保存するもの：検知した日時・アプリの名前・検知の種類だけを、この端末の中に保存します。画面の文字や URL は保存しません
+・送信：インターネットへの接続権限を持たないため、読み取った内容を外部へ送ることはありません
+
+ユーザー補助機能はいつでも端末の設定からオフにできます。</string>
+    <string name="disclosure_check">上の内容を確認し、画面の読み取りに同意します</string>
+    <string name="disclosure_accept">同意して進む</string>
+
     <!-- 設定画面 -->
     <string name="settings_intro">広告による勝手なブラウザ・ストアへの移動と、偽の警告を見つけて知らせます。</string>
     <string name="settings_service_title">見張りの状態</string>
