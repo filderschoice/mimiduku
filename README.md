@@ -24,6 +24,22 @@ mimiduku（みみづく）は、Android の画面に止まって見張り、悪�
 - 閉じるボタンの代理タップは、利用者が「もどる」を押したときだけ行います。自動では押しません。
 - 広告そのものの除去、ブラウザ内のページ遷移の検知、広告のクリック・完了の偽装は行いません（[PLAN.md](PLAN.md) 7章）。
 
+### 版による機能の違い
+
+GitHub 版と Google Play 版は同じソースから作り、機能の違いは `FeatureSet`
+（[mobile/src/main/kotlin/com/mimiduku/mobile/feature/FeatureSet.kt](mobile/src/main/kotlin/com/mimiduku/mobile/feature/FeatureSet.kt)）
+だけで切り替えます。Play 版は Google Play のポリシー（他のアプリの広告表示の妨害の禁止）に合わせ、
+悪質さのシグナルへの対応だけを残します（理由は [docs/design/DISTRIBUTION.md](docs/design/DISTRIBUTION.md)）。
+
+| 機能 | GitHub 版 | Play 版 |
+| --- | --- | --- |
+| スケアウェア文言の警告 | あり | あり |
+| タップなしの外部遷移 | こどもモードは自動で戻る | どちらのモードも「戻る／このまま進む」を出す |
+| タップした後の外部遷移（通常の広告クリックを含む） | 介入する | 介入しない |
+| 広告画面の案内パネル・タップシールド・閉じるボタンの代理タップ | あり | なし |
+| バッジの表情 | 広告画面で耳が立つ | 危険な検知の直後に目が大きくなるだけ |
+| 保護者 PIN・一時停止・ログ | あり | あり |
+
 ### 保護者向けの機能
 
 - **保護者 PIN**（4〜8桁）: 設定すると、おとなモードへの切替・一時停止・ログの消去・PIN の変更と削除に PIN が必要に
@@ -69,7 +85,7 @@ mimiduku（みみづく）は、Android の画面に止まって見張り、悪�
 
    ```sh
    ./gradlew assembleDebug
-   ./gradlew ktlintCheck detekt lintDebug testDebugUnitTest
+   ./gradlew ktlintCheck detekt lintGithubDebug lintPlayDebug testGithubDebugUnitTest testPlayDebugUnitTest
    ```
 
    品質ゲートの定義（合否基準）は [CLAUDE.md](CLAUDE.md)「本リポジトリの品質ゲート定義」が正本です。
@@ -77,12 +93,16 @@ mimiduku（みみづく）は、Android の画面に止まって見張り、悪�
 ## インストール（サイドロード）
 
 1. 端末の「開発者向けオプション」で USB デバッグを有効にし、PC と接続します。
-2. debug 版をインストールします（applicationId は `com.mimiduku.mobile.debug`）。
+2. GitHub 版（全機能）の debug 版をインストールします（applicationId は `com.mimiduku.mobile.full.debug`）。
 
    ```sh
-   ./gradlew assembleDebug
-   adb install -r mobile/build/outputs/apk/debug/mobile-debug.apk
+   ./gradlew assembleGithubDebug
+   adb install -r mobile/build/outputs/apk/github/debug/mobile-github-debug.apk
    ```
+
+   Play 版と同じ機能の範囲を確かめたいときは、`assemblePlayDebug` でビルドし
+   `mobile/build/outputs/apk/play/debug/mobile-play-debug.apk`（`com.mimiduku.mobile.debug`）を入れます。
+   2つの版は applicationId が異なるため、同じ端末に両方入れられます（アクセシビリティは片方だけオンにしてください）。
 
 3. アプリ「みみづく」を開き、「アクセシビリティ設定を開く」から「みみづく（広告対策）」をオンにします。
 4. Android 13 以降でオンにできない場合は、アプリ内の「オンにできないとき」の手順で「制限された設定」を許可します
@@ -96,12 +116,13 @@ mimiduku（みみづく）は、Android の画面に止まって見張り、悪�
   （別の PC の APK は署名が合わず上書きできません。その場合はアンインストールが必要で、設定とログは消えます）。
 - **ロールバック**: 以前のコミットを `git checkout` してビルドし、`adb install -r -d` で入れ直します
   （`-d` は版の巻き戻しを許可する指定で、debug 版で使えます）。
-- **アンインストール**: `adb uninstall com.mimiduku.mobile.debug`、または端末の設定から行います。
-- release 版（`com.mimiduku.mobile`）の署名設定は未整備です。家庭内配布で使う場合は署名鍵の作成が必要です。
+- **アンインストール**: `adb uninstall com.mimiduku.mobile.full.debug`（Play 版は `com.mimiduku.mobile.debug`）、
+  または端末の設定から行います。
+- release 版（GitHub 版 `com.mimiduku.mobile.full`、Play 版 `com.mimiduku.mobile`）の署名設定は未整備です。
 
 ## テスト
 
-- 単体テスト: `./gradlew testDebugUnitTest`
+- 単体テスト: `./gradlew testGithubDebugUnitTest testPlayDebugUnitTest`
 - 実機での確認手順と記録欄: [docs/TESTING.md](docs/TESTING.md)
 
 ## 検知ルールの更新

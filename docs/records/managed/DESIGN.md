@@ -44,6 +44,7 @@
 | FR-16 | こどもモードで全画面広告（クラス名で判定できたもの）のとき、半透明でタップを吸収する全画面のシールドを張り、案内パネルをその上に置く。同じ広告画面で60秒まで、時間切れ後はその広告画面が終わるまで張り直さない | `ShieldTimer`、`OverlayController` |
 | FR-17 | 案内パネルの「もどる」を押したときだけ、閉じる・スキップの文言に完全一致し、クリック可能・表示中・画面内・大きさが画面の25%以下のノードへ ACTION_CLICK を送る（閉じるを優先）。無ければ GLOBAL_ACTION_BACK | `CloseButtonFinder`、`CloseButtonClicker` |
 | FR-18 | みみづくバッジ: 画面右端中央に 44dp、タッチは通す。表情は平常（うとうと）・広告画面（羽角が立つ）・危険な検知から10秒（目が大きい）。表示は設定で切り替え（既定は表示）。画像とアプリアイコンは差し替え可能な仮の自作ベクター画像 | `BadgeExpression`、`BadgeSettings`、`res/drawable/badge_owl_*.xml` |
+| FR-19 | GitHub 版と Play 版を同じソースから作る。productFlavors（github・play、BuildConfig.DISTRIBUTION）で版を分け、GitHub 版の applicationId は `.full` を付ける。機能の違いは `FeatureSet` に集める。Play 版は、こどもモードでも自動で戻さず確認を出し、タップのあった外部遷移には介入せず、広告画面の判定を使う機能（案内パネル・シールド・代理タップ・バッジの広告反応）を外す。知らない版の値は Play 版として扱う。設定画面は版の表示と、版に合わせた説明を出す | `FeatureSet`、`InterventionPolicy.shouldIntervene`、`BannerSpec`、`SettingsScreen` |
 
 ## 設計方針
 
@@ -86,15 +87,16 @@
     `POST_NOTIFICATIONS`・フォアグラウンドサービスは使わない。
   - 広告の完了・クリックの偽装、広告の自動クリック、広告の除去は行わない。
 - 運用制約
-  - 品質ゲートは `CLAUDE.md`「本リポジトリの品質ゲート定義」（ktlint・detekt・Android Lint・assembleDebug・単体テスト・
+  - 品質ゲートは `CLAUDE.md`「本リポジトリの品質ゲート定義」（ktlint・detekt・両方の版の Android Lint・assembleDebug・両方の版の単体テスト・
     Markdown lint・記録ファイル検証）。
   - 実機での確認は `docs/TESTING.md` の手順で人が行う。
 
 ## エージェント実装指示
 
-- 初回実装時の出力要件: 上記 FR-1〜FR-18 を満たし、判定ロジックごとに単体テストを置く。README にセットアップ・
+- 初回実装時の出力要件: 上記 FR-1〜FR-19 を満たし、判定ロジックごとに単体テストを置く。README にセットアップ・
   ビルド・サイドロード・更新・ロールバックの手順、`docs/TESTING.md` に実機確認の手順と記録欄を書く。
 - 追加実装時の出力要件: 変更が判定に関わる場合は Android 非依存のクラスへ置いて単体テストを足す。
+  版によって有無を変える機能は、`BuildConfig` を直接見ずに `FeatureSet` へ項目を足して切り替える。
   検知ルールを変えたら `rules.json` と `DetectionRules.DEFAULT` を同時に更新する（一致は `RulesLoaderTest` で検査）。
   文言を変えたら `strings.xml` だけを更新する。
 - 要件トレーサビリティ要件: 未対応の事項は BACKLOG で扱う。アプリ内バナー広告の部分シールドは BL-025（人手検証）、

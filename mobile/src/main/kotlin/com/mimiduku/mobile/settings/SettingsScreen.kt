@@ -24,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.mimiduku.mobile.R
+import com.mimiduku.mobile.feature.FeatureSet
 import com.mimiduku.mobile.mode.PauseStore
 import com.mimiduku.mobile.mode.UsageMode
 
@@ -37,6 +38,8 @@ data class SettingsState(
     /** 一時停止の残り時間（分、切り上げ）。停止していなければ 0。 */
     val pauseRemainingMinutes: Int,
     val badgeVisible: Boolean,
+    /** この版で有効な機能。画面に出す説明の切り替えに使う。 */
+    val features: FeatureSet = FeatureSet.GITHUB,
 )
 
 /** 設定画面の操作。PIN が要るかの判定は実装側（[SettingsController]）で行う。 */
@@ -83,6 +86,7 @@ fun SettingsScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text(text = stringResource(R.string.app_name), style = MaterialTheme.typography.headlineMedium)
+        Text(text = stringResource(distributionLabelRes(state.features)), style = MaterialTheme.typography.labelMedium)
         Text(text = stringResource(R.string.settings_intro))
         ServiceCard(state, actions)
         PauseCard(state, actions)
@@ -106,7 +110,13 @@ fun SettingsScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(text = stringResource(R.string.settings_badge_description), modifier = Modifier.weight(1f))
+                val description =
+                    if (state.features.badgeReactsToAds) {
+                        R.string.settings_badge_description
+                    } else {
+                        R.string.settings_badge_description_limited
+                    }
+                Text(text = stringResource(description), modifier = Modifier.weight(1f))
                 Switch(checked = state.badgeVisible, onCheckedChange = actions::setBadgeVisible)
             }
         }
@@ -201,7 +211,7 @@ private fun ModeOption(
     val selected = option == state.mode
     val (labelRes, descriptionRes) =
         when (option) {
-            UsageMode.CHILD -> R.string.settings_mode_child to R.string.settings_mode_child_desc
+            UsageMode.CHILD -> R.string.settings_mode_child to childModeDescriptionRes(state.features)
             UsageMode.ADULT -> R.string.settings_mode_adult to R.string.settings_mode_adult_desc
         }
     Row(
@@ -219,3 +229,14 @@ private fun ModeOption(
         }
     }
 }
+
+/** 版の表示。 */
+fun distributionLabelRes(features: FeatureSet): Int =
+    when (features.distribution) {
+        FeatureSet.Distribution.GITHUB -> R.string.settings_distribution_github
+        FeatureSet.Distribution.PLAY -> R.string.settings_distribution_play
+    }
+
+/** こどもモードの説明。自動で戻さない版では「選ばせる」説明にする。 */
+fun childModeDescriptionRes(features: FeatureSet): Int =
+    if (features.autoBackOnTransition) R.string.settings_mode_child_desc else R.string.settings_mode_child_desc_ask

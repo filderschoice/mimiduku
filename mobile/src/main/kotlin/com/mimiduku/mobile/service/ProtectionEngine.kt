@@ -6,6 +6,7 @@ import com.mimiduku.mobile.detect.AdScreenState
 import com.mimiduku.mobile.detect.CountdownParser
 import com.mimiduku.mobile.detect.ExternalTransition
 import com.mimiduku.mobile.detect.ExternalTransitionDetector
+import com.mimiduku.mobile.feature.FeatureSet
 import com.mimiduku.mobile.log.DetectionKind
 import com.mimiduku.mobile.log.DetectionLogEntry
 import com.mimiduku.mobile.mode.Intervention
@@ -65,8 +66,8 @@ data class Detection(
 /**
  * イベントから検知結果を出す（Android の画面操作は行わない）。
  *
- * スケアウェアの照合は、前面が変わったときと、文字の変化イベントが [scanIntervalMillis] 以上空いたときに行う。
- * 同じアプリ・同じ文言の警告は [scarewareRepeatMillis] の間は繰り返さない（警告が出続けて操作できなくなるのを防ぐ）。
+ * スケアウェアの照合は、前面が変わったときと、文字の変化イベントが [SCAN_INTERVAL_MILLIS] 以上空いたときに行う。
+ * 同じアプリ・同じ文言の警告は [SCAREWARE_REPEAT_MILLIS] の間は繰り返さない（警告が出続けて操作できなくなるのを防ぐ）。
  * 同じ時機に広告画面の判定も行い、結果を [adScreen] に置く（ログには残さない。広告そのものは悪質とは限らないため）。
  */
 class ProtectionEngine(
@@ -74,8 +75,7 @@ class ProtectionEngine(
     private val matcher: ScarewareMatcher,
     private val modeProvider: () -> UsageMode,
     private val adDetector: AdScreenDetector? = null,
-    private val scanIntervalMillis: Long = DEFAULT_SCAN_INTERVAL_MILLIS,
-    private val scarewareRepeatMillis: Long = DEFAULT_SCAREWARE_REPEAT_MILLIS,
+    private val features: FeatureSet = FeatureSet.GITHUB,
 ) {
     /** 前面が広告画面なら、その状態。広告画面でなければ null。サービスは処理のたびにこれを見て表示を合わせる。 */
     var adScreen: AdScreenState? = null
@@ -100,7 +100,11 @@ class ProtectionEngine(
                 if (event.packageName == detector.currentForeground) foregroundClassName = event.className
                 if (transition != null) {
                     adScreen = null
-                    listOf(transitionDetection(transition, event.atMillis))
+                    if (InterventionPolicy.shouldIntervene(transition, features)) {
+                        listOf(transitionDetection(transition, event.atMillis))
+                    } else {
+                        emptyList()
+                    }
                 } else {
                     listOfNotNull(scan(event, textsProvider, force = true))
                 }
@@ -113,7 +117,7 @@ class ProtectionEngine(
         atMillis: Long,
     ): Detection {
         val mode = modeProvider()
-        val intervention = InterventionPolicy.forExternalTransition(mode, transition)
+        val intervention = InterventionPolicy.forExternalTransition(mode, transition, features)
         val entry =
             DetectionLogEntry(
                 atMillis = atMillis,
@@ -137,7 +141,7 @@ class ProtectionEngine(
         // 一時的に重なるもの（システム UI・キーボード・本アプリ）は照合しない。前面のアプリだけを見る。
         val due =
             packageName == detector.currentForeground &&
-                (force || packageName != lastScanPackage || event.atMillis - lastScanAt >= scanIntervalMillis)
+                (force || packageName != lastScanPackage || event.atMillis - lastScanAt >= SCAN_INTERVAL_MILLIS)
         if (!due) return null
         lastScanPackage = packageName
         lastScanAt = event.atMillis
@@ -170,7 +174,7 @@ class ProtectionEngine(
     ): Boolean {
         val key = packageName to ruleId
         val warnedAt = lastScarewareWarnedAt[key]
-        val warn = warnedAt == null || atMillis - warnedAt >= scarewareRepeatMillis
+        val warn = warnedAt == null || atMillis - warnedAt >= SCAREWARE_REPEAT_MILLIS
         if (warn) lastScarewareWarnedAt[key] = atMillis
         return warn
     }
@@ -195,7 +199,7 @@ class ProtectionEngine(
     }
 
     companion object {
-        const val DEFAULT_SCAN_INTERVAL_MILLIS = 1_000L
-        const val DEFAULT_SCAREWARE_REPEAT_MILLIS = 60_000L
+        const val SCAN_INTERVAL_MILLIS = 1_000L
+        const val SCAREWARE_REPEAT_MILLIS = 60_000L
     }
 }

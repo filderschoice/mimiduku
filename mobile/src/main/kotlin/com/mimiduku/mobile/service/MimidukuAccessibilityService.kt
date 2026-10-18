@@ -10,9 +10,11 @@ import android.os.SystemClock
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import android.view.inputmethod.InputMethodManager
+import com.mimiduku.mobile.BuildConfig
 import com.mimiduku.mobile.detect.AdScreenDetector
 import com.mimiduku.mobile.detect.ExternalTransitionDetector
 import com.mimiduku.mobile.detect.PackageClassifier
+import com.mimiduku.mobile.feature.FeatureSet
 import com.mimiduku.mobile.log.DetectionLog
 import com.mimiduku.mobile.log.InterventionAction
 import com.mimiduku.mobile.mode.BadgeSettings
@@ -69,7 +71,8 @@ class MimidukuAccessibilityService : AccessibilityService() {
                 detector = ExternalTransitionDetector(classifier),
                 matcher = ScarewareMatcher(rules.scarewarePhrases),
                 modeProvider = modeStore::load,
-                adDetector = AdScreenDetector(rules),
+                adDetector = AdScreenDetector(rules).takeIf { FEATURES.needsAdScreenDetection },
+                features = FEATURES,
             )
         overlay =
             OverlayController(
@@ -85,7 +88,7 @@ class MimidukuAccessibilityService : AccessibilityService() {
         // 保護者が PIN で一時停止している間は、検知も介入もしない（バッジも消す）。
         val paused = pauseStore.isPaused()
         if (!paused) process(engine, event)
-        updateBadge(paused, onAdScreen = !paused && engine.adScreen != null)
+        updateBadge(paused, onAdScreen = !paused && FEATURES.badgeReactsToAds && engine.adScreen != null)
     }
 
     private fun process(
@@ -98,8 +101,8 @@ class MimidukuAccessibilityService : AccessibilityService() {
         val detections = engine.handle(engineEvent) { NodeTextCollector.collect(rootInActiveWindow) }
         detections.forEach(::intervene)
         val adScreen = engine.adScreen
-        overlay?.setShield(shieldTimer.shouldShield(adScreen, engineEvent.atMillis))
-        overlay?.showAdPanel(adScreen?.let(AdPanelSpec::from))
+        overlay?.setShield(FEATURES.tapShield && shieldTimer.shouldShield(adScreen, engineEvent.atMillis))
+        overlay?.showAdPanel(adScreen?.takeIf { FEATURES.adScreenPanel }?.let(AdPanelSpec::from))
     }
 
     private fun intervene(detection: Detection) {
@@ -131,7 +134,8 @@ class MimidukuAccessibilityService : AccessibilityService() {
     /** 利用者が案内パネルの「もどる」を押したとき。本物の閉じるボタンを押せなければ「戻る」で代える。 */
     private fun closeAd() {
         val (width, height) = screenSize()
-        val clicked = CloseButtonClicker.clickClose(rootInActiveWindow, width, height)
+        val clicked =
+            FEATURES.closeButtonProxyTap && CloseButtonClicker.clickClose(rootInActiveWindow, width, height)
         if (!clicked) performGlobalAction(GLOBAL_ACTION_BACK)
     }
 
@@ -179,6 +183,9 @@ class MimidukuAccessibilityService : AccessibilityService() {
         fun detectionLog(context: Context) = DetectionLog(File(context.filesDir, DetectionLog.FILE_NAME))
 
         fun usageModeStore(context: Context) = UsageModeStore(SharedPreferencesStringStore.of(context))
+
+        /** この版で有効な機能（ビルドの種類で決まる）。 */
+        val FEATURES: FeatureSet = FeatureSet.forBuild(BuildConfig.DISTRIBUTION)
 
         fun pauseStore(context: Context) = PauseStore(SharedPreferencesStringStore.of(context))
 

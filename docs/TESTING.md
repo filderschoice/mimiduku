@@ -3,7 +3,7 @@
 ## 1. 単体テスト
 
 ```sh
-./gradlew testDebugUnitTest
+./gradlew testGithubDebugUnitTest testPlayDebugUnitTest
 ```
 
 判定ロジックは Android 非依存のクラスに置き、単体テストで確認しています。
@@ -26,6 +26,7 @@
 | `ShieldTimerTest` | タップシールドを張る条件と60秒の上限 |
 | `CloseButtonFinderTest` | 代理タップする閉じるボタンの選び方 |
 | `BadgeExpressionTest` | バッジの表情と表示設定 |
+| `FeatureSetTest` | 版ごとの機能の組、Play 版での介入（タップのあった遷移を対象にしない、こどもモードでも確認を出す）と文言 |
 
 ## 2. 実機での確認（人手検証 BL-009）
 
@@ -82,12 +83,24 @@
 | P11 | 設定画面でバッジを非表示にする | 次の操作でバッジが消える |
 | P12 | ホーム画面のアイコンを確認する | みみづくのアイコンになっている |
 
-### 2.5 ログの確認（任意）
+### 2.5 Play 版の確認項目（人手検証 BL-023）
+
+`assemblePlayDebug` で作った Play 版で確かめます。
+
+| No | 手順 | 期待する結果 |
+| --- | --- | --- |
+| G1 | 設定画面の表示 | アプリ名の下に「Google Play 版」と出る。こどもモードの説明が「選ばせる」内容になっている |
+| G2 | こどもモードで T1 を実行する（タップなしの遷移） | 自動では戻らず、「ほー、べつの ばしょに いこうとしているよ」と「もどる」「このまま すすむ」が出る |
+| G3 | アプリ内のリンクやボタンをタップしてブラウザを開く | 介入しない（バナーもログも出ない） |
+| G4 | テスト用の全画面広告を表示する | 案内パネル・シールドは出ず、バッジの耳も立たない |
+| G5 | 偽の警告の文言（T8）を出す | GitHub 版と同じく警告が出る |
+
+### 2.6 ログの確認（任意）
 
 debug 版はログファイルを adb で読めます。画面の文字や URL が含まれていないことを確認します。
 
 ```sh
-adb shell run-as com.mimiduku.mobile.debug cat files/detection-log.json
+adb shell run-as com.mimiduku.mobile.full.debug cat files/detection-log.json
 ```
 
 ## 3. 不具合を見つけたとき

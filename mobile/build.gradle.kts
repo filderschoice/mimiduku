@@ -18,6 +18,23 @@ android {
         versionName = "0.1.0"
     }
 
+    // GitHub 版（全機能）と Google Play 版（機能限定）を同じソースから作る（docs/design/DISTRIBUTION.md）。
+    // 機能の違いは FeatureSet に集め、ここでは BuildConfig.DISTRIBUTION の値だけを渡す。
+    flavorDimensions += "distribution"
+    productFlavors {
+        create("github") {
+            dimension = "distribution"
+            // Play 版（Play App Signing の鍵）と GitHub 版（自前の鍵）は署名が異なり上書き更新できないため、
+            // applicationId を分けて同じ端末に両方入れても衝突しないようにする。
+            applicationIdSuffix = ".full"
+            buildConfigField("String", "DISTRIBUTION", "\"github\"")
+        }
+        create("play") {
+            dimension = "distribution"
+            buildConfigField("String", "DISTRIBUTION", "\"play\"")
+        }
+    }
+
     buildTypes {
         debug {
             // 家庭内サイドロードのリリース版と同一端末へ併存インストールできるようにする。
@@ -42,6 +59,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

@@ -44,7 +44,10 @@ class MainActivity :
                 badgeSettings = MimidukuAccessibilityService.badgeSettings(this),
             )
         setContent {
-            val controller = remember { SettingsController(stores, this) }
+            val controller =
+                remember {
+                    SettingsController(stores, this, features = MimidukuAccessibilityService.FEATURES)
+                }
             // 設定画面から戻ったときに状態を読み直す。
             LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { controller.refresh() }
             MaterialTheme {

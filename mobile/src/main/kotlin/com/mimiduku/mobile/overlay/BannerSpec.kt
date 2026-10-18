@@ -74,17 +74,29 @@ data class BannerSpec(
                         )
                     }
                 InterventionAction.ASK_USER ->
-                    BannerSpec(
-                        titleRes = R.string.adult_transition_title,
-                        messageRes = R.string.adult_transition_message,
-                        formatArgRes = targetRes,
-                        primaryLabelRes = R.string.adult_go_back,
-                        primaryAction = BannerAction.GO_BACK,
-                        secondaryLabelRes = R.string.adult_proceed,
-                        autoDismissMillis = ASK_DISMISS_MILLIS,
-                    )
+                    if (detection.intervention.mode == UsageMode.CHILD) {
+                        // 自動で戻さない版（Play 版）のこどもモード。
+                        ask(R.string.child_transition_ask_title, R.string.child_transition_ask_message, null)
+                            .copy(primaryLabelRes = R.string.child_go_back, secondaryLabelRes = R.string.child_proceed)
+                    } else {
+                        ask(R.string.adult_transition_title, R.string.adult_transition_message, targetRes)
+                    }
             }
         }
+
+        private fun ask(
+            @StringRes title: Int,
+            @StringRes message: Int,
+            @StringRes formatArg: Int?,
+        ) = BannerSpec(
+            titleRes = title,
+            messageRes = message,
+            formatArgRes = formatArg,
+            primaryLabelRes = R.string.adult_go_back,
+            primaryAction = BannerAction.GO_BACK,
+            secondaryLabelRes = R.string.adult_proceed,
+            autoDismissMillis = ASK_DISMISS_MILLIS,
+        )
 
         private fun warning(
             @StringRes title: Int,

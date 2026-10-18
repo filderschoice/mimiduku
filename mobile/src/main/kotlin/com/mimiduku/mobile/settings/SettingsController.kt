@@ -3,6 +3,7 @@ package com.mimiduku.mobile.settings
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.mimiduku.mobile.feature.FeatureSet
 import com.mimiduku.mobile.log.DetectionLog
 import com.mimiduku.mobile.mode.BadgeSettings
 import com.mimiduku.mobile.mode.PauseStore
@@ -54,6 +55,7 @@ class SettingsController(
     private val stores: SettingsStores,
     private val platform: SettingsPlatform,
     private val zone: () -> ZoneId = ZoneId::systemDefault,
+    private val features: FeatureSet = FeatureSet.GITHUB,
 ) : SettingsActions,
     LogActions {
     var state by mutableStateOf(load())
@@ -165,6 +167,7 @@ class SettingsController(
             pinSet = stores.pinManager.isSet(),
             pauseRemainingMinutes = toMinutesRoundedUp(stores.pauseStore.remainingMillis()),
             badgeVisible = stores.badgeSettings.isVisible(),
+            features = features,
         )
 
     companion object {

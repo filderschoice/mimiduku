@@ -20,6 +20,11 @@
     <string name="child_scareware_title">みみづくが気づいたよ</string>
     <string name="child_scareware_message">これは広告かも。こわいことが書いてあっても、うそかもしれないよ。さわらずにパパ・ママに見せてね。</string>
     <string name="child_close">わかった</string>
+    <!-- 自動で戻さない版（Google Play 版）のこどもモードで、外部への移動を確かめるときの文言 -->
+    <string name="child_transition_ask_title">ほー、べつの ばしょに いこうとしているよ</string>
+    <string name="child_transition_ask_message">じぶんで おしたのでなければ「もどる」を おしてね。わからないときは パパ・ママに きいてみよう。</string>
+    <string name="child_go_back">もどる</string>
+    <string name="child_proceed">このまま すすむ</string>
 
     <string name="child_ad_panel_message">こうこくだよ。さわらないでね。</string>
     <string name="child_ad_panel_countdown">こうこくだよ。さわらないでね。あと %1$d びょう</string>
@@ -49,6 +54,7 @@
     <string name="settings_mode_title">利用モード</string>
     <string name="settings_mode_child">こども</string>
     <string name="settings_mode_child_desc">外部への移動を自動で戻し、やさしい言葉で知らせます。</string>
+    <string name="settings_mode_child_desc_ask">勝手な外部への移動を知らせ、やさしい言葉で「もどる」か選ばせます。</string>
     <string name="settings_mode_adult">おとな</string>
     <string name="settings_mode_adult_desc">自動では戻さず、「戻る」か「このまま進む」を選べます。</string>
     <string name="settings_log_title">検知ログ</string>
@@ -79,6 +85,9 @@
     <!-- みみづくバッジ -->
     <string name="settings_badge_title">みみづくバッジ</string>
     <string name="settings_badge_description">画面の右端にみみづくを出します。広告を見つけると耳が立ち、あやしい動きを止めると目が大きくなります。</string>
+    <string name="settings_badge_description_limited">画面の右端にみみづくを出します。あやしい動きに気づくと目が大きくなります。</string>
+    <string name="settings_distribution_github">GitHub 版（全機能）</string>
+    <string name="settings_distribution_play">Google Play 版</string>
 
     <!-- 保護者 PIN -->
     <string name="settings_pin_title">保護者 PIN</string>

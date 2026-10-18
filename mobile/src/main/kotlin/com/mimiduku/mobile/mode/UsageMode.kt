@@ -1,6 +1,7 @@
 package com.mimiduku.mobile.mode
 
 import com.mimiduku.mobile.detect.ExternalTransition
+import com.mimiduku.mobile.feature.FeatureSet
 import com.mimiduku.mobile.log.InterventionAction
 
 /**
@@ -33,22 +34,36 @@ object InterventionPolicy {
     /** 同じ遷移元からの繰り返しで、自動で戻す回数の上限。超えたら警告だけにする（MVP_DESIGN.md 5章）。 */
     const val MAX_AUTO_BACK_IN_WINDOW = 3
 
+    /**
+     * 外部遷移への介入。[features] で自動で戻すことが無効（Play 版）なら、こどもモードでも利用者に選ばせる。
+     * 介入するかどうか（タップのあった遷移を対象にするか）は [shouldIntervene] で先に判定する。
+     */
     fun forExternalTransition(
         mode: UsageMode,
         transition: ExternalTransition,
+        features: FeatureSet = FeatureSet.GITHUB,
     ): Intervention {
         val action =
-            when (mode) {
-                UsageMode.CHILD ->
+            when {
+                mode == UsageMode.ADULT || !features.autoBackOnTransition -> InterventionAction.ASK_USER
+                else ->
                     if (transition.repeatCount <= MAX_AUTO_BACK_IN_WINDOW) {
                         InterventionAction.BACK_AND_WARN
                     } else {
                         InterventionAction.WARN_ONLY
                     }
-                UsageMode.ADULT -> InterventionAction.ASK_USER
             }
         return Intervention(action, mode)
     }
+
+    /**
+     * 外部遷移に介入するか。タップのあった遷移は通常の広告クリックを含むため、[FeatureSet.interveneOnTappedTransition]
+     * が無効（Play 版）なら介入しない。タップなしの遷移は悪質さのシグナルとして常に介入する。
+     */
+    fun shouldIntervene(
+        transition: ExternalTransition,
+        features: FeatureSet,
+    ): Boolean = features.interveneOnTappedTransition || !transition.clickedRecently
 
     /** スケアウェアはどちらのモードでも警告だけを出す（画面を閉じる判断は利用者に任せる）。 */
     fun forScareware(mode: UsageMode): Intervention = Intervention(InterventionAction.WARN_ONLY, mode)

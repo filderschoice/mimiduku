@@ -5,6 +5,45 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-10-19 18:30
+  summary: Play 版と GitHub 版を同じソースからフラグで出し分ける（BL-028）
+  details:
+    変更内容: >-
+      productFlavors（github・play）と BuildConfig.DISTRIBUTION を足し、GitHub 版の applicationId に .full を付けた。
+      版ごとの機能を FeatureSet に集め（知らない値は Play 版として扱う）、サービス・判定・設定画面がこれを見るようにした。
+      Play 版は、こどもモードでも自動で戻さず「もどる／このまま すすむ」を出し（こども向けの文言を追加）、タップのあった
+      外部遷移には介入せず、広告画面の判定を使う機能（案内パネル・シールド・代理タップ・バッジの広告反応）を外す。
+      設定画面に版の表示と、版に合わせたこどもモード・バッジの説明を出す。detekt の引数の数の指摘に合わせ、
+      ProtectionEngine の間引きの時間を定数にした（値は変えていない）。flavor の追加で lintDebug・testDebugUnitTest が
+      曖昧になったため、CLAUDE.md の品質ゲートを両方の版のタスクに直した。README・TESTING.md・DESIGN.md・
+      DISTRIBUTION.md を更新した。
+    変更ファイル:
+      - mobile/build.gradle.kts
+      - mobile/src/main/kotlin/com/mimiduku/mobile/feature/FeatureSet.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/mode/UsageMode.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/ProtectionEngine.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/MimidukuAccessibilityService.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/overlay/BannerSpec.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/SettingsController.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/SettingsScreen.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/MainActivity.kt
+      - mobile/src/main/res/values/strings.xml
+      - mobile/src/test/kotlin/com/mimiduku/mobile/feature/FeatureSetTest.kt
+      - CLAUDE.md
+      - README.md
+      - docs/TESTING.md
+      - docs/design/DISTRIBUTION.md
+      - docs/records/managed/DESIGN.md
+      - docs/records/managed/BACKLOG.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintGithubDebug lintPlayDebug testGithubDebugUnitTest testPlayDebugUnitTest assembleDebug、
+      npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml、python scripts/validate-records.py
+    検証結果: >-
+      成功 - lintDebug・testDebugUnitTest の曖昧さと detekt の引数の数の指摘を直して再実行し、いずれも終了コード0、
+      単体テストは両方の版で各142件成功。applicationId は github が com.mimiduku.mobile.full.debug、
+      play が com.mimiduku.mobile.debug であることを出力メタデータで確認
+    関連ID:
+      - BL-028
 - date: 2026-10-19 16:50
   summary: みみづくバッジの常駐表示と表情の切り替えを実装する（BL-022）
   details:
