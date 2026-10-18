@@ -5,6 +5,26 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-10-18 15:40
+  summary: 前面パッケージの変化から外部遷移を判定する処理を実装する（BL-004）
+  details:
+    変更内容: >-
+      PackageClassifier（ルールと端末から得たブラウザ・ランチャー・キーボードの一覧で、ブラウザ・ストア・
+      インストーラー・一時的な前面・除外する遷移元を判別）と ExternalTransitionDetector（前面の変化から
+      外部遷移を判定し、直前のクリックの有無と同じ遷移元からの30秒以内の繰り返し回数を付ける）を追加した。
+      MVP_DESIGN.md 5章のクールダウンを「繰り返しの上限」に具体化し、ブラウザからの遷移の扱いを追記した。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/detect/PackageClassifier.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/detect/ExternalTransitionDetector.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/detect/ExternalTransitionDetectorTest.kt
+      - docs/design/MVP_DESIGN.md
+      - docs/records/managed/BACKLOG.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintDebug testDebugUnitTest assembleDebug、
+      npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml、python scripts/validate-records.py
+    検証結果: 成功 - いずれも終了コード0、単体テスト28件成功、Markdown は 0 issues
+    関連ID:
+      - BL-004
 - date: 2026-10-18 15:10
   summary: 検知ルールの JSON 化とスケアウェア文言の照合を実装する（BL-003）
   details:
