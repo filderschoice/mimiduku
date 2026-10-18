@@ -12,12 +12,12 @@ import com.mimiduku.mobile.detect.ExternalTransitionDetector
 import com.mimiduku.mobile.detect.PackageClassifier
 import com.mimiduku.mobile.log.DetectionLog
 import com.mimiduku.mobile.log.InterventionAction
-import com.mimiduku.mobile.mode.SharedPreferencesStringStore
 import com.mimiduku.mobile.mode.UsageModeStore
 import com.mimiduku.mobile.overlay.BannerSpec
 import com.mimiduku.mobile.overlay.OverlayController
 import com.mimiduku.mobile.rules.RulesLoader
 import com.mimiduku.mobile.rules.ScarewareMatcher
+import com.mimiduku.mobile.storage.SharedPreferencesStringStore
 import java.io.File
 import java.io.IOException
 import java.util.concurrent.ExecutorService
@@ -111,11 +111,6 @@ class MimidukuAccessibilityService : AccessibilityService() {
 
         fun detectionLog(context: Context) = DetectionLog(File(context.filesDir, DetectionLog.FILE_NAME))
 
-        fun usageModeStore(context: Context) =
-            UsageModeStore(
-                SharedPreferencesStringStore(
-                    context.getSharedPreferences(UsageModeStore.PREFERENCES_NAME, Context.MODE_PRIVATE),
-                ),
-            )
+        fun usageModeStore(context: Context) = UsageModeStore(SharedPreferencesStringStore.of(context))
     }
 }

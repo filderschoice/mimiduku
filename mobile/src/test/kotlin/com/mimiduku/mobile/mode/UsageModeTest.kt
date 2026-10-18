@@ -3,31 +3,19 @@ package com.mimiduku.mobile.mode
 import com.mimiduku.mobile.detect.ExternalTransition
 import com.mimiduku.mobile.detect.TransitionTarget
 import com.mimiduku.mobile.log.InterventionAction
+import com.mimiduku.mobile.storage.MemoryStringStore
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class UsageModeTest {
-    private class MemoryStore : StringStore {
-        val values = mutableMapOf<String, String>()
-
-        override fun getString(key: String): String? = values[key]
-
-        override fun putString(
-            key: String,
-            value: String,
-        ) {
-            values[key] = value
-        }
-    }
-
     @Test
     fun `the default mode is child`() {
-        assertEquals(UsageMode.CHILD, UsageModeStore(MemoryStore()).load())
+        assertEquals(UsageMode.CHILD, UsageModeStore(MemoryStringStore()).load())
     }
 
     @Test
     fun `a saved mode is loaded back`() {
-        val store = MemoryStore()
+        val store = MemoryStringStore()
 
         UsageModeStore(store).save(UsageMode.ADULT)
 
@@ -36,7 +24,7 @@ class UsageModeTest {
 
     @Test
     fun `an unknown stored value falls back to the default`() {
-        val store = MemoryStore().apply { values["usage_mode"] = "TEEN" }
+        val store = MemoryStringStore().apply { values["usage_mode"] = "TEEN" }
 
         assertEquals(UsageMode.CHILD, UsageModeStore(store).load())
     }

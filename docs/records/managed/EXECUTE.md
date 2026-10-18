@@ -5,6 +5,32 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-10-19 10:30
+  summary: 保護者 PIN の保存と照合を実装する（BL-014）
+  details:
+    変更内容: >-
+      PinHasher（塩16バイト・PBKDF2WithHmacSHA256・反復10万回、保存形式 v1:反復回数:塩:ハッシュ）と
+      PinManager（4〜8桁の数字、5回続けて間違えたら30秒、以降は倍で上限30分の待ち時間、成功で失敗回数を戻す、
+      保存値が壊れた場合は PIN なしとみなさず照合不能にする）を追加した。StringStore を storage パッケージへ移し、
+      remove を足した。テスト用の MemoryStringStore はテスト側へ置いた。
+      待ち時間は端末の時刻で数えるため、時刻を進めると短くなる（時刻の変更には設定画面の操作が要る）。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/pin/PinHasher.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/pin/PinManager.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/storage/StringStore.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/mode/UsageModeStore.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/MimidukuAccessibilityService.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/pin/PinManagerTest.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/storage/MemoryStringStore.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/mode/UsageModeTest.kt
+      - docs/records/managed/BACKLOG.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintDebug testDebugUnitTest assembleDebug、
+      npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml、python scripts/validate-records.py
+    検証結果: >-
+      成功 - detekt の return の数の指摘を直して再実行し、いずれも終了コード0、単体テスト70件成功
+    関連ID:
+      - BL-014
 - date: 2026-10-18 17:40
   summary: 保護者・利用者向けの設定画面を実装する（BL-007）
   details:
