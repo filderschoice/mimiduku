@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>みみづく UI デザイン設計書</title>
+<style>
+:root{--bg:#f6f5f2;--ink:#1d1b20;--sub:#5f5b66;--line:#dcd8e0;--navy:#1e3a5f;--accent:#6750a4;--card:#fff;--warn:#b3261e;--ok:#2e7d32}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans JP","Yu Gothic UI","Hiragino Sans",Roboto,sans-serif;line-height:1.7;font-size:15px}
+header.top{background:var(--navy);color:#fff;padding:32px 24px 28px}
+header.top .in{max-width:1180px;margin:0 auto;display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+header.top h1{margin:0;font-size:28px;line-height:1.3}
+header.top p{margin:4px 0 0;opacity:.85}
+.iconwrap{width:84px;height:84px;border-radius:22px;overflow:hidden;flex:none;box-shadow:0 2px 8px rgba(0,0,0,.35)}
+nav.toc{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line)}
+nav.toc .in{max-width:1180px;margin:0 auto;padding:0 24px;display:flex;gap:4px;overflow-x:auto;white-space:nowrap}
+nav.toc a{padding:10px 10px;color:var(--sub);text-decoration:none;font-size:13px;border-bottom:2px solid transparent}
+nav.toc a:hover{color:var(--navy);border-color:var(--navy)}
+main{max-width:1180px;margin:0 auto;padding:8px 24px 80px}
+section{padding-top:40px}
+h2{font-size:22px;margin:0 0 4px;padding-left:12px;border-left:6px solid var(--navy)}
+h3{font-size:17px;margin:28px 0 8px}
+.lead{color:var(--sub);margin:4px 0 16px}
+.note{background:#fff8e1;border:1px solid #f0d98a;border-radius:8px;padding:10px 14px;font-size:13.5px;margin:12px 0}
+.note.info{background:#eaf1fb;border-color:#b9cdea}
+.tag{display:inline-block;font-size:11px;padding:1px 8px;border-radius:10px;background:#e8e4ee;color:#4a4458;margin-right:4px;vertical-align:middle}
+.tag.gh{background:#dcefe0;color:#1f5a2a}.tag.pl{background:#dde8fb;color:#1a3f8a}.tag.both{background:#ece8f2}
+.tag.unk{background:#fde7d6;color:#8a4a12}
+table{border-collapse:collapse;width:100%;background:#fff;font-size:13.5px;margin:8px 0 16px}
+th,td{border:1px solid var(--line);padding:7px 10px;vertical-align:top;text-align:left}
+th{background:#efedf3;font-weight:600}
+td.c,th.c{text-align:center}
+code{background:#eeecf2;border-radius:4px;padding:1px 5px;font-size:12.5px;font-family:Consolas,"Cascadia Mono",monospace}
+.grid{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+figure{margin:0}
+figcaption{font-size:13px;color:var(--sub);margin-top:14px;max-width:360px}
+figcaption b{color:var(--ink)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.panel h4{margin:0 0 6px;font-size:14px}
+.panel ul{margin:0;padding-left:18px}
+.sw{display:inline-block;width:18px;height:18px;border-radius:4px;border:1px solid rgba(0,0,0,.2);vertical-align:-4px;margin-right:6px}
+.checker{background:conic-gradient(#ddd 25%,#fff 0 50%,#ddd 0 75%,#fff 0) 0 0/12px 12px}
+
+/* ---- 端末フレームと Material3 既定テーマの再現 ---- */
+.phone{width:360px;background:#FFFBFE;border-radius:26px;box-shadow:0 0 0 9px #1c1b1f,0 10px 28px rgba(0,0,0,.28);overflow:hidden;position:relative;color:#1C1B1F;font-family:Roboto,"Noto Sans JP","Yu Gothic UI",sans-serif;letter-spacing:.1px}
+.sb{height:26px;display:flex;justify-content:space-between;align-items:center;padding:0 16px;font-size:12px;color:#1C1B1F}
+.scr{padding:16px;display:flex;flex-direction:column;gap:16px}
+.t-hm{font-size:28px;line-height:36px}.t-hs{font-size:24px;line-height:32px}.t-tl{font-size:22px;line-height:28px}
+.t-tm{font-size:16px;line-height:24px;font-weight:500}.t-ts{font-size:14px;line-height:20px;font-weight:500}
+.t-b{font-size:16px;line-height:24px}.t-bm{font-size:14px;line-height:20px}.t-bs{font-size:12px;line-height:16px}.t-lm{font-size:12px;line-height:16px;font-weight:500}
+.mcard{background:#E7E0EC;border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:8px}
+.mcard.log{padding:12px;gap:4px}
+.btn{display:inline-flex;align-items:center;justify-content:center;height:40px;padding:0 24px;border-radius:20px;font-size:14px;font-weight:500;white-space:nowrap}
+.btn.f{background:#6750A4;color:#fff}.btn.f.dis{background:rgba(29,27,32,.12);color:rgba(29,27,32,.38)}
+.btn.o{border:1px solid #79747E;color:#6750A4;padding:0 23px}.btn.t{color:#6750A4;padding:0 12px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.spread{display:flex;justify-content:space-between;align-items:center}
+.err{color:#B3261E}
+.radio{width:48px;height:48px;flex:none;display:flex;align-items:center;justify-content:center;margin:-14px 0 -14px -14px}
+.radio i{width:20px;height:20px;border:2px solid #49454F;border-radius:50%;display:block;position:relative}
+.radio.on i{border-color:#6750A4}.radio.on i::after{content:"";position:absolute;inset:3px;background:#6750A4;border-radius:50%}
+.mode{display:flex;align-items:center;padding:8px 0;gap:12px}
+.mode .txt{margin-left:-2px}
+.sw-t{width:52px;height:32px;border-radius:16px;flex:none;position:relative;background:#E6E0E9;border:2px solid #79747E}
+.sw-t::after{content:"";position:absolute;top:6px;left:6px;width:16px;height:16px;border-radius:50%;background:#79747E}
+.sw-t.on{background:#6750A4;border-color:#6750A4}.sw-t.on::after{left:26px;top:2px;width:24px;height:24px;background:#fff}
+.chk{display:flex;align-items:center;gap:0}
+.chk i{width:18px;height:18px;border:2px solid #49454F;border-radius:2px;display:inline-block;margin:15px;flex:none;position:relative}
+.chk.on i{background:#6750A4;border-color:#6750A4}.chk.on i::after{content:"";position:absolute;left:4px;top:0;width:5px;height:10px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.fld{position:relative;border:1px solid #79747E;border-radius:4px;height:56px;padding:0 16px;display:flex;align-items:center;font-size:16px;margin-top:8px}
+.fld label{position:absolute;left:12px;top:-9px;background:#ECE6F0;padding:0 4px;font-size:12px;color:#49454F}
+.fld.focus{border:2px solid #6750A4}.fld.focus label{color:#6750A4}
+.dlg{background:#ECE6F0;border-radius:28px;padding:24px;width:312px;box-shadow:0 4px 16px rgba(0,0,0,.3);display:flex;flex-direction:column;gap:16px}
+.dlg .acts{display:flex;justify-content:flex-end;gap:8px;margin-top:8px}
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.32);display:flex;align-items:center;justify-content:center}
+
+/* ---- オーバーレイ ---- */
+.fakeapp{position:absolute;inset:0;background:linear-gradient(180deg,#f3efe6,#e2ebf2);padding:44px 16px 16px}
+.fakeapp .bar{height:12px;border-radius:6px;background:rgba(0,0,0,.12);margin:10px 0}
+.fakeapp .blk{height:110px;border-radius:12px;background:rgba(0,0,0,.08);margin:12px 0}
+.fakeapp .cap{position:absolute;left:0;right:0;bottom:6px;text-align:center;font-size:10px;color:rgba(0,0,0,.4)}
+.ban{background:rgba(30,58,95,.941);border-radius:16px;padding:16px;margin:12px;box-shadow:0 4px 12px rgba(0,0,0,.35);color:#fff;position:relative;z-index:3;font-family:Roboto,"Noto Sans JP","Yu Gothic UI",sans-serif}
+.ban .bt{font-size:20px;font-weight:700;line-height:1.35}.ban .bm{font-size:16px;margin-top:6px;line-height:1.5}
+.ban .ba{display:flex;justify-content:flex-end;align-items:center;margin-top:12px;gap:8px}
+.ban .b1{min-width:120px;min-height:56px;padding:0 16px;background:#e2e2e6;color:#1b1b1f;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:18px}
+.ban .b2{min-height:56px;padding:0 12px;color:#fff;display:inline-flex;align-items:center;font-size:14px;text-transform:none}
+.panel-ad{background:rgba(30,58,95,.941);border-radius:16px;padding:12px;margin:12px;box-shadow:0 4px 12px rgba(0,0,0,.35);display:flex;align-items:center;gap:12px;color:#fff;font-size:16px;line-height:1.5;position:absolute;left:0;right:0;bottom:0;z-index:5;font-family:Roboto,"Noto Sans JP","Yu Gothic UI",sans-serif}
+.panel-ad .msg{flex:1}
+.panel-ad .bk{min-width:120px;min-height:64px;padding:0 16px;background:#e2e2e6;color:#1b1b1f;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:20px}
+.shield{position:absolute;inset:0;background:rgba(0,0,0,.4);z-index:4}
+.badge{position:absolute;right:0;top:50%;width:44px;height:44px;margin-top:-22px;opacity:.85;z-index:2}
+.adscreen{position:absolute;inset:0;background:linear-gradient(160deg,#ffd9a8,#ff9aa2);z-index:1;padding:44px 20px}
+.adscreen .big{margin-top:130px;text-align:center;font-weight:700;font-size:26px;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.3)}
+.adscreen .cta{margin:16px auto 0;width:180px;height:48px;border-radius:24px;background:#fff;color:#e0457b;display:flex;align-items:center;justify-content:center;font-weight:700}
+.adscreen .x{position:absolute;right:12px;top:34px;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.45);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px}
+.adscreen .cd{position:absolute;right:54px;top:40px;font-size:13px;color:#fff;background:rgba(0,0,0,.35);padding:1px 8px;border-radius:10px}
+.adscreen .adtag{position:absolute;left:12px;top:40px;font-size:11px;color:#fff;border:1px solid #fff;border-radius:3px;padding:0 4px}
+.owlbox{display:flex;gap:20px;flex-wrap:wrap}
+.owlcell{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center;width:200px}
+.owlcell svg{display:block;margin:0 auto 8px}
+.flow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0}
+.fb{background:#fff;border:1.5px solid var(--navy);border-radius:10px;padding:8px 12px;font-size:13px;text-align:center}
+.fb.s{background:var(--navy);color:#fff}.fb.d{border-style:dashed;border-color:#8a7fa6}
+.ar{color:var(--sub);font-size:18px}
+footer{max-width:1180px;margin:0 auto;padding:0 24px 40px;color:var(--sub);font-size:12.5px}
+@media print{nav.toc{display:none}.phone{break-inside:avoid}}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+<symbol id="owl-sleepy" viewBox="0 0 48 48">
+<path d="M12,16 L10,6 L18,12 Z M36,16 L38,6 L30,12 Z" fill="#6D4C41"/>
+<path d="M24,10 C34,10 40,18 40,28 C40,38 33,44 24,44 C15,44 8,38 8,28 C8,18 14,10 24,10 Z" fill="#8D6E63"/>
+<path d="M24,16 C31,16 35,21 35,27 C35,33 30,37 24,37 C18,37 13,33 13,27 C13,21 17,16 24,16 Z" fill="#D7CCC8"/>
+<path d="M14,26 Q18,29 22,26 M26,26 Q30,29 34,26" fill="none" stroke="#3E2723" stroke-width="1.5" stroke-linecap="round"/>
+<path d="M22,30 L26,30 L24,33 Z" fill="#FFA000"/>
+</symbol>
+<symbol id="owl-alert" viewBox="0 0 48 48">
+<path d="M12,16 L8,1 L18,12 Z M36,16 L40,1 L30,12 Z" fill="#6D4C41"/>
+<path d="M24,10 C34,10 40,18 40,28 C40,38 33,44 24,44 C15,44 8,38 8,28 C8,18 14,10 24,10 Z" fill="#8D6E63"/>
+<path d="M24,16 C31,16 35,21 35,27 C35,33 30,37 24,37 C18,37 13,33 13,27 C13,21 17,16 24,16 Z" fill="#D7CCC8"/>
+<path d="M13,25 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0 M25,25 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0" fill="#fff"/>
+<path d="M16,25 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M28,25 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0" fill="#3E2723"/>
+<path d="M22,30 L26,30 L24,33 Z" fill="#FFA000"/>
+</symbol>
+<symbol id="owl-wide" viewBox="0 0 48 48">
+<path d="M12,16 L8,1 L18,12 Z M36,16 L40,1 L30,12 Z" fill="#6D4C41"/>
+<path d="M24,10 C34,10 40,18 40,28 C40,38 33,44 24,44 C15,44 8,38 8,28 C8,18 14,10 24,10 Z" fill="#8D6E63"/>
+<path d="M24,16 C31,16 35,21 35,27 C35,33 30,37 24,37 C18,37 13,33 13,27 C13,21 17,16 24,16 Z" fill="#D7CCC8"/>
+<path d="M11.5,25 a6.5,6.5 0 1,0 13,0 a6.5,6.5 0 1,0 -13,0 M23.5,25 a6.5,6.5 0 1,0 13,0 a6.5,6.5 0 1,0 -13,0" fill="#fff"/>
+<path d="M15,25 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0 M27,25 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0" fill="#3E2723"/>
+<path d="M22,30 L26,30 L24,33 Z" fill="#FFA000"/>
+</symbol>
+<symbol id="launcher" viewBox="0 0 108 108">
+<rect width="108" height="108" fill="#1E3A5F"/>
+<g transform="translate(25.2 24) scale(1.2)">
+<path d="M12,16 L8,1 L18,12 Z M36,16 L40,1 L30,12 Z" fill="#6D4C41"/>
+<path d="M24,10 C34,10 40,18 40,28 C40,38 33,44 24,44 C15,44 8,38 8,28 C8,18 14,10 24,10 Z" fill="#8D6E63"/>
+<path d="M24,16 C31,16 35,21 35,27 C35,33 30,37 24,37 C18,37 13,33 13,27 C13,21 17,16 24,16 Z" fill="#D7CCC8"/>
+<path d="M13,25 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0 M25,25 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0" fill="#fff"/>
+<path d="M16,25 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M28,25 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0" fill="#3E2723"/>
+<path d="M22,30 L26,30 L24,33 Z" fill="#FFA000"/>
+</g>
+</symbol>
+</defs>
+</svg>
+
+<header class="top"><div class="in">
+<div class="iconwrap"><svg width="84" height="84"><use href="#launcher"/></svg></div>
+<div><h1>みみづく UI デザイン設計書</h1>
+<p>悪質な広告対策アプリ「みみづく」の現行UI（設定画面・ログ画面・PIN・警告オーバーレイ・バッジ・アイコン）を1枚にまとめた資料</p>
+<p style="font-size:13px;opacity:.75">対象: <code style="background:rgba(255,255,255,.15)">mobile/</code> モジュール（コミット fc7e3a6 時点）／作成日: 2026-10-19</p></div>
+</div></header>
+<nav class="toc"><div class="in">
+<a href="#overview">1 概要</a><a href="#flow">2 画面構成</a><a href="#settings">3 設定画面</a><a href="#log">4 ログ画面</a><a href="#pin">5 PIN</a>
+<a href="#overlay">6 オーバーレイ</a><a href="#badge">7 バッジ・アイコン</a><a href="#tokens">8 デザイントークン</a><a href="#diff">9 版の差分</a><a href="#issues">10 所見</a>
+</div></nav>
+<main>
+
+<section id="overview">
+<h2>1. 概要と読み方</h2>
+<p class="lead">アプリのUIは「アプリ内の設定画面（Jetpack Compose）」と「アクセシビリティサービスが他アプリの上に重ねるオーバーレイ（View）」の2系統です。</p>
+<div class="note"><b>この資料の画像について：</b>リポジトリに画像資産（スクリーンショット・書き出し済みアイコン）は無く、実機キャプチャも未取得です。
+本書の画面は <b>実装コード（Compose・レイアウトXML・strings.xml・VectorDrawable）から文言・寸法・色を転記して HTML/SVG で再現したもの</b>で、
+フォントの字形や端末ごとの描画差は反映されません。みみづくのイラストは VectorDrawable のパスをそのまま SVG 化しているため、形・色は実物と一致します。</div>
+<div class="cols">
+<div class="panel"><h4>設計の方針（コードから読み取れるもの）</h4><ul>
+<li>こどもモード：ひらがな中心・怖がらせない・短い文言</li>
+<li>おとなモード：通常の文言で検知理由を具体的に提示</li>
+<li>警告文言はすべて <code>strings.xml</code> に集約し差し替え可能</li>
+<li>画面上の文字は照合にのみ使い、保存・送信しない（開示画面で明示）</li>
+</ul></div>
+<div class="panel"><h4>UI構成要素</h4><ul>
+<li>設定画面（<code>SettingsScreen</code>）：縦スクロールのカード列</li>
+<li>ログ画面（<code>LogScreen</code>）：設定画面と差し替え表示</li>
+<li>PINダイアログ（入力／設定）</li>
+<li>オーバーレイ：警告バナー（上）・広告案内パネル（下）・タップシールド・バッジ（右端）</li>
+</ul></div>
+<div class="panel"><h4>配布の2版</h4><ul>
+<li><span class="tag gh">GitHub版</span>全機能</li>
+<li><span class="tag pl">Play版</span>Google Play ポリシー対策で一部のUI・介入を無効化</li>
+<li>同一ソース。差は <code>FeatureSet</code> に集約（9章）</li>
+</ul></div>
+</div>
+</section>
+
+<section id="flow">
+<h2>2. 画面構成と遷移</h2>
+<p class="lead">ナビゲーションライブラリは使わず、<code>SettingsController</code> の状態（<code>logRows</code> / <code>dialog</code>）で切り替えます。</p>
+<h3>アプリ内</h3>
+<div class="flow">
+<span class="fb s">起動</span><span class="ar">→</span>
+<span class="fb d">未同意なら<br>開示・同意カード</span><span class="ar">→</span>
+<span class="fb">設定画面</span><span class="ar">⇄</span>
+<span class="fb">ログ画面<br>（閉じる／戻るキー）</span>
+</div>
+<div class="flow">
+<span class="fb">設定画面</span><span class="ar">→</span>
+<span class="fb d">PIN が必要な操作<br>（おとなへ切替・一時停止・ログ消去・PIN変更）</span><span class="ar">→</span>
+<span class="fb">PIN入力ダイアログ</span>
+</div>
+<div class="flow">
+<span class="fb">設定画面</span><span class="ar">→</span><span class="fb">PIN設定ダイアログ（PIN未設定時の「PIN を設定する」）</span>
+</div>
+<div class="flow">
+<span class="fb">設定画面</span><span class="ar">→</span><span class="fb">OS画面：アクセシビリティ設定／アプリ情報</span>
+</div>
+<h3>オーバーレイ（アクセシビリティサービス）</h3>
+<div class="flow">
+<span class="fb s">前面アプリの画面変化を検知</span><span class="ar">→</span>
+<span class="fb">外部遷移／偽の警告</span><span class="ar">→</span><span class="fb">警告バナー（上・8〜20秒で消える）</span>
+</div>
+<div class="flow">
+<span class="fb s">広告画面と判定</span><span class="ar">→</span>
+<span class="fb">案内パネル（下）＋バッジの耳が立つ</span><span class="ar">→</span>
+<span class="fb d">全画面広告のとき タップシールド（最長60秒）</span>
+</div>
+</section>
+
+<section id="settings">
+<h2>3. 設定画面</h2>
+<p class="lead">全カードを縦に並べた1画面（<code>verticalScroll</code>、余白16dp、カード間16dp）。下は <b>スクロール全体を展開した</b> 4状態です。</p>
+<div class="grid">
+<figure><div class="phone" style=""><div class="sb"><span>9:41</span><span>▂▄▆ 100%</span></div><div class="scr"><div class="t-hm">みみづく</div><div class="t-lm">GitHub 版（全機能）</div><div class="t-b">広告による勝手なブラウザ・ストアへの移動と、偽の警告を見つけて知らせます。</div><div class="mcard"><div class="t-tl">はじめに：画面の読み取りについて</div><div class="t-b">みみづくは、悪質な広告（偽の警告や、勝手なブラウザ・ストアへの移動）を見つけるために、Android のユーザー補助機能（アクセシビリティ サービス）を使います。<br><br>・読み取るもの：前面に表示されているアプリの名前と、画面に表示されている文字<br>・使い道：偽の警告の文言や広告の画面かどうかの照合と、勝手な移動の検知だけに使います<br>・保存するもの：検知した日時・アプリの名前・検知の種類だけを、この端末の中に保存します。画面の文字や URL は保存しません<br>・送信：インターネットへの接続権限を持たないため、読み取った内容を外部へ送ることはありません<br><br>ユーザー補助機能はいつでも端末の設定からオフにできます。</div><div class="chk"><i></i><span class="t-b">上の内容を確認し、画面の読み取りに同意します</span></div><div><span class="btn f dis">同意して進む</span></div></div><div class="mcard"><div class="t-tl">一時停止</div><div class="t-b">保護者が一緒に使うときなど、見張りを一定時間止めます。PIN を設定している場合は PIN が必要です。</div><div class="row"><span class="btn o">15分</span><span class="btn o">30分</span><span class="btn o">60分</span></div></div><div class="mcard"><div class="t-tl">利用モード</div><div><div class="mode"><span class="radio on"><i></i></span><div class="txt"><div class="t-tm">こども</div><div class="t-bm">外部への移動を自動で戻し、やさしい言葉で知らせます。</div></div></div><div class="mode"><span class="radio"><i></i></span><div class="txt"><div class="t-tm">おとな</div><div class="t-bm">自動では戻さず、「戻る」か「このまま進む」を選べます。</div></div></div></div></div><div class="mcard"><div class="t-tl">保護者 PIN</div><div class="t-b">未設定です。子供の端末では設定してください。</div><div><span class="btn f">PIN を設定する</span></div><div class="t-bs">PIN を忘れた場合は、アプリをアンインストールして入れ直してください（設定とログは消えます）。</div></div><div class="mcard"><div class="t-tl">みみづくバッジ</div><div class="spread" style="gap:12px"><div class="t-b" style="flex:1">画面の右端にみみづくを出します。広告を見つけると耳が立ち、あやしい動きを止めると目が大きくなります。</div><span class="sw-t on"></span></div></div><div class="mcard"><div class="t-tl">検知ログ</div><div class="t-b">これまでの検知：0 件（最新500件まで保存）</div><div class="t-bs">ログに残すのは日時・アプリ名・検知の種類だけです。画面の文字や URL は保存せず、外部へも送信しません。</div><div><span class="btn o">ログを見る</span></div></div></div></div><figcaption><span class="tag both">両版</span><b>A. 初回（未同意）</b><br>同意カードが「見張りの状態」の位置に出る。チェックを入れるまで「同意して進む」は無効（Google Play の目立つ開示要件）。ここでは GitHub 版のラベルで表示。</figcaption></figure>
+<figure><div class="phone" style=""><div class="sb"><span>9:41</span><span>▂▄▆ 100%</span></div><div class="scr"><div class="t-hm">みみづく</div><div class="t-lm">GitHub 版（全機能）</div><div class="t-b">広告による勝手なブラウザ・ストアへの移動と、偽の警告を見つけて知らせます。</div><div class="mcard"><div class="t-tl">見張りの状態</div><div class="t-tm">止まっています（アクセシビリティ：オフ）</div><span class="btn f">アクセシビリティ設定を開く</span></div><div class="mcard"><div class="t-tl">一時停止</div><div class="t-b">保護者が一緒に使うときなど、見張りを一定時間止めます。PIN を設定している場合は PIN が必要です。</div><div class="row"><span class="btn o">15分</span><span class="btn o">30分</span><span class="btn o">60分</span></div></div><div class="mcard"><div class="t-tl">オンにできないとき（Android 13 以降）</div><div class="t-b">ブラウザなどからインストールしたアプリは、アクセシビリティをオンにする前に「制限された設定」の許可が必要です。<br>1. 下のボタンで「アプリ情報」を開く<br>2. 右上の「︙」から「制限された設定を許可」を選ぶ（一度アクセシビリティ設定でオンにしようとした後に表示されます）<br>3. アクセシビリティ設定に戻り、「みみづく（広告対策）」をオンにする</div><div><span class="btn o">アプリ情報を開く</span></div></div><div class="mcard"><div class="t-tl">利用モード</div><div><div class="mode"><span class="radio on"><i></i></span><div class="txt"><div class="t-tm">こども</div><div class="t-bm">外部への移動を自動で戻し、やさしい言葉で知らせます。</div></div></div><div class="mode"><span class="radio"><i></i></span><div class="txt"><div class="t-tm">おとな</div><div class="t-bm">自動では戻さず、「戻る」か「このまま進む」を選べます。</div></div></div></div></div><div class="mcard"><div class="t-tl">保護者 PIN</div><div class="t-b">未設定です。子供の端末では設定してください。</div><div><span class="btn f">PIN を設定する</span></div><div class="t-bs">PIN を忘れた場合は、アプリをアンインストールして入れ直してください（設定とログは消えます）。</div></div><div class="mcard"><div class="t-tl">みみづくバッジ</div><div class="spread" style="gap:12px"><div class="t-b" style="flex:1">画面の右端にみみづくを出します。広告を見つけると耳が立ち、あやしい動きを止めると目が大きくなります。</div><span class="sw-t on"></span></div></div><div class="mcard"><div class="t-tl">検知ログ</div><div class="t-b">これまでの検知：0 件（最新500件まで保存）</div><div class="t-bs">ログに残すのは日時・アプリ名・検知の種類だけです。画面の文字や URL は保存せず、外部へも送信しません。</div><div><span class="btn o">ログを見る</span></div></div></div></div><figcaption><span class="tag gh">GitHub版</span><b>B. 同意後・サービス停止・PIN未設定</b><br>Android 13 以降は「オンにできないとき」ガイドカードが出る（サービスがオフの間のみ）。こどもモード選択。</figcaption></figure>
+<figure><div class="phone" style=""><div class="sb"><span>9:41</span><span>▂▄▆ 100%</span></div><div class="scr"><div class="t-hm">みみづく</div><div class="t-lm">Google Play 版</div><div class="t-b">広告による勝手なブラウザ・ストアへの移動と、偽の警告を見つけて知らせます。</div><div class="mcard"><div class="t-tl">見張りの状態</div><div class="t-tm">見張っています（アクセシビリティ：オン）</div><span class="btn f">アクセシビリティ設定を開く</span></div><div class="mcard"><div class="t-tl">一時停止</div><div class="t-b">保護者が一緒に使うときなど、見張りを一定時間止めます。PIN を設定している場合は PIN が必要です。</div><div class="row"><span class="btn o">15分</span><span class="btn o">30分</span><span class="btn o">60分</span></div></div><div class="mcard"><div class="t-tl">利用モード</div><div><div class="mode"><span class="radio on"><i></i></span><div class="txt"><div class="t-tm">こども</div><div class="t-bm">勝手な外部への移動を知らせ、やさしい言葉で「もどる」か選ばせます。</div></div></div><div class="mode"><span class="radio"><i></i></span><div class="txt"><div class="t-tm">おとな</div><div class="t-bm">自動では戻さず、「戻る」か「このまま進む」を選べます。</div></div></div></div></div><div class="mcard"><div class="t-tl">保護者 PIN</div><div class="t-b">設定済みです。おとなモードへの切替・一時停止・ログの消去・PIN の変更には PIN が必要です。</div><div class="row"><span class="btn o">変更する</span><span class="btn o">削除する</span></div><div class="t-bs">PIN を忘れた場合は、アプリをアンインストールして入れ直してください（設定とログは消えます）。</div></div><div class="mcard"><div class="t-tl">みみづくバッジ</div><div class="spread" style="gap:12px"><div class="t-b" style="flex:1">画面の右端にみみづくを出します。あやしい動きに気づくと目が大きくなります。</div><span class="sw-t on"></span></div></div><div class="mcard"><div class="t-tl">検知ログ</div><div class="t-b">これまでの検知：12 件（最新500件まで保存）</div><div class="t-bs">ログに残すのは日時・アプリ名・検知の種類だけです。画面の文字や URL は保存せず、外部へも送信しません。</div><div><span class="btn o">ログを見る</span></div></div></div></div><figcaption><span class="tag pl">Play版</span><b>C. 見張り中・PIN設定済み</b><br>こどもモードの説明が「選ばせる」文言、バッジの説明が「耳が立つ」を含まない文言に切り替わる。</figcaption></figure>
+<figure><div class="phone" style=""><div class="sb"><span>9:41</span><span>▂▄▆ 100%</span></div><div class="scr"><div class="t-hm">みみづく</div><div class="t-lm">GitHub 版（全機能）</div><div class="t-b">広告による勝手なブラウザ・ストアへの移動と、偽の警告を見つけて知らせます。</div><div class="mcard"><div class="t-tl">見張りの状態</div><div class="t-tm">見張っています（アクセシビリティ：オン）</div><span class="btn f">アクセシビリティ設定を開く</span></div><div class="mcard"><div class="t-tl">一時停止</div><div class="t-tm err">停止中です（残り約 23 分）。検知も介入もしません。</div><div><span class="btn f">今すぐ再開する</span></div></div><div class="mcard"><div class="t-tl">利用モード</div><div><div class="mode"><span class="radio"><i></i></span><div class="txt"><div class="t-tm">こども</div><div class="t-bm">外部への移動を自動で戻し、やさしい言葉で知らせます。</div></div></div><div class="mode"><span class="radio on"><i></i></span><div class="txt"><div class="t-tm">おとな</div><div class="t-bm">自動では戻さず、「戻る」か「このまま進む」を選べます。</div></div></div></div></div><div class="mcard"><div class="t-tl">保護者 PIN</div><div class="t-b">設定済みです。おとなモードへの切替・一時停止・ログの消去・PIN の変更には PIN が必要です。</div><div class="row"><span class="btn o">変更する</span><span class="btn o">削除する</span></div><div class="t-bs">PIN を忘れた場合は、アプリをアンインストールして入れ直してください（設定とログは消えます）。</div></div><div class="mcard"><div class="t-tl">みみづくバッジ</div><div class="spread" style="gap:12px"><div class="t-b" style="flex:1">画面の右端にみみづくを出します。広告を見つけると耳が立ち、あやしい動きを止めると目が大きくなります。</div><span class="sw-t"></span></div></div><div class="mcard"><div class="t-tl">検知ログ</div><div class="t-b">これまでの検知：128 件（最新500件まで保存）</div><div class="t-bs">ログに残すのは日時・アプリ名・検知の種類だけです。画面の文字や URL は保存せず、外部へも送信しません。</div><div><span class="btn o">ログを見る</span></div></div></div></div><figcaption><span class="tag gh">GitHub版</span><b>D. おとなモード・一時停止中</b><br>残り分数を error 色で強調し、ボタンは「今すぐ再開する」のみ。バッジはオフ。</figcaption></figure>
+</div>
+<h3>カード一覧（上から順）</h3>
+<table><tr><th>順</th><th>カード</th><th>表示条件</th><th>主な操作</th></tr>
+<tr><td>1</td><td>見出し（アプリ名・版ラベル・説明）</td><td>常時</td><td>—</td></tr>
+<tr><td>2</td><td>見張りの状態 ／ 開示・同意</td><td>同意済みなら前者、未同意なら後者</td><td>アクセシビリティ設定を開く／同意して進む</td></tr>
+<tr><td>3</td><td>一時停止</td><td>常時（停止中は表示が切替）</td><td>15／30／60分、今すぐ再開（PIN設定時はPIN要）</td></tr>
+<tr><td>4</td><td>オンにできないとき（Android 13 以降）</td><td>該当OS かつ サービス未有効</td><td>アプリ情報を開く</td></tr>
+<tr><td>5</td><td>利用モード</td><td>常時</td><td>こども／おとな（ラジオ。おとなへの切替はPIN要）</td></tr>
+<tr><td>6</td><td>保護者 PIN</td><td>常時（設定有無で切替）</td><td>設定／変更／削除</td></tr>
+<tr><td>7</td><td>みみづくバッジ</td><td>常時</td><td>スイッチで表示ON/OFF</td></tr>
+<tr><td>8</td><td>検知ログ</td><td>常時</td><td>件数表示、ログを見る</td></tr></table>
+</section>
+
+<section id="log">
+<h2>4. 検知ログ画面</h2>
+<p class="lead">保護者向け。新しい順に最大500件。<code>BackHandler</code> でシステムの戻る操作でも閉じる。</p>
+<div class="grid">
+<figure><div class="phone" style=""><div class="sb"><span>9:41</span><span>▂▄▆ 100%</span></div><div class="scr" style="gap:12px;min-height:560px"><div class="spread"><div class="t-hs">検知ログ</div><span class="btn t">閉じる</span></div><div class="t-bs">ログに残すのは日時・アプリ名・検知の種類だけです。画面の文字や URL は保存せず、外部へも送信しません。</div><div><span class="btn o">ログをすべて消去する</span></div><div class="mcard log"><div class="t-bs">2026/10/18 16:42:10</div><div class="t-ts">外部への移動・自動で戻した</div><div class="t-bm">ゲームA → Chrome</div></div><div class="mcard log"><div class="t-bs">2026/10/18 16:41:55</div><div class="t-ts">偽の警告・警告のみ</div><div class="t-bm">ゲームA</div></div><div class="mcard log"><div class="t-bs">2026/10/17 19:03:27</div><div class="t-ts">外部への移動・利用者に確認</div><div class="t-bm">ぬりえB → Playストア</div></div><div class="mcard log"><div class="t-bs">2026/10/17 18:50:02</div><div class="t-ts">外部への移動・警告のみ</div><div class="t-bm">パズルC → Chrome</div></div></div></div><figcaption><b>ログあり</b>（サンプルデータ）<br>1件＝日時／「種類・対応」／「遷移元 → 遷移先」。偽の警告は遷移先なしでアプリ名のみ。「ログをすべて消去する」はPIN設定時にPIN要。</figcaption></figure>
+<figure><div class="phone" style=""><div class="sb"><span>9:41</span><span>▂▄▆ 100%</span></div><div class="scr" style="gap:12px;min-height:300px"><div class="spread"><div class="t-hs">検知ログ</div><span class="btn t">閉じる</span></div><div class="t-bs">ログに残すのは日時・アプリ名・検知の種類だけです。画面の文字や URL は保存せず、外部へも送信しません。</div><div class="t-b">まだ検知はありません。</div></div></div><figcaption><b>ログなし</b><br>「まだ検知はありません。」のみ。消去ボタンは出ない。</figcaption></figure>
+</div>
+<table><tr><th>種類（kind）</th><th>表示</th></tr><tr><td>EXTERNAL_TRANSITION</td><td>外部への移動</td></tr><tr><td>SCAREWARE</td><td>偽の警告</td></tr>
+<tr><th>対応（action）</th><th>表示</th></tr><tr><td>BACK_AND_WARN</td><td>自動で戻した</td></tr><tr><td>WARN_ONLY</td><td>警告のみ</td></tr><tr><td>ASK_USER</td><td>利用者に確認</td></tr></table>
+</section>
+
+<section id="pin">
+<h2>5. 保護者 PIN ダイアログ</h2>
+<p class="lead">Material3 の <code>AlertDialog</code>。入力は数字のみ・最大8桁・マスク表示（<code>NumberPassword</code>）。形式は4〜8桁。</p>
+<div class="grid">
+<figure><div class="phone" style=""><div class="sb"><span>9:41</span><span>▂▄▆ 100%</span></div><div class="scr" style="height:430px;gap:12px"><div class="t-hm">みみづく</div><div class="mcard" style="height:90px"></div><div class="mcard" style="height:120px"></div></div><div class="scrim"><div class="dlg"><div class="t-hs">保護者 PIN を入力</div><div><div class="fld focus"><label>PIN</label><span>••••</span></div><div class="t-b err" style="margin-top:8px">PIN が違います。</div></div><div class="acts"><span class="btn t">キャンセル</span><span class="btn t">OK</span></div></div></div></div><figcaption><b>PIN入力</b>（誤入力時の表示）<br>連続で間違えると一定時間ロック。エラー文言: 違う／ロック中／未設定／データ破損の4種。</figcaption></figure>
+<figure><div class="phone" style=""><div class="sb"><span>9:41</span><span>▂▄▆ 100%</span></div><div class="scr" style="height:430px;gap:12px"><div class="t-hm">みみづく</div><div class="mcard" style="height:90px"></div><div class="mcard" style="height:120px"></div></div><div class="scrim"><div class="dlg"><div class="t-hs">保護者 PIN の設定</div><div class="t-b">4〜8桁の数字を入力してください。</div><div><div class="fld"><label>新しい PIN</label><span>••••</span></div><div class="fld focus"><label>もう一度入力</label><span>•••</span></div><div class="t-b err" style="margin-top:8px">2回の入力が一致しません。</div></div><div class="acts"><span class="btn t">キャンセル</span><span class="btn t">保存</span></div></div></div></div><figcaption><b>PIN設定</b>（不一致エラー表示）<br>2回入力。形式エラー「PIN は4〜8桁の数字にしてください。」／不一致「2回の入力が一致しません。」</figcaption></figure>
+</div>
+</section>
+
+<section id="overlay">
+<h2>6. 警告オーバーレイ</h2>
+<p class="lead">すべて <code>TYPE_ACCESSIBILITY_OVERLAY</code>。フォーカスを取らず、バナー／パネルは自身の領域のタッチだけを受け取る（<code>FLAG_NOT_TOUCH_MODAL</code>）。</p>
+<h3>6.1 画面への重なり方</h3>
+<div class="grid">
+<figure><div class="phone" style=""><div class="sb"><span>9:41</span><span>▂▄▆ 100%</span></div><div style="height:560px;position:relative"><div class="fakeapp"><div class="t-tl" style="color:rgba(0,0,0,.55)">（ゲーム画面のイメージ）</div><div class="bar" style="width:70%"></div><div class="blk"></div><div class="bar" style="width:50%"></div><div class="blk"></div><div class="bar" style="width:80%"></div></div><div style="position:relative;z-index:3;padding-top:14px"><div class="ban"><div class="bt">みみづくが止めたよ</div><div class="bm">ここから先は行かないでね。</div><div class="ba"><span class="b1">わかった</span></div></div></div></div></div><figcaption><span class="tag gh">GitHub版</span><b>警告バナー（画面上部）</b><br>余白12dp・角丸16dp・背景 #1E3A5F。同時に出るのは1つで、新しいものが来たら置き換える。</figcaption></figure>
+<figure><div class="phone" style=""><div class="sb"><span>9:41</span><span>▂▄▆ 100%</span></div><div style="height:600px;position:relative"><div class="fakeapp"><div class="t-tl" style="color:rgba(0,0,0,.55)">（ゲーム画面のイメージ）</div><div class="bar" style="width:70%"></div><div class="blk"></div><div class="bar" style="width:50%"></div><div class="blk"></div><div class="bar" style="width:80%"></div></div><div class="adscreen"><span class="adtag">広告</span><span class="cd">5</span><span class="x">✕</span><div class="big">いますぐ<br>ゲットしよう！</div><div class="cta">インストール</div></div><div class="shield"></div><span class="badge"><svg width="44" height="44"><use href="#owl-alert"/></svg></span><div class="panel-ad"><div class="msg">こうこくだよ。さわらないでね。あと 5 びょう</div><span class="bk">もどる</span></div></div></div><figcaption><span class="tag gh">GitHub版</span><b>広告画面：案内パネル＋シールド＋バッジ</b><br>半透明の黒（40%）シールドがタップを吸収し、下部の案内パネルの大きな「もどる」だけ押せる。シールドは判定誤りに備え最長60秒で自動解除。</figcaption></figure>
+<figure><div class="phone" style=""><div class="sb"><span>9:41</span><span>▂▄▆ 100%</span></div><div style="height:600px;position:relative"><div class="fakeapp"><div class="t-tl" style="color:rgba(0,0,0,.55)">（ゲーム画面のイメージ）</div><div class="bar" style="width:70%"></div><div class="blk"></div><div class="bar" style="width:50%"></div><div class="blk"></div><div class="bar" style="width:80%"></div></div><div class="adscreen"><span class="adtag">広告</span><span class="cd">5</span><span class="x">✕</span><div class="big">いますぐ<br>ゲットしよう！</div><div class="cta">インストール</div></div><div class="shield"></div><span class="badge"><svg width="44" height="44"><use href="#owl-alert"/></svg></span><div class="panel-ad"><div class="msg">広告が表示されています（残り約 5 秒）。</div><span class="bk">戻る</span></div></div></div><figcaption><span class="tag gh">GitHub版</span><b>同：おとなモードの文言</b><br>カウントダウン（残り秒数）を読み取れない場合は「広告が表示されています。広告内のボタンに注意してください。」。</figcaption></figure>
+</div>
+<div class="note">広告画面の案内パネル・シールド・「もどる」での閉じるボタン代理タップは <span class="tag gh">GitHub版のみ</span>。Play 版では出ません。</div>
+<h3>6.2 警告バナーの全文言パターン</h3>
+<p class="lead">モード × 検知の種類 × 版で決まる7パターン（<code>BannerSpec.from</code>）。灰色の帯は下地、バナー本体が実際のオーバーレイです。ボタン配色は後述の所見を参照。</p>
+<div class="grid"><figure><div class="phone" style="box-shadow:0 0 0 1px #bbb;background:#d9dde3;padding:6px 0"><div class="ban"><div class="bt">みみづくが止めたよ</div><div class="bm">ここから先は行かないでね。</div><div class="ba"><span class="b1">わかった</span></div></div></div><figcaption><span class="tag gh">GitHub版</span><b>こどもモード／外部遷移（自動で戻した）</b><br>8秒で自動消去</figcaption></figure><figure><div class="phone" style="box-shadow:0 0 0 1px #bbb;background:#d9dde3;padding:6px 0"><div class="ban"><div class="bt">ほー、あやしいリンクだよ</div><div class="bm">パパ・ママに聞いてみよう。</div><div class="ba"><span class="b1">わかった</span></div></div></div><figcaption><span class="tag gh">GitHub版</span><b>こどもモード／外部遷移（警告のみ）</b><br>8秒で自動消去</figcaption></figure><figure><div class="phone" style="box-shadow:0 0 0 1px #bbb;background:#d9dde3;padding:6px 0"><div class="ban"><div class="bt">ほー、べつの ばしょに いこうとしているよ</div><div class="bm">じぶんで おしたのでなければ「もどる」を おしてね。わからないときは パパ・ママに きいてみよう。</div><div class="ba"><span class="b2">このまま すすむ</span><span class="b1">もどる</span></div></div></div><figcaption><span class="tag pl">Play版</span><b>こどもモード／外部遷移（確認）</b><br>20秒で自動消去。「もどる」で戻る操作</figcaption></figure><figure><div class="phone" style="box-shadow:0 0 0 1px #bbb;background:#d9dde3;padding:6px 0"><div class="ban"><div class="bt">ブラウザへの移動を検知しました</div><div class="bm">アプリから自動的に、またはタップによってブラウザが開かれました。広告による移動の可能性があります。</div><div class="ba"><span class="b2">このまま進む</span><span class="b1">戻る</span></div></div></div><figcaption><span class="tag both">両版</span><b>おとなモード／外部遷移（確認）</b><br>20秒で自動消去。移動先の語（ブラウザ／アプリストア／アプリのインストール画面）が文中に入る</figcaption></figure><figure><div class="phone" style="box-shadow:0 0 0 1px #bbb;background:#d9dde3;padding:6px 0"><div class="ban"><div class="bt">ブラウザへの移動を検知しました</div><div class="bm">同じアプリから短時間に繰り返しブラウザが開かれています。広告による移動の可能性があります。</div><div class="ba"><span class="b1">閉じる</span></div></div></div><figcaption><span class="tag both">両版</span><b>おとなモード／外部遷移（警告のみ）</b><br>8秒で自動消去</figcaption></figure><figure><div class="phone" style="box-shadow:0 0 0 1px #bbb;background:#d9dde3;padding:6px 0"><div class="ban"><div class="bt">みみづくが気づいたよ</div><div class="bm">これは広告かも。こわいことが書いてあっても、うそかもしれないよ。さわらずにパパ・ママに見せてね。</div><div class="ba"><span class="b1">わかった</span></div></div></div><figcaption><span class="tag both">両版</span><b>こどもモード／偽の警告</b><br>8秒で自動消去</figcaption></figure><figure><div class="phone" style="box-shadow:0 0 0 1px #bbb;background:#d9dde3;padding:6px 0"><div class="ban"><div class="bt">偽の警告の可能性があります</div><div class="bm">「ウイルスに感染」「バッテリーが損傷」などの表示は、広告による偽の警告であることがよくあります。表示内のボタンやリンクは押さずに画面を閉じてください。</div><div class="ba"><span class="b1">閉じる</span></div></div></div><figcaption><span class="tag both">両版</span><b>おとなモード／偽の警告</b><br>8秒で自動消去</figcaption></figure></div>
+<h3>6.3 広告案内パネルの文言</h3>
+<table><tr><th>モード</th><th>通常</th><th>カウントダウン中</th><th>ボタン</th></tr>
+<tr><td>こども</td><td>こうこくだよ。さわらないでね。</td><td>こうこくだよ。さわらないでね。あと N びょう</td><td>もどる</td></tr>
+<tr><td>おとな</td><td>広告が表示されています。広告内のボタンに注意してください。</td><td>広告が表示されています（残り約 N 秒）。</td><td>戻る</td></tr></table>
+</section>
+
+<section id="badge">
+<h2>7. みみづくバッジ・アプリアイコン</h2>
+<p class="lead">バッジは画面右端・縦中央に 44dp・不透明度85%で常駐し、タッチは下のアプリへ通す。絵は「仮の自作画像」で、同名の drawable を差し替えれば置き換わる設計。</p>
+<div class="owlbox">
+<div class="owlcell"><svg width="128" height="128"><use href="#owl-sleepy"/></svg><b>SLEEPY</b><div style="font-size:12.5px;color:var(--sub)">平常時。うとうと（目を閉じた弧）。羽角は短い。</div></div>
+<div class="owlcell"><svg width="128" height="128"><use href="#owl-alert"/></svg><b>ALERT</b><div style="font-size:12.5px;color:var(--sub)">広告画面を見張っている。羽角が立ち、目が開く。<span class="tag gh">GitHub版のみ</span></div></div>
+<div class="owlcell"><svg width="128" height="128"><use href="#owl-wide"/></svg><b>WIDE_EYED</b><div style="font-size:12.5px;color:var(--sub)">危険度の高い検知の直後10秒間。目が大きくなる。</div></div>
+<div class="owlcell"><div style="display:flex;gap:10px;justify-content:center;align-items:center;height:128px"><svg width="44" height="44"><use href="#owl-sleepy"/></svg><svg width="44" height="44"><use href="#owl-alert"/></svg><svg width="44" height="44"><use href="#owl-wide"/></svg></div><b>実寸（44dp）</b><div style="font-size:12.5px;color:var(--sub)">画面上での実際の大きさ。</div></div>
+</div>
+<h3>表情の切替ルール（<code>BadgeExpression.of</code>、上から優先）</h3>
+<table><tr><th>優先</th><th>条件</th><th>結果</th></tr>
+<tr><td>1</td><td>バッジ設定がOFF、または一時停止中</td><td>表示しない</td></tr>
+<tr><td>2</td><td>危険度の高い検知（外部遷移・偽の警告）から10秒以内</td><td>WIDE_EYED</td></tr>
+<tr><td>3</td><td>広告画面にいる</td><td>ALERT</td></tr>
+<tr><td>4</td><td>上記以外</td><td>SLEEPY</td></tr></table>
+<div class="grid" style="margin-top:12px"><figure><div class="phone" style=""><div class="sb"><span>9:41</span><span>▂▄▆ 100%</span></div><div style="height:420px;position:relative"><div class="fakeapp"><div class="t-tl" style="color:rgba(0,0,0,.55)">（ゲーム画面のイメージ）</div><div class="bar" style="width:70%"></div><div class="blk"></div><div class="bar" style="width:50%"></div><div class="blk"></div><div class="bar" style="width:80%"></div></div><span class="badge"><svg width="44" height="44"><use href="#owl-sleepy"/></svg></span></div></div><figcaption><b>平常時の見え方</b>（SLEEPY）<br>右端中央の止まり木にいるイメージ。</figcaption></figure></div>
+<h3>アプリアイコン</h3>
+<p class="lead">アダプティブアイコン（背景 #1E3A5F ＋ 前景はみみづく ALERT 相当の顔）。108dp のうち中央の安全領域に収め、前景を1.2倍に拡大。</p>
+<div class="owlbox">
+<div class="owlcell"><div style="width:96px;height:96px;border-radius:50%;overflow:hidden;margin:0 auto 8px"><svg width="96" height="96"><use href="#launcher"/></svg></div>円形マスク</div>
+<div class="owlcell"><div style="width:96px;height:96px;border-radius:26px;overflow:hidden;margin:0 auto 8px"><svg width="96" height="96"><use href="#launcher"/></svg></div>角丸（スクワークル）マスク</div>
+<div class="owlcell"><div style="width:96px;height:96px;margin:0 auto 8px;outline:1px dashed #aaa"><svg width="96" height="96"><use href="#launcher"/></svg></div>マスクなし（108dp 全体）</div>
+</div>
+</section>
+
+<section id="tokens">
+<h2>8. デザイントークン</h2>
+<h3>独自定義の色（リソースに明記されているもの）</h3><table><tr><th>色</th><th>用途</th><th>定義元</th></tr><tr><td><span class="sw" style="background:#1E3A5F"></span><code>#1E3A5F</code></td><td>バナー・案内パネル背景（α=F0 ≒ 94%）／アプリアイコン背景</td><td><code>overlay_banner_background.xml / ic_launcher_background.xml</code></td></tr><tr><td><span class="sw" style="background:#FFFFFF"></span><code>#FFFFFF</code></td><td>バナー・案内パネルの文字色</td><td><code>overlay_banner.xml</code></td></tr><tr><td><span class="sw checker" style="background:rgba(0,0,0,.4)"></span><code>#66000000</code></td><td>タップシールド（黒 40%）</td><td><code>OverlayController.SHIELD_COLOR</code></td></tr><tr><td><span class="sw" style="background:#6D4C41"></span><code>#6D4C41</code></td><td>みみづく：羽角</td><td><code>badge_owl_*.xml</code></td></tr><tr><td><span class="sw" style="background:#8D6E63"></span><code>#8D6E63</code></td><td>みみづく：顔の外側</td><td><code>badge_owl_*.xml</code></td></tr><tr><td><span class="sw" style="background:#D7CCC8"></span><code>#D7CCC8</code></td><td>みみづく：顔の内側</td><td><code>badge_owl_*.xml</code></td></tr><tr><td><span class="sw" style="background:#3E2723"></span><code>#3E2723</code></td><td>みみづく：瞳・まぶた線</td><td><code>badge_owl_*.xml</code></td></tr><tr><td><span class="sw" style="background:#FFA000"></span><code>#FFA000</code></td><td>みみづく：くちばし</td><td><code>badge_owl_*.xml</code></td></tr></table><h3>設定画面の色（Material3 既定テーマ）</h3><div class="note info"><code>MainActivity</code> は <code>MaterialTheme { … }</code> を引数なしで使っており、独自の配色・書体は未定義です。下表は Material3 の既定ライトテーマの値で、コードに色は書かれていません（既定値からの再現）。</div><table><tr><th>色</th><th>用途</th></tr><tr><td><span class="sw" style="background:#6750A4"></span><code>#6750A4</code></td><td>primary（ボタン・選択状態・スイッチ）</td></tr><tr><td><span class="sw" style="background:#FFFBFE"></span><code>#FFFBFE</code></td><td>background / surface（画面背景）</td></tr><tr><td><span class="sw" style="background:#E7E0EC"></span><code>#E7E0EC</code></td><td>カード背景（surfaceVariant 相当）</td></tr><tr><td><span class="sw" style="background:#B3261E"></span><code>#B3261E</code></td><td>error（一時停止中の文言・PIN エラー）</td></tr><tr><td><span class="sw" style="background:#79747E"></span><code>#79747E</code></td><td>outline（OutlinedButton の枠）</td></tr><tr><td><span class="sw" style="background:#1C1B1F"></span><code>#1C1B1F</code></td><td>onSurface（本文）</td></tr></table>
+<h3>寸法・時間</h3>
+<table><tr><th>項目</th><th>値</th><th>場所</th></tr>
+<tr><td>設定画面の余白／カード間／カード内余白／カード内要素間</td><td>16dp／16dp／16dp／8dp</td><td>SettingsScreen</td></tr>
+<tr><td>ログ行カードの内側余白／要素間／行間</td><td>12dp／4dp／8dp</td><td>LogScreen</td></tr>
+<tr><td>バナー：外側余白／内側余白／角丸／影</td><td>12dp／16dp／16dp／elevation 8dp</td><td>overlay_banner.xml</td></tr>
+<tr><td>バナー：タイトル／本文／ボタン文字</td><td>20sp 太字／16sp／18sp</td><td>overlay_banner.xml</td></tr>
+<tr><td>バナー：ボタン最小サイズ</td><td>高さ56dp・主ボタン幅120dp</td><td>overlay_banner.xml</td></tr>
+<tr><td>案内パネル：内側余白／文字／ボタン</td><td>12dp／16sp／高さ64dp・幅120dp・20sp</td><td>overlay_ad_panel.xml</td></tr>
+<tr><td>バッジ：サイズ／不透明度／位置</td><td>44dp／0.85／右端・縦中央</td><td>OverlayLayout / OverlayController</td></tr>
+<tr><td>バナー自動消去</td><td>警告 8秒／確認 20秒</td><td>BannerSpec</td></tr>
+<tr><td>シールド最長時間／バッジ目大きい時間</td><td>60秒／10秒</td><td>ShieldTimer / BadgeExpression</td></tr>
+<tr><td>一時停止の選択肢／PIN桁数／ログ保持</td><td>15・30・60分／4〜8桁／500件</td><td>PauseStore / PinManager / DetectionLog</td></tr></table>
+<h3>タイポグラフィ（設定画面の用途とMaterial3スタイル）</h3>
+<table><tr><th>用途</th><th>スタイル</th><th>サイズ/行高</th></tr>
+<tr><td>アプリ名（設定画面見出し）</td><td>headlineMedium</td><td>28 / 36sp</td></tr>
+<tr><td>ログ画面タイトル・ダイアログタイトル</td><td>headlineSmall</td><td>24 / 32sp</td></tr>
+<tr><td>カードタイトル</td><td>titleLarge</td><td>22 / 28sp</td></tr>
+<tr><td>状態表示・モード名</td><td>titleMedium</td><td>16 / 24sp Medium</td></tr>
+<tr><td>ログ行の種類</td><td>titleSmall</td><td>14 / 20sp Medium</td></tr>
+<tr><td>本文</td><td>bodyLarge（既定）</td><td>16 / 24sp</td></tr>
+<tr><td>モード説明・ログ行のアプリ名</td><td>bodyMedium</td><td>14 / 20sp</td></tr>
+<tr><td>注記（プライバシー・PIN）</td><td>bodySmall</td><td>12 / 16sp</td></tr>
+<tr><td>版ラベル</td><td>labelMedium</td><td>12 / 16sp Medium</td></tr></table>
+</section>
+
+<section id="diff">
+<h2>9. 版による UI の差分（GitHub版 / Play版）</h2>
+<p class="lead">差は <code>FeatureSet</code> に集約。Play の「他のアプリの広告表示の妨害」に当たり得る機能を外しています。</p>
+<table><tr><th>機能</th><th class="c">GitHub版</th><th class="c">Play版</th><th>UIへの影響</th></tr>
+<tr><td>外部遷移をこどもモードで自動で戻す</td><td class="c">✔</td><td class="c">—</td><td>Play版はこどもでも「もどる／このまま すすむ」を出す。設定画面のこども説明も切替</td></tr>
+<tr><td>タップ直後の外部遷移にも介入</td><td class="c">✔</td><td class="c">—</td><td>バナーが出る機会が減る</td></tr>
+<tr><td>広告画面の案内パネル（残り秒数・大きな「もどる」）</td><td class="c">✔</td><td class="c">—</td><td>6.1 の下部パネルが出ない</td></tr>
+<tr><td>全画面広告のタップシールド</td><td class="c">✔</td><td class="c">—</td><td>暗幕が出ない</td></tr>
+<tr><td>閉じるボタンの代理タップ</td><td class="c">✔</td><td class="c">—</td><td>案内パネルの「もどる」が無いため UI としては現れない</td></tr>
+<tr><td>バッジの「広告画面で耳が立つ」表情</td><td class="c">✔</td><td class="c">—</td><td>ALERT 表情が使われない。設定画面のバッジ説明も切替</td></tr>
+<tr><td>版ラベル（設定画面）</td><td class="c">GitHub 版（全機能）</td><td class="c">Google Play 版</td><td>見出し直下に表示</td></tr></table>
+<p>共通: 偽の警告バナー・外部遷移（タップなし）への警告・開示と同意・PIN・一時停止・ログ・バッジ（SLEEPY／WIDE_EYED）。</p>
+</section>
+
+<section id="issues">
+<h2>10. 所見（デザイン上の論点）</h2>
+<p class="lead">コード読解から挙がった論点です。実機で確認していないものは「未確認」としています。優先度付けや起票は含めていません。</p>
+<table><tr><th>#</th><th>論点</th><th>根拠・状況</th></tr>
+<tr><td>1</td><td><b>配色がブランド色と不一致</b><br><span class="tag">配色</span></td><td>アイコン・オーバーレイはネイビー #1E3A5F だが、設定画面は Material3 既定の紫（primary #6750A4）。独自テーマ未定義。</td></tr>
+<tr><td>2</td><td><b>ダークテーマ・ダイナミックカラー非対応</b><br><span class="tag">テーマ</span></td><td><code>MaterialTheme { }</code> を引数なしで使用。既定は常にライト配色のため、端末がダークでも設定画面は明るいまま（実機は未確認）。</td></tr>
+<tr><td>3</td><td><b>オーバーレイのボタン配色が既定任せ</b><br><span class="tag unk">未確認</span></td><td><code>banner_primary</code> は <code>android:Button</code> の既定スタイルで、文字色指定なし。サービスのコンテキストのテーマ次第で、ネイビー背景上の視認性が変わる可能性。本書のボタンは仮の配色で描画。</td></tr>
+<tr><td>4</td><td><b>バッジ画像が仮素材</b><br><span class="tag">素材</span></td><td>ファイル内コメントに「仮の自作画像」と明記。位置は右端中央固定で利用者は変更不可、44dp・不透明度85%。</td></tr>
+<tr><td>5</td><td><b>設定画面のカード順</b><br><span class="tag">情報設計</span></td><td>状態→一時停止→（ガイド）→モード→PIN→バッジ→ログ。サービス停止中は「一時停止」が「オンにできないとき」ガイドより先に来る。</td></tr>
+<tr><td>6</td><td><b>アクセシビリティ（画面読み上げ・文字拡大・横向き・タブレット）</b><br><span class="tag unk">未確認</span></td><td>バッジは読み上げ対象外に設定済み。バナーの読み上げ、フォント拡大時のバナー高さ（wrap_content）や、横向き・タブレットでの崩れは未検証。</td></tr>
+<tr><td>7</td><td><b>こども向け文言の読みやすさ</b><br><span class="tag">文言</span></td><td>バナー・案内パネルはひらがな中心だが、Play版の確認文は文が長い（「じぶんで おしたのでなければ…」）。設定画面は保護者向けで漢字表記。</td></tr>
+<tr><td>8</td><td><b>ストア掲載用スクリーンショット・実機キャプチャが未作成</b><br><span class="tag">素材</span></td><td>リポジトリに画像資産なし。本書のモックは再現であり、掲載用には実機撮影が必要。</td></tr></table>
+</section>
+
+</main>
+<footer>
+生成元: <code>mobile/src/main/kotlin/com/mimiduku/mobile/{settings,overlay,feature}</code>、<code>res/layout</code>、<code>res/drawable</code>、<code>res/values/strings.xml</code>。コードを変更した場合は本書も更新が必要です（自動連動はしません）。
+</footer>
+</body>
+</html>
