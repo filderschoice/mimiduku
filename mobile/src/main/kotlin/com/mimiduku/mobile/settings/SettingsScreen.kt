@@ -1,15 +1,13 @@
 package com.mimiduku.mobile.settings
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
@@ -72,6 +70,15 @@ interface SettingsActions {
     fun setBadgeVisible(visible: Boolean)
 }
 
+/** 画面間の移動の操作。 */
+interface NavigationActions {
+    fun openSettings()
+
+    fun openAbout()
+
+    fun navigateUp()
+}
+
 /** アクセシビリティ API の利用についての開示と同意の操作。 */
 interface ConsentActions {
     fun acceptDisclosure()
@@ -84,33 +91,15 @@ interface LogActions {
     fun clearLog()
 }
 
+/** 設定画面。利用モード・保護者 PIN・みみづくバッジ。 */
 @Composable
 fun SettingsScreen(
     state: SettingsState,
     actions: SettingsActions,
-    consentActions: ConsentActions,
+    navigation: NavigationActions,
 ) {
-    Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        Text(text = stringResource(R.string.app_name), style = MaterialTheme.typography.headlineMedium)
-        Text(text = stringResource(distributionLabelRes(state.features)), style = MaterialTheme.typography.labelMedium)
-        Text(text = stringResource(R.string.settings_intro))
-        if (state.consented) ServiceCard(state, actions) else DisclosureCard(consentActions)
-        PauseCard(state, actions)
-        if (state.showRestrictedGuide && !state.serviceEnabled) {
-            SettingsCard(title = stringResource(R.string.settings_restricted_title)) {
-                Text(text = stringResource(R.string.settings_restricted_steps))
-                OutlinedButton(onClick = actions::openAppDetails) {
-                    Text(text = stringResource(R.string.settings_open_app_details))
-                }
-            }
-        }
+    BackHandler(onBack = navigation::navigateUp)
+    AppScaffold(title = stringResource(R.string.menu_settings), navigateUp = navigation::navigateUp) {
         SettingsCard(title = stringResource(R.string.settings_mode_title)) {
             Column(modifier = Modifier.selectableGroup()) {
                 UsageMode.entries.forEach { ModeOption(it, state, actions) }
@@ -133,11 +122,6 @@ fun SettingsScreen(
                 Switch(checked = state.badgeVisible, onCheckedChange = actions::setBadgeVisible)
             }
         }
-        SettingsCard(title = stringResource(R.string.settings_log_title)) {
-            Text(text = stringResource(R.string.settings_log_count, state.logCount))
-            Text(text = stringResource(R.string.settings_log_privacy), style = MaterialTheme.typography.bodySmall)
-            OutlinedButton(onClick = actions::openLog) { Text(stringResource(R.string.settings_log_open)) }
-        }
     }
 }
 
@@ -146,7 +130,7 @@ fun SettingsScreen(
  * 同意のチェックとボタンの操作を求め、同意するまでアクセシビリティ設定へ進めない。
  */
 @Composable
-private fun DisclosureCard(consentActions: ConsentActions) {
+internal fun DisclosureCard(consentActions: ConsentActions) {
     var checked by remember { mutableStateOf(false) }
     SettingsCard(title = stringResource(R.string.disclosure_title)) {
         Text(text = stringResource(R.string.disclosure_body))
@@ -161,7 +145,7 @@ private fun DisclosureCard(consentActions: ConsentActions) {
 }
 
 @Composable
-private fun ServiceCard(
+internal fun ServiceCard(
     state: SettingsState,
     actions: SettingsActions,
 ) {
@@ -176,7 +160,7 @@ private fun ServiceCard(
 }
 
 @Composable
-private fun PauseCard(
+internal fun PauseCard(
     state: SettingsState,
     actions: SettingsActions,
 ) {

@@ -25,5 +25,7 @@
         android:layout_marginStart="12dp"
         android:minHeight="64dp"
         android:minWidth="120dp"
+        android:background="@drawable/overlay_button_background"
+        android:textColor="#FF1E3A5F"
         android:textSize="20sp" />
 </LinearLayout>

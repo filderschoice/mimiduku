@@ -191,6 +191,31 @@ class SettingsControllerTest {
     }
 
     @Test
+    fun `navigation moves between home, settings and about and back`() {
+        assertEquals(Screen.HOME, controller.screen)
+
+        controller.openSettings()
+        assertEquals(Screen.SETTINGS, controller.screen)
+        controller.navigateUp()
+        assertEquals(Screen.HOME, controller.screen)
+
+        controller.openAbout()
+        assertEquals(Screen.ABOUT, controller.screen)
+        controller.navigateUp()
+        assertEquals(Screen.HOME, controller.screen)
+    }
+
+    @Test
+    fun `opening the log from the settings screen keeps pin protection on the guarded actions`() {
+        pinManager.set("1234")
+        controller.openSettings()
+
+        controller.selectMode(UsageMode.ADULT)
+
+        assertTrue(controller.dialog is SettingsDialog.Entry)
+    }
+
+    @Test
     fun `closing the log returns to the settings`() {
         controller.openLog()
 

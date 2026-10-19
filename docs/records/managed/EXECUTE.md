@@ -5,6 +5,65 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-10-20 13:00
+  summary: テーマのカード・ダイアログ背景色をブランド色へ揃え、UI デザイン設計書を新しい UI へ追従更新する（BL-037）
+  details:
+    変更内容: >-
+      MimidukuTheme に surfaceContainer 系の色を足した（既定のままだとカード背景が Material3 既定の紫がかった灰色になるため）。
+      UI デザイン設計書を Skill ui-design-doc-html の手順で更新した（ホーム・設定・このアプリについての画面、歯車と「⋮」、
+      ダーク、テーマ色、オーバーレイのボタン、丸いバッジ、所見の対応状況）。みみづくの図は drawable のパスから生成した。
+      README・TESTING.md（U1〜U5 を追加）の画面名を新しい構成に合わせた。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/ui/MimidukuTheme.kt
+      - docs/design/UI_DESIGN.html
+      - README.md
+      - docs/TESTING.md
+      - CHANGELOG.md
+      - docs/records/managed/BACKLOG.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintGithubDebug lintPlayDebug assembleDebug testGithubDebugUnitTest testPlayDebugUnitTest、
+      npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml、python scripts/validate-records.py
+    検証結果: 成功 - いずれも終了コード0。設計書はヘッドレス Edge で撮影して目視確認した（実機は未確認）
+    関連ID:
+      - BL-037
+- date: 2026-10-20 12:00
+  summary: アプリ内の UI を整理する。ネイビー基調のダーク対応テーマ、ホーム・設定・このアプリについての画面構成、歯車と「⋮」メニュー、オーバーレイのボタン配色、バッジの造形（BL-032・BL-033・BL-034・BL-036）
+  details:
+    変更内容: >-
+      MimidukuTheme（ネイビー基調・ダーク追従・ダイナミックカラーなし）を追加し、Activity の下地を DayNight にした。
+      画面をホーム・設定・このアプリについて・検知ログに分け、TopAppBar の歯車（設定）と「⋮」メニュー
+      （検知ログ・アプリ情報・このアプリについて）、戻る矢印を追加した。サービス停止中の「オンにできないとき」は
+      状態カードの直後に出す。移動は NavigationActions と SettingsController.screen で行い、PIN の保護は従来どおり。
+      オーバーレイの主ボタンを白地に紺の文字で明示した。Play 版のこども向け確認文を短くした。みみづくバッジ3種と
+      アプリアイコンを丸みのある造形へ差し替えた（ユーザー指示）。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/ui/MimidukuTheme.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/HomeScreen.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/SettingsScreen.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/LogScreen.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/SettingsController.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/MainActivity.kt
+      - mobile/src/main/AndroidManifest.xml
+      - mobile/src/main/res/values/themes.xml
+      - mobile/src/main/res/values/strings.xml
+      - mobile/src/main/res/drawable/overlay_button_background.xml
+      - mobile/src/main/res/drawable/badge_owl_sleepy.xml
+      - mobile/src/main/res/drawable/badge_owl_alert.xml
+      - mobile/src/main/res/drawable/badge_owl_wide.xml
+      - mobile/src/main/res/drawable/ic_launcher_foreground.xml
+      - mobile/src/main/res/layout/overlay_banner.xml
+      - mobile/src/main/res/layout/overlay_ad_panel.xml
+      - mobile/src/test/kotlin/com/mimiduku/mobile/settings/SettingsControllerTest.kt
+      - docs/records/managed/DESIGN.md
+      - docs/records/managed/BACKLOG.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintGithubDebug lintPlayDebug assembleDebug testGithubDebugUnitTest testPlayDebugUnitTest
+    検証結果: 成功 - いずれも終了コード0（実機での見た目は未確認。BL-039 で人手検証）
+    関連ID:
+      - BL-032
+      - BL-033
+      - BL-034
+      - BL-036
 - date: 2026-10-19 19:10
   summary: アクセシビリティ API の利用についての目立つ開示と同意の画面を追加する（BL-029）
   details:

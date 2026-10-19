@@ -38,6 +38,9 @@ interface SettingsPlatform {
     fun appLabel(packageName: String): String?
 }
 
+/** アプリ内で開く画面（検知ログは [SettingsController.logRows] で別に持つ）。 */
+enum class Screen { HOME, SETTINGS, ABOUT }
+
 /** 表示中のダイアログ。 */
 sealed interface SettingsDialog {
     /** PIN を求め、成功したら [onSuccess] を行う。 */
@@ -60,10 +63,14 @@ class SettingsController(
     private val features: FeatureSet = FeatureSet.GITHUB,
 ) : SettingsActions,
     LogActions,
-    ConsentActions {
+    ConsentActions,
+    NavigationActions {
     var state by mutableStateOf(load())
         private set
     var dialog by mutableStateOf<SettingsDialog?>(null)
+        private set
+
+    var screen by mutableStateOf(Screen.HOME)
         private set
 
     /** ログ閲覧画面に出す行。閲覧画面を閉じているときは null。 */
@@ -141,6 +148,20 @@ class SettingsController(
 
     override fun acceptDisclosure() {
         stores.consentStore.accept()
+        refresh()
+    }
+
+    override fun openSettings() {
+        screen = Screen.SETTINGS
+    }
+
+    override fun openAbout() {
+        screen = Screen.ABOUT
+    }
+
+    /** 設定・このアプリについてからホームへ戻る。 */
+    override fun navigateUp() {
+        screen = Screen.HOME
         refresh()
     }
 

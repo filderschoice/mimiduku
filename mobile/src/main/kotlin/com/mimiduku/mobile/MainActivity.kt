@@ -9,7 +9,6 @@ import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -18,9 +17,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import com.mimiduku.mobile.pin.PinManager
 import com.mimiduku.mobile.service.MimidukuAccessibilityService
+import com.mimiduku.mobile.settings.AboutScreen
+import com.mimiduku.mobile.settings.HomeScreen
 import com.mimiduku.mobile.settings.LogScreen
 import com.mimiduku.mobile.settings.PinEntryDialog
 import com.mimiduku.mobile.settings.PinSetupDialog
+import com.mimiduku.mobile.settings.Screen
 import com.mimiduku.mobile.settings.SettingsController
 import com.mimiduku.mobile.settings.SettingsDialog
 import com.mimiduku.mobile.settings.SettingsPlatform
@@ -28,6 +30,7 @@ import com.mimiduku.mobile.settings.SettingsScreen
 import com.mimiduku.mobile.settings.SettingsStores
 import com.mimiduku.mobile.settings.SetupStatus
 import com.mimiduku.mobile.storage.SharedPreferencesStringStore
+import com.mimiduku.mobile.ui.MimidukuTheme
 
 /** 保護者・利用者向けの設定画面。状態と操作は [SettingsController] が持つ。 */
 class MainActivity :
@@ -51,13 +54,20 @@ class MainActivity :
                 }
             // 設定画面から戻ったときに状態を読み直す。
             LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { controller.refresh() }
-            MaterialTheme {
+            MimidukuTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     val logRows = controller.logRows
-                    if (logRows == null) {
-                        SettingsScreen(state = controller.state, actions = controller, consentActions = controller)
-                    } else {
-                        LogScreen(rows = logRows, actions = controller)
+                    val state = controller.state
+                    when {
+                        logRows != null -> LogScreen(rows = logRows, actions = controller)
+                        controller.screen == Screen.SETTINGS ->
+                            SettingsScreen(
+                                state = state,
+                                actions = controller,
+                                navigation = controller,
+                            )
+                        controller.screen == Screen.ABOUT -> AboutScreen(state = state, navigation = controller)
+                        else -> HomeScreen(state, controller, controller, controller)
                     }
                     SettingsDialogHost(controller)
                 }
