@@ -5,6 +5,27 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-10-20 13:00
+  summary: テーマのカード・ダイアログ背景色をブランド色へ揃え、UI デザイン設計書を新しい UI へ追従更新する（BL-037）
+  details:
+    変更内容: >-
+      MimidukuTheme に surfaceContainer 系の色を足した（既定のままだとカード背景が Material3 既定の紫がかった灰色になるため）。
+      UI デザイン設計書を Skill ui-design-doc-html の手順で更新した（ホーム・設定・このアプリについての画面、歯車と「⋮」、
+      ダーク、テーマ色、オーバーレイのボタン、丸いバッジ、所見の対応状況）。みみづくの図は drawable のパスから生成した。
+      README・TESTING.md（U1〜U5 を追加）の画面名を新しい構成に合わせた。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/ui/MimidukuTheme.kt
+      - docs/design/UI_DESIGN.html
+      - README.md
+      - docs/TESTING.md
+      - CHANGELOG.md
+      - docs/records/managed/BACKLOG.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintGithubDebug lintPlayDebug assembleDebug testGithubDebugUnitTest testPlayDebugUnitTest、
+      npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml、python scripts/validate-records.py
+    検証結果: 成功 - いずれも終了コード0。設計書はヘッドレス Edge で撮影して目視確認した（実機は未確認）
+    関連ID:
+      - BL-037
 - date: 2026-10-20 12:00
   summary: アプリ内の UI を整理する。ネイビー基調のダーク対応テーマ、ホーム・設定・このアプリについての画面構成、歯車と「⋮」メニュー、オーバーレイのボタン配色、バッジの造形（BL-032・BL-033・BL-034・BL-036）
   details:
