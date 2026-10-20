@@ -1,7 +1,7 @@
 # mimiduku MVP 設計書
 
 > 第2段階（保護者 PIN・一時停止・ログ閲覧・広告画面・シールド・代理タップ・バッジ）の実装済みの要件は
-> [DESIGN.md](../records/managed/DESIGN.md) の FR-10〜FR-18 を正とします。本書は MVP 検討時の回答として残します。
+> [DESIGN.md](../records/managed/DESIGN.md) の FR-10〜FR-21 を正とします。本書は MVP 検討時の回答として残します。
 
 [PLAN.md](../../PLAN.md) の「8. 検討してほしいこと」と「10. 出力してほしいもの」1〜4への回答です。
 Android の仕様に関する記述は 2026-10 時点のエージェントの知識に基づき、**一次情報（developer.android.com）での
@@ -52,7 +52,7 @@ Android の仕様に関する記述は 2026-10 時点のエージェントの知
 | 30（11） | パッケージ可視性 | イベントから得るパッケージ名は可視性の影響を受けない。ブラウザ・ランチャーを `queryIntentActivities` で調べるには `<queries>` が必要 | `<queries>` に `VIEW https` と `MAIN/HOME` の intent を宣言。`QUERY_ALL_PACKAGES` は使わない | 仕様確認済み（知識ベース） |
 | 31（12） | Untrusted Touch（他アプリのオーバーレイを透過したタッチの遮断） | `TYPE_ACCESSIBILITY_OVERLAY` は対象外とされる。MVP のバナーはタッチを透過させず、バナーの外は下のアプリへ届く | バナーは `FLAG_NOT_TOUCH_MODAL` で自分の領域だけ受け取る | 要実機確認 |
 | 33（13） | 制限された設定（サイドロードしたアプリのアクセシビリティ有効化の制限） | ブラウザやファイルマネージャー経由でインストールすると、アクセシビリティを有効にできない | アプリ情報の「︙」→「制限された設定を許可」の手順を設定画面と README に示す | 要実機確認（adb install が対象外かも含む） |
-| 33（13） | 通知権限 `POST_NOTIFICATIONS` | MVP は通知を出さない | 宣言しない | 対応不要 |
+| 33（13） | 通知権限 `POST_NOTIFICATIONS` | MVP は通知を出さない（その後、バッジの操作の通知で使う。DESIGN.md の FR-21） | MVP では宣言しない（後に宣言し、設定でオンにしたときに求める） | 要実機確認 |
 | 34（14） | フォアグラウンドサービスの種別指定 | AccessibilityService はシステムがバインドして常駐させるため、FGS は不要 | FGS を使わない | 仕様上影響なし |
 | 35（15） | 制限された設定の対象拡大 | 未確認（インストール方法による差が広がったとされる） | 1と同じ手順で案内する | 未確認 |
 | 36（16） | 高度な保護（Advanced Protection） | 有効な端末ではアクセシビリティサービスを使えない見込み | 前提条件として README に記載 | 要実機確認 |
@@ -166,7 +166,8 @@ MainActivity（Compose）: サービスの状態、設定を開く、利用モ�
 | `android.permission.BIND_ACCESSIBILITY_SERVICE`（サービスの `permission` 属性） | システムだけがサービスへバインドできるようにする |
 | `<queries>`（`VIEW https`・`MAIN/HOME`） | ブラウザとランチャーの判別 |
 
-`SYSTEM_ALERT_WINDOW`・`INTERNET`・`QUERY_ALL_PACKAGES`・`POST_NOTIFICATIONS` は使わない。
+`SYSTEM_ALERT_WINDOW`・`INTERNET`・`QUERY_ALL_PACKAGES` は使わない。`POST_NOTIFICATIONS` は MVP では使わなかったが、
+バッジの操作の通知のために後から宣言した（DESIGN.md の FR-21）。
 
 ### 7.4 AndroidManifest と accessibility_service_config.xml の案
 

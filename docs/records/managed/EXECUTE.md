@@ -5,6 +5,29 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-10-21 12:00
+  summary: バッジの移動・最小化・通知操作に合わせてドキュメントを最新化する（BL-042）
+  details:
+    変更内容: >-
+      DESIGN.md の FR-18 を更新し FR-21（移動・最小化・通知操作）を追加した。保存キー、バッジのウィンドウの扱い、
+      権限の方針（POST_NOTIFICATIONS を宣言する旨）も改めた。MVP_DESIGN.md の通知権限の記述、README の機能表、
+      PRIVACY.md の保存する設定、docs/TESTING.md（BadgePlacementTest と 2.7 の確認項目 B1〜B8、旧 2.7 は 2.8 へ）、
+      UI デザイン設計書の本文と寸法表（バッジの移動・最小化・通知）を実装に合わせた。UI デザイン設計書の画面イメージ（設定画面の図）
+      は通知スイッチを描き足していない。
+    変更ファイル:
+      - docs/records/managed/DESIGN.md
+      - docs/design/MVP_DESIGN.md
+      - docs/design/UI_DESIGN.html
+      - README.md
+      - docs/PRIVACY.md
+      - docs/TESTING.md
+      - CHANGELOG.md
+      - docs/records/managed/BACKLOG.md
+    検証コマンド: >-
+      npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml、python scripts/validate-records.py
+    検証結果: 成功 - いずれも終了コード0（コードの変更はなく、品質ゲートのビルド系は前回の成功から変化なし）
+    関連ID:
+      - BL-042
 - date: 2026-10-21 11:00
   summary: 通知にバッジの「隠す／出す」ボタンを出し、設定画面に通知の表示スイッチを追加する（BL-041）
   details:
