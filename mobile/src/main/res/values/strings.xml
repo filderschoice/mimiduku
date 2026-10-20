@@ -104,8 +104,15 @@
 
     <!-- みみづくバッジ -->
     <string name="settings_badge_title">みみづくバッジ</string>
-    <string name="settings_badge_description">画面の右端にみみづくを出します。広告を見つけると耳が立ち、あやしい動きを止めると目が大きくなります。</string>
-    <string name="settings_badge_description_limited">画面の右端にみみづくを出します。あやしい動きに気づくと目が大きくなります。</string>
+    <string name="settings_badge_description">画面の端にみみづくを出します。広告を見つけると耳が立ち、あやしい動きを止めると目が大きくなります。指で動かせ、画面の外へ引き出すと端にしまえます（しまったバッジを触ると戻ります）。</string>
+    <string name="settings_badge_description_limited">画面の端にみみづくを出します。あやしい動きに気づくと目が大きくなります。指で動かせ、画面の外へ引き出すと端にしまえます（しまったバッジを触ると戻ります）。</string>
+    <string name="settings_badge_notification">通知からもバッジを隠す・出す操作ができるようにする</string>
+    <string name="notification_channel_name">バッジの操作</string>
+    <string name="notification_title">みみづくが見守っています</string>
+    <string name="notification_text_shown">バッジを表示しています</string>
+    <string name="notification_text_hidden">バッジを隠しています</string>
+    <string name="notification_action_hide">バッジを隠す</string>
+    <string name="notification_action_show">バッジを出す</string>
     <string name="settings_distribution_github">GitHub 版（全機能）</string>
     <string name="settings_distribution_play">Google Play 版</string>
 

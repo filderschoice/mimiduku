@@ -5,6 +5,34 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-10-21 11:00
+  summary: 通知にバッジの「隠す／出す」ボタンを出し、設定画面に通知の表示スイッチを追加する（BL-041）
+  details:
+    変更内容: >-
+      BadgeNotification を追加した（常駐通知のボタンから、アプリを開かずにバッジの表示を切り替える。ボタンの合図は
+      サービスが RECEIVER_NOT_EXPORTED で登録する受信側へ、自アプリ内だけに送る）。通知は設定がオンで、同意済みで、
+      通知権限がある場合にだけ出し、権限が無ければ何も出さず保護の動作には影響しない。設定画面へ通知のスイッチを追加し、
+      オンにしたときに Android 13 以降は POST_NOTIFICATIONS を求める（SettingsPlatform.requestNotificationPermission）。
+      通知アイコン ic_stat_owl とバッジの説明文（移動・最小化）を追加・更新した。detekt の関数数の上限に合わせ、
+      バッジの操作を BadgeActions へ分けた。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/BadgeNotification.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/MimidukuAccessibilityService.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/mode/BadgeSettings.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/SettingsController.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/SettingsScreen.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/MainActivity.kt
+      - mobile/src/main/AndroidManifest.xml
+      - mobile/src/main/res/values/strings.xml
+      - mobile/src/main/res/drawable/ic_stat_owl.xml
+      - mobile/src/test/kotlin/com/mimiduku/mobile/settings/SettingsControllerTest.kt
+      - docs/records/managed/BACKLOG.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintGithubDebug lintPlayDebug assembleDebug testGithubDebugUnitTest testPlayDebugUnitTest、
+      python scripts/validate-records.py
+    検証結果: 成功 - いずれも終了コード0。通知の表示・ボタン操作・権限ダイアログは実機で未確認（BL-043）
+    関連ID:
+      - BL-041
 - date: 2026-10-21 10:00
   summary: みみづくバッジをドラッグで動かせるようにし、画面の外へ引き出すと端へ最小化する（BL-040）
   details:

@@ -1,8 +1,10 @@
 package com.mimiduku.mobile.service
 
 import android.accessibilityservice.AccessibilityService
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.net.Uri
@@ -11,6 +13,7 @@ import android.os.SystemClock
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import android.view.inputmethod.InputMethodManager
+import androidx.core.content.ContextCompat
 import com.mimiduku.mobile.BuildConfig
 import com.mimiduku.mobile.detect.AdScreenDetector
 import com.mimiduku.mobile.detect.ExternalTransitionDetector
@@ -45,6 +48,19 @@ class MimidukuAccessibilityService : AccessibilityService() {
     private var overlay: OverlayController? = null
     private val shieldTimer = ShieldTimer()
     private lateinit var badgeSettings: BadgeSettings
+    private lateinit var badgeNotification: BadgeNotification
+
+    /** 通知の「バッジを隠す／出す」ボタンの受け口（アプリの中からの合図だけを受ける）。 */
+    private val toggleReceiver =
+        object : BroadcastReceiver() {
+            override fun onReceive(
+                context: Context,
+                intent: Intent,
+            ) {
+                badgeSettings.setVisible(!badgeSettings.isVisible())
+                refreshBadge()
+            }
+        }
     private lateinit var consentStore: ConsentStore
     private var lastDangerAt: Long? = null
     private lateinit var detectionLog: DetectionLog
@@ -61,6 +77,13 @@ class MimidukuAccessibilityService : AccessibilityService() {
         pauseStore = pauseStore(this)
         badgeSettings = badgeSettings(this)
         consentStore = consentStore(this)
+        badgeNotification = BadgeNotification(this)
+        ContextCompat.registerReceiver(
+            this,
+            toggleReceiver,
+            IntentFilter(BadgeNotification.ACTION_TOGGLE_BADGE),
+            ContextCompat.RECEIVER_NOT_EXPORTED,
+        )
         val rules = RulesLoader.parse(readRulesAsset()).rules
         val classifier =
             PackageClassifier(
@@ -85,7 +108,7 @@ class MimidukuAccessibilityService : AccessibilityService() {
                 onGoBack = { performGlobalAction(GLOBAL_ACTION_BACK) },
                 onAdClose = ::closeAd,
             )
-        updateBadge(paused = pauseStore.isPaused() || !consentStore.hasConsented(), onAdScreen = false)
+        refreshBadge()
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
@@ -122,6 +145,12 @@ class MimidukuAccessibilityService : AccessibilityService() {
         logExecutor.execute { runCatching { detectionLog.append(entry) } }
     }
 
+    /** 通知のボタンなど、イベントとは別の契機でバッジを合わせ直す。 */
+    private fun refreshBadge() {
+        val paused = pauseStore.isPaused() || !consentStore.hasConsented()
+        updateBadge(paused, onAdScreen = !paused && FEATURES.badgeReactsToAds && engine?.adScreen != null)
+    }
+
     private fun updateBadge(
         paused: Boolean,
         onAdScreen: Boolean,
@@ -135,6 +164,11 @@ class MimidukuAccessibilityService : AccessibilityService() {
                 nowMillis = SystemClock.elapsedRealtime(),
             )
         overlay?.setBadge(expression, badgeSettings.placement())
+        // 同意前は通知も出さない（同意なしでサービスだけ有効にされた場合に備える）。
+        badgeNotification.sync(
+            enabled = badgeSettings.isNotificationEnabled() && consentStore.hasConsented(),
+            badgeVisible = badgeSettings.isVisible(),
+        )
     }
 
     /** 利用者が案内パネルの「もどる」を押したとき。本物の閉じるボタンを押せなければ「戻る」で代える。 */
@@ -164,6 +198,8 @@ class MimidukuAccessibilityService : AccessibilityService() {
     }
 
     override fun onDestroy() {
+        unregisterReceiver(toggleReceiver)
+        badgeNotification.cancel()
         overlay?.dismissAll()
         overlay = null
         engine = null

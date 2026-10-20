@@ -41,14 +41,23 @@ data class SettingsState(
     /** 一時停止の残り時間（分、切り上げ）。停止していなければ 0。 */
     val pauseRemainingMinutes: Int,
     val badgeVisible: Boolean,
+    /** 通知にバッジの操作を出すか。 */
+    val badgeNotification: Boolean = true,
     /** この版で有効な機能。画面に出す説明の切り替えに使う。 */
     val features: FeatureSet = FeatureSet.GITHUB,
     /** アクセシビリティ API の利用について同意済みか。 */
     val consented: Boolean = true,
 )
 
+/** みみづくバッジの操作。 */
+interface BadgeActions {
+    fun setBadgeVisible(visible: Boolean)
+
+    fun setBadgeNotification(enabled: Boolean)
+}
+
 /** 設定画面の操作。PIN が要るかの判定は実装側（[SettingsController]）で行う。 */
-interface SettingsActions {
+interface SettingsActions : BadgeActions {
     fun openAccessibilitySettings()
 
     fun openAppDetails()
@@ -66,8 +75,6 @@ interface SettingsActions {
     fun resume()
 
     fun openLog()
-
-    fun setBadgeVisible(visible: Boolean)
 }
 
 /** 画面間の移動の操作。 */
@@ -120,6 +127,14 @@ fun SettingsScreen(
                     }
                 Text(text = stringResource(description), modifier = Modifier.weight(1f))
                 Switch(checked = state.badgeVisible, onCheckedChange = actions::setBadgeVisible)
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(text = stringResource(R.string.settings_badge_notification), modifier = Modifier.weight(1f))
+                Switch(checked = state.badgeNotification, onCheckedChange = actions::setBadgeNotification)
             }
         }
     }

@@ -13,6 +13,13 @@ class BadgeSettings(
         if (visible) store.remove(KEY) else store.putString(KEY, HIDDEN)
     }
 
+    /** 通知にバッジの操作を出すか。既定は出す。 */
+    fun isNotificationEnabled(): Boolean = store.getString(NOTIFICATION_KEY) != OFF
+
+    fun setNotificationEnabled(enabled: Boolean) {
+        if (enabled) store.remove(NOTIFICATION_KEY) else store.putString(NOTIFICATION_KEY, OFF)
+    }
+
     /** バッジの置き場所。未保存なら右端の中央。 */
     fun placement(): BadgePlacement = BadgePlacement.decode(store.getString(PLACEMENT_KEY))
 
@@ -27,6 +34,8 @@ class BadgeSettings(
     private companion object {
         const val KEY = "badge_visible"
         const val HIDDEN = "false"
+        const val NOTIFICATION_KEY = "badge_notification"
+        const val OFF = "false"
         const val PLACEMENT_KEY = "badge_placement"
     }
 }
