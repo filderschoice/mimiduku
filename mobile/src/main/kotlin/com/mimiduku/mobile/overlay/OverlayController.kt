@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
 import android.widget.Button
-import android.widget.ImageView
 import android.widget.TextView
 import com.mimiduku.mobile.R
 
@@ -21,6 +20,8 @@ import com.mimiduku.mobile.R
  */
 class OverlayController(
     private val context: Context,
+    /** バッジの置き場所を保存する。ドラッグや最小化のたびに呼ばれる。 */
+    private val onBadgePlacementChanged: (BadgePlacement) -> Unit,
     private val onGoBack: () -> Unit,
     /** 案内パネルの「もどる」。本物の閉じるボタンの代理タップを試し、だめなら戻る（BL-021）。 */
     private val onAdClose: () -> Unit = onGoBack,
@@ -32,8 +33,7 @@ class OverlayController(
     private var adPanel: View? = null
     private var adPanelSpec: AdPanelSpec? = null
     private var shield: View? = null
-    private var badge: ImageView? = null
-    private var badgeExpression: BadgeExpression? = null
+    private val badge = BadgeOverlay(context, windowManager, onBadgePlacementChanged)
     private val shieldTimeoutRunnable = Runnable { setShield(false) }
 
     fun show(spec: BannerSpec) {
@@ -115,25 +115,15 @@ class OverlayController(
     }
 
     /**
-     * みみづくバッジを画面の右端に出す（[expression] が null なら消す）。タッチは受け取らず、下のアプリへ通す。
+     * みみづくバッジを出す（[expression] が null なら消す）。[placement] が置き場所で、バッジは指で動かせる。
      */
-    fun setBadge(expression: BadgeExpression?) {
-        if (expression == badgeExpression) return
-        badgeExpression = expression
-        if (expression == null) {
-            badge?.let { runCatching { windowManager.removeView(it) } }
-            badge = null
-            return
-        }
-        val view =
-            badge ?: ImageView(context).also { image ->
-                image.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
-                image.alpha = BADGE_ALPHA
-                windowManager.addView(image, OverlayLayout.badge(context))
-                badge = image
-            }
-        view.setImageResource(expression.drawableRes)
-    }
+    fun setBadge(
+        expression: BadgeExpression?,
+        placement: BadgePlacement = BadgePlacement.DEFAULT,
+    ) = badge.update(expression, placement)
+
+    /** 画面の向きが変わったとき、バッジを同じ置き場所へ合わせ直す。 */
+    fun relayoutBadge() = badge.relayout()
 
     /** 警告バナー・広告画面の案内パネル・シールド・バッジをすべて消す。 */
     fun dismissAll() {
@@ -141,7 +131,7 @@ class OverlayController(
         adPanelSpec = null
         removeAdPanel()
         setShield(false)
-        setBadge(null)
+        badge.remove()
     }
 
     private fun removeAdPanel() {
@@ -167,8 +157,5 @@ class OverlayController(
     private companion object {
         /** 広告が透けて見える程度の半透明の黒。 */
         const val SHIELD_COLOR = 0x66000000
-
-        /** 止まり木にいる小さなバッジが画面の邪魔にならない濃さ。 */
-        const val BADGE_ALPHA = 0.85f
     }
 }

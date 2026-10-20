@@ -1,28 +1,26 @@
 package com.mimiduku.mobile.overlay
 
-import android.content.Context
 import android.graphics.PixelFormat
 import android.view.Gravity
 import android.view.WindowManager
 
 /** オーバーレイの各ウィンドウの配置。いずれも TYPE_ACCESSIBILITY_OVERLAY で、フォーカスは取らない。 */
 internal object OverlayLayout {
-    /** 止まり木にいる小さなバッジの大きさ。 */
-    private const val BADGE_SIZE_DP = 44
-
-    fun badge(context: Context): WindowManager.LayoutParams {
-        val size = (BADGE_SIZE_DP * context.resources.displayMetrics.density).toInt()
-        return WindowManager
+    /**
+     * バッジのウィンドウ。ドラッグを受けるためタッチは受け取る（大きさはバッジ1つ分だけで、外側のタッチは下へ届く）。
+     * 画面の外へ置いて最小化できるよう、画面の範囲の制限は外す。座標は画面左上が原点。
+     */
+    fun badge(size: Int): WindowManager.LayoutParams =
+        WindowManager
             .LayoutParams(
                 size,
                 size,
                 WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 PixelFormat.TRANSLUCENT,
-            ).also { it.gravity = Gravity.END or Gravity.CENTER_VERTICAL }
-    }
+            ).also { it.gravity = Gravity.TOP or Gravity.START }
 
     fun shield() =
         WindowManager.LayoutParams(

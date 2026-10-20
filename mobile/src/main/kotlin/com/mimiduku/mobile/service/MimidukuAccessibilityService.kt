@@ -4,6 +4,7 @@ import android.accessibilityservice.AccessibilityService
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
 import android.os.SystemClock
@@ -80,6 +81,7 @@ class MimidukuAccessibilityService : AccessibilityService() {
         overlay =
             OverlayController(
                 context = this,
+                onBadgePlacementChanged = badgeSettings::setPlacement,
                 onGoBack = { performGlobalAction(GLOBAL_ACTION_BACK) },
                 onAdClose = ::closeAd,
             )
@@ -132,7 +134,7 @@ class MimidukuAccessibilityService : AccessibilityService() {
                 lastDangerAtMillis = lastDangerAt,
                 nowMillis = SystemClock.elapsedRealtime(),
             )
-        overlay?.setBadge(expression)
+        overlay?.setBadge(expression, badgeSettings.placement())
     }
 
     /** 利用者が案内パネルの「もどる」を押したとき。本物の閉じるボタンを押せなければ「戻る」で代える。 */
@@ -150,6 +152,12 @@ class MimidukuAccessibilityService : AccessibilityService() {
         } else {
             resources.displayMetrics.let { it.widthPixels to it.heightPixels }
         }
+
+    /** 縦向き・横向きの切り替えで画面の大きさが変わるので、バッジを端へ合わせ直す。 */
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        overlay?.relayoutBadge()
+    }
 
     override fun onInterrupt() {
         overlay?.dismissAll()

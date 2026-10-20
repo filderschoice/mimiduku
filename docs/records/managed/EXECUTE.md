@@ -5,6 +5,30 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-10-21 10:00
+  summary: みみづくバッジをドラッグで動かせるようにし、画面の外へ引き出すと端へ最小化する（BL-040）
+  details:
+    変更内容: >-
+      バッジのウィンドウをタッチ可能にし、BadgeOverlay（ドラッグ・離したときの端への吸着・最小化・最小化中のタップでの復帰）を
+      追加した。置き場所は BadgePlacement（左右の端・縦位置の割合・最小化。Android 非依存）で表し BadgeSettings へ保存する。
+      最小化中も指でつかめるよう、バッジを 48dp、のぞき分を 28dp にした。縦位置を割合で持つため縦向き・横向きのどちらでも
+      同じ位置に出し、画面の向きが変わったときは onConfigurationChanged で置き直す。ドラッグ中はイベントごとの
+      表示更新で置き場所を巻き戻さない。単体テスト BadgePlacementTest を追加した。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/overlay/BadgePlacement.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/overlay/BadgeOverlay.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/overlay/OverlayController.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/overlay/OverlayLayout.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/mode/BadgeSettings.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/MimidukuAccessibilityService.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/overlay/BadgePlacementTest.kt
+      - docs/records/managed/BACKLOG.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintGithubDebug lintPlayDebug assembleDebug testGithubDebugUnitTest testPlayDebugUnitTest、
+      python scripts/validate-records.py
+    検証結果: 成功 - いずれも終了コード0。実機でのドラッグ・最小化の操作は未確認（BL-043）
+    関連ID:
+      - BL-040
 - date: 2026-10-20 13:00
   summary: テーマのカード・ダイアログ背景色をブランド色へ揃え、UI デザイン設計書を新しい UI へ追従更新する（BL-037）
   details:
