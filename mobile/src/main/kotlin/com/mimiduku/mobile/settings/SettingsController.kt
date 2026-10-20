@@ -36,6 +36,9 @@ interface SettingsPlatform {
 
     /** アプリ名。パッケージ可視性などで分からなければ null。 */
     fun appLabel(packageName: String): String?
+
+    /** 通知の権限を求める（Android 13 以降。許可済み・不要な版では何もしない）。 */
+    fun requestNotificationPermission()
 }
 
 /** アプリ内で開く画面（検知ログは [SettingsController.logRows] で別に持つ）。 */
@@ -146,6 +149,12 @@ class SettingsController(
         refresh()
     }
 
+    override fun setBadgeNotification(enabled: Boolean) {
+        stores.badgeSettings.setNotificationEnabled(enabled)
+        if (enabled) platform.requestNotificationPermission()
+        refresh()
+    }
+
     override fun acceptDisclosure() {
         stores.consentStore.accept()
         refresh()
@@ -196,6 +205,7 @@ class SettingsController(
             pinSet = stores.pinManager.isSet(),
             pauseRemainingMinutes = toMinutesRoundedUp(stores.pauseStore.remainingMillis()),
             badgeVisible = stores.badgeSettings.isVisible(),
+            badgeNotification = stores.badgeSettings.isNotificationEnabled(),
             features = features,
             consented = stores.consentStore.hasConsented(),
         )

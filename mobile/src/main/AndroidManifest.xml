@@ -5,6 +5,9 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- 通知にバッジの切り替えボタンを出すため（Android 13 以降は実行時に許可を求める。拒否されても保護は動く）。 -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <!-- Android 11 以降のパッケージ可視性。ブラウザとランチャーの判別にだけ使う（QUERY_ALL_PACKAGES は使わない）。 -->
     <queries>
         <intent>

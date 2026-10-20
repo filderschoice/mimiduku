@@ -32,6 +32,8 @@ class SettingsControllerTest {
     private val pinManager = PinManager(store, clock = { now }, hasher = PinHasher(iterations = 1_000))
     private val pauseStore = PauseStore(store) { now }
 
+    private val platform = FakePlatform()
+
     private val controller by lazy {
         SettingsController(
             SettingsStores(
@@ -42,12 +44,18 @@ class SettingsControllerTest {
                 badgeSettings = BadgeSettings(store),
                 consentStore = ConsentStore(store),
             ),
-            FakePlatform(),
+            platform,
             zone = { ZoneOffset.UTC },
         )
     }
 
     private class FakePlatform : SettingsPlatform {
+        var notificationPermissionRequests = 0
+
+        override fun requestNotificationPermission() {
+            notificationPermissionRequests++
+        }
+
         override fun isServiceEnabled() = true
 
         override fun showRestrictedGuide() = false
@@ -231,6 +239,20 @@ class SettingsControllerTest {
         controller.setBadgeVisible(false)
 
         assertFalse(controller.state.badgeVisible)
+        assertNull(controller.dialog)
+    }
+
+    @Test
+    fun `the badge notification is on by default and asks for permission when turned on`() {
+        assertTrue(controller.state.badgeNotification)
+
+        controller.setBadgeNotification(false)
+        assertFalse(controller.state.badgeNotification)
+        assertEquals(0, platform.notificationPermissionRequests)
+
+        controller.setBadgeNotification(true)
+        assertTrue(controller.state.badgeNotification)
+        assertEquals(1, platform.notificationPermissionRequests)
         assertNull(controller.dialog)
     }
 
