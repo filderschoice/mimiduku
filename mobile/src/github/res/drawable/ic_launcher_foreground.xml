@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- アプリアイコンの前景・GitHub 版（タコを食べるみみづく。Play 版は main の通常のみみづく）（丸みを持たせたかわいい造形の仮の自作画像）。108dp のうち中央の安全領域に収める。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:scaleX="1.2"
+        android:scaleY="1.2"
+        android:translateX="25.2"
+        android:translateY="24">
+        <path android:pathData="M8,21 C5,10 6,3 10,2 C14,2 18,7 20,13 Z M40,21 C43,10 42,3 38,2 C34,2 30,7 28,13 Z"
+            android:fillColor="#FF6D4C41" />
+        <path android:pathData="M6,28 a18,16.5 0 1,0 36,0 a18,16.5 0 1,0 -36,0"
+            android:fillColor="#FF8D6E63" />
+        <path android:pathData="M9.5,27 a14.5,12.5 0 1,0 29,0 a14.5,12.5 0 1,0 -29,0"
+            android:fillColor="#FFD7CCC8" />
+        <path android:pathData="M9.7,32 a2.8,2.8 0 1,0 5.6,0 a2.8,2.8 0 1,0 -5.6,0 M32.7,32 a2.8,2.8 0 1,0 5.6,0 a2.8,2.8 0 1,0 -5.6,0"
+            android:fillColor="#FFFFB4A8" />
+        <path android:pathData="M14.4,44.3 a3.6,1.7 0 1,0 7.2,0 a3.6,1.7 0 1,0 -7.2,0 M26.4,44.3 a3.6,1.7 0 1,0 7.2,0 a3.6,1.7 0 1,0 -7.2,0"
+            android:fillColor="#FFFFA000" />
+        <path android:pathData="M11.3,25 a5.2,5.2 0 1,0 10.4,0 a5.2,5.2 0 1,0 -10.4,0 M26.3,25 a5.2,5.2 0 1,0 10.4,0 a5.2,5.2 0 1,0 -10.4,0"
+            android:fillColor="#FFFFFFFF" />
+        <path android:pathData="M13.3,25 a3.2,3.2 0 1,0 6.4,0 a3.2,3.2 0 1,0 -6.4,0 M28.3,25 a3.2,3.2 0 1,0 6.4,0 a3.2,3.2 0 1,0 -6.4,0"
+            android:fillColor="#FF3E2723" />
+        <path android:pathData="M16.6,23.8 a1.1,1.1 0 1,0 2.2,0 a1.1,1.1 0 1,0 -2.2,0 M31.6,23.8 a1.1,1.1 0 1,0 2.2,0 a1.1,1.1 0 1,0 -2.2,0"
+            android:fillColor="#FFFFFFFF" />
+        <path android:pathData="M24,30.5 C22,30.5 21.4,32 24,34.8 C26.6,32 26,30.5 24,30.5 Z"
+            android:fillColor="#FFFFA000" />
+        <!-- GitHub 版だけ：くちばしからタコの足が垂れている（オクトキャット風のユーモア）。 -->
+        <path android:pathData="M22.6,33.5 C17,36 24,40 15,43.5 C13,44.3 12,42.5 13.4,41.4"
+            android:strokeColor="#FFEC407A"
+            android:strokeWidth="2.6"
+            android:strokeLineCap="round"
+            android:fillColor="#00000000" />
+        <path android:pathData="M24,34.5 C23.6,38.5 22.2,41.5 24.6,45.4"
+            android:strokeColor="#FFF06292"
+            android:strokeWidth="2.6"
+            android:strokeLineCap="round"
+            android:fillColor="#00000000" />
+        <path android:pathData="M25.4,33.5 C31,36 24,40 33,43.5 C35,44.3 36,42.5 34.6,41.4"
+            android:strokeColor="#FFEC407A"
+            android:strokeWidth="2.6"
+            android:strokeLineCap="round"
+            android:fillColor="#00000000" />
+        <path android:pathData="M19.2,39.3 a0.7,0.7 0 1,0 1.4,0 a0.7,0.7 0 1,0 -1.4,0 M23.3,40.6 a0.7,0.7 0 1,0 1.4,0 a0.7,0.7 0 1,0 -1.4,0 M28.2,38.8 a0.7,0.7 0 1,0 1.4,0 a0.7,0.7 0 1,0 -1.4,0"
+            android:fillColor="#FFFCE4EC" />
+    </group>
+</vector>

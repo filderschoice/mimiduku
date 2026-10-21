@@ -283,13 +283,6 @@ fun distributionLabelRes(features: FeatureSet): Int =
         FeatureSet.Distribution.PLAY -> R.string.settings_distribution_play
     }
 
-/** 上部バーに出す、版を表すアイコン。文言は「このアプリについて」で示す。 */
-fun distributionIconRes(features: FeatureSet): Int =
-    when (features.distribution) {
-        FeatureSet.Distribution.GITHUB -> R.string.settings_distribution_icon_github
-        FeatureSet.Distribution.PLAY -> R.string.settings_distribution_icon_play
-    }
-
 /** こどもモードの説明。自動で戻さない版では「選ばせる」説明にする。 */
 fun childModeDescriptionRes(features: FeatureSet): Int =
     if (features.autoBackOnTransition) R.string.settings_mode_child_desc else R.string.settings_mode_child_desc_ask

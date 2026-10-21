@@ -34,10 +34,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.mimiduku.mobile.R
+
+/** 上部バーのアプリアイコンの拡大率（アダプティブアイコンの前景は余白が広いため、顔が見える大きさへ拡大する）。 */
+private const val APP_ICON_ZOOM = 1.6f
 
 /** ホーム画面。見張りの状態と一時停止、直近の検知を出す。歯車で設定、「⋮」でログ・アプリ情報・このアプリについてへ進む。 */
 @Composable
@@ -50,7 +54,6 @@ fun HomeScreen(
     AppScaffold(
         title = stringResource(R.string.app_name),
         navigateUp = null,
-        titleBadge = stringResource(distributionIconRes(state.features)),
         actions = {
             IconButton(onClick = navigation::openSettings) {
                 Icon(Icons.Filled.Settings, contentDescription = stringResource(R.string.menu_settings))
@@ -121,7 +124,6 @@ fun AboutScreen(
 internal fun AppScaffold(
     title: String,
     navigateUp: (() -> Unit)?,
-    titleBadge: String? = null,
     actions: @Composable RowScope.() -> Unit = {},
     content: @Composable ColumnScope.() -> Unit,
 ) {
@@ -135,13 +137,15 @@ internal fun AppScaffold(
                     ) {
                         if (navigateUp == null) {
                             Image(
-                                painter = painterResource(R.drawable.badge_owl_wide),
+                                painter = painterResource(R.drawable.ic_launcher_foreground),
                                 contentDescription = null,
-                                modifier = Modifier.size(32.dp),
+                                modifier =
+                                    Modifier.size(
+                                        40.dp,
+                                    ).graphicsLayer(scaleX = APP_ICON_ZOOM, scaleY = APP_ICON_ZOOM),
                             )
                         }
                         Text(text = title)
-                        titleBadge?.let { Text(text = it, style = MaterialTheme.typography.titleMedium) }
                     }
                 },
                 navigationIcon = {

@@ -118,8 +118,6 @@
     <string name="notification_action_hide">バッジを隠す</string>
     <string name="notification_action_show">バッジを出す</string>
     <string name="settings_distribution_title">配布の版</string>
-    <string name="settings_distribution_icon_github">🐙</string>
-    <string name="settings_distribution_icon_play">🛍️</string>
     <string name="settings_distribution_github">🐙 GitHub 版（全機能）</string>
     <string name="settings_distribution_play">🛍️ Google Play 版</string>
 
