@@ -55,6 +55,10 @@
     <string name="disclosure_check">上の内容を確認し、画面の読み取りに同意します</string>
     <string name="disclosure_accept">同意して進む</string>
 
+    <!-- 補足説明（「i」アイコンで開閉） -->
+    <string name="help_open">説明を表示</string>
+    <string name="help_close">説明を閉じる</string>
+
     <!-- 設定画面 -->
     <string name="settings_intro">広告による勝手なブラウザ・ストアへの移動と、偽の警告を見つけて知らせます。</string>
     <string name="settings_service_title">見張りの状態</string>
@@ -71,7 +75,7 @@
     <string name="settings_mode_adult">おとな</string>
     <string name="settings_mode_adult_desc">自動では戻さず、「戻る」か「このまま進む」を選べます。</string>
     <string name="settings_log_title">検知ログ</string>
-    <string name="settings_log_count">これまでの検知：%1$d 件（最新500件まで保存）</string>
+    <string name="settings_log_count">検知 %1$d 件</string>
     <string name="settings_log_privacy">ログに残すのは日時・アプリ名・検知の種類だけです。画面の文字や URL は保存せず、外部へも送信しません。</string>
 
     <!-- メニュー（歯車・「⋮」） -->
@@ -103,10 +107,11 @@
     <string name="settings_pause_resume">今すぐ再開する</string>
 
     <!-- みみづくバッジ -->
+    <string name="settings_badge_show">バッジを表示する</string>
     <string name="settings_badge_title">みみづくバッジ</string>
     <string name="settings_badge_description">画面の端にみみづくを出します。広告を見つけると耳が立ち、あやしい動きを止めると目が大きくなります。指で動かせ、画面の外へ引き出すと端にしまえます（しまったバッジを触ると戻ります）。</string>
     <string name="settings_badge_description_limited">画面の端にみみづくを出します。あやしい動きに気づくと目が大きくなります。指で動かせ、画面の外へ引き出すと端にしまえます（しまったバッジを触ると戻ります）。</string>
-    <string name="settings_badge_notification">通知からもバッジを隠す・出す操作ができるようにする</string>
+    <string name="settings_badge_notification">通知からバッジを操作する</string>
     <string name="notification_channel_name">バッジの操作</string>
     <string name="notification_title">みみづくが見守っています</string>
     <string name="notification_text_shown">バッジを表示しています</string>
@@ -118,12 +123,14 @@
 
     <!-- 保護者 PIN -->
     <string name="settings_pin_title">保護者 PIN</string>
-    <string name="settings_pin_set">設定済みです。おとなモードへの切替・一時停止・ログの消去・PIN の変更には PIN が必要です。</string>
-    <string name="settings_pin_not_set">未設定です。子供の端末では設定してください。</string>
+    <string name="settings_pin_status_set">設定済み</string>
+    <string name="settings_pin_status_not_set">未設定</string>
     <string name="settings_pin_setup">PIN を設定する</string>
     <string name="settings_pin_change">変更する</string>
     <string name="settings_pin_remove">削除する</string>
-    <string name="settings_pin_note">PIN を忘れた場合は、アプリをアンインストールして入れ直してください（設定とログは消えます）。</string>
+    <string name="settings_pin_help">設定すると、おとなモードへの切替・一時停止・ログの消去・PIN の変更に PIN が必要になります。子供の端末では設定してください。
+
+PIN を忘れた場合は、アプリをアンインストールして入れ直してください（設定とログは消えます）。</string>
     <string name="pin_entry_title">保護者 PIN を入力</string>
     <string name="pin_setup_title">保護者 PIN の設定</string>
     <string name="pin_setup_hint">4〜8桁の数字を入力してください。</string>
