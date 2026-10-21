@@ -1,11 +1,13 @@
 package com.mimiduku.mobile.settings
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.Button
@@ -22,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
@@ -82,6 +85,8 @@ interface NavigationActions {
 
     fun openAbout()
 
+    fun openSupportPage()
+
     fun navigateUp()
 }
 
@@ -106,7 +111,7 @@ fun SettingsScreen(
 ) {
     BackHandler(onBack = navigation::navigateUp)
     AppScaffold(title = stringResource(R.string.menu_settings), navigateUp = navigation::navigateUp) {
-        SettingsCard(title = stringResource(R.string.settings_mode_title)) {
+        SettingsCard(title = stringResource(R.string.settings_mode_title), icon = "🧒") {
             Column(modifier = Modifier.selectableGroup()) {
                 UsageMode.entries.forEach { ModeOption(it, state, actions) }
             }
@@ -118,7 +123,11 @@ fun SettingsScreen(
             } else {
                 R.string.settings_badge_description_limited
             }
-        SettingsCard(title = stringResource(R.string.settings_badge_title), help = stringResource(badgeHelp)) {
+        SettingsCard(
+            title = stringResource(R.string.settings_badge_title),
+            help = stringResource(badgeHelp),
+            icon = "🦉",
+        ) {
             SwitchRow(R.string.settings_badge_show, state.badgeVisible, actions::setBadgeVisible)
             SwitchRow(R.string.settings_badge_notification, state.badgeNotification, actions::setBadgeNotification)
         }
@@ -148,7 +157,7 @@ private fun SwitchRow(
 @Composable
 internal fun DisclosureCard(consentActions: ConsentActions) {
     var checked by remember { mutableStateOf(false) }
-    SettingsCard(title = stringResource(R.string.disclosure_title)) {
+    SettingsCard(title = stringResource(R.string.disclosure_title), icon = "👀") {
         Text(text = stringResource(R.string.disclosure_body))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Checkbox(checked = checked, onCheckedChange = { checked = it })
@@ -167,11 +176,20 @@ internal fun ServiceCard(
 ) {
     SettingsCard(
         title = stringResource(R.string.settings_service_title),
+        icon = "🦉",
         help = stringResource(R.string.settings_intro),
     ) {
         val status =
             if (state.serviceEnabled) R.string.settings_service_enabled else R.string.settings_service_disabled
-        Text(text = stringResource(status), style = MaterialTheme.typography.titleMedium)
+        val owl = if (state.serviceEnabled) R.drawable.badge_owl_wide else R.drawable.badge_owl_sleepy
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Image(
+                painter = painterResource(owl),
+                contentDescription = null,
+                modifier = Modifier.size(56.dp),
+            )
+            Text(text = stringResource(status), style = MaterialTheme.typography.titleMedium)
+        }
         Button(onClick = actions::openAccessibilitySettings) {
             Text(text = stringResource(R.string.settings_open_accessibility))
         }
@@ -185,6 +203,7 @@ internal fun PauseCard(
 ) {
     SettingsCard(
         title = stringResource(R.string.settings_pause_title),
+        icon = "⏱️",
         help = stringResource(R.string.settings_pause_description),
     ) {
         if (state.pauseRemainingMinutes > 0) {
@@ -213,6 +232,7 @@ private fun PinCard(
 ) {
     SettingsCard(
         title = stringResource(R.string.settings_pin_title),
+        icon = "🔑",
         help = stringResource(R.string.settings_pin_help),
     ) {
         val status = if (state.pinSet) R.string.settings_pin_status_set else R.string.settings_pin_status_not_set
@@ -261,6 +281,13 @@ fun distributionLabelRes(features: FeatureSet): Int =
     when (features.distribution) {
         FeatureSet.Distribution.GITHUB -> R.string.settings_distribution_github
         FeatureSet.Distribution.PLAY -> R.string.settings_distribution_play
+    }
+
+/** 上部バーに出す、版を表すアイコン。文言は「このアプリについて」で示す。 */
+fun distributionIconRes(features: FeatureSet): Int =
+    when (features.distribution) {
+        FeatureSet.Distribution.GITHUB -> R.string.settings_distribution_icon_github
+        FeatureSet.Distribution.PLAY -> R.string.settings_distribution_icon_play
     }
 
 /** こどもモードの説明。自動で戻さない版では「選ばせる」説明にする。 */

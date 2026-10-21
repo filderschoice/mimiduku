@@ -1,18 +1,22 @@
 package com.mimiduku.mobile.settings
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,7 +32,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.mimiduku.mobile.R
@@ -44,6 +50,7 @@ fun HomeScreen(
     AppScaffold(
         title = stringResource(R.string.app_name),
         navigateUp = null,
+        titleBadge = stringResource(distributionIconRes(state.features)),
         actions = {
             IconButton(onClick = navigation::openSettings) {
                 Icon(Icons.Filled.Settings, contentDescription = stringResource(R.string.menu_settings))
@@ -51,25 +58,28 @@ fun HomeScreen(
             OverflowMenu(actions, navigation)
         },
     ) {
-        Text(text = stringResource(distributionLabelRes(state.features)), style = MaterialTheme.typography.labelMedium)
         if (state.consented) ServiceCard(state, actions) else DisclosureCard(consentActions)
-        if (state.showRestrictedGuide && !state.serviceEnabled) {
-            SettingsCard(
-                title = stringResource(R.string.settings_restricted_title),
-                help = stringResource(R.string.settings_restricted_steps),
-            ) {
-                OutlinedButton(onClick = actions::openAppDetails) {
-                    Text(text = stringResource(R.string.settings_open_app_details))
+        if (state.consented) {
+            if (state.showRestrictedGuide && !state.serviceEnabled) {
+                SettingsCard(
+                    title = stringResource(R.string.settings_restricted_title),
+                    icon = "🚧",
+                    help = stringResource(R.string.settings_restricted_steps),
+                ) {
+                    OutlinedButton(onClick = actions::openAppDetails) {
+                        Text(text = stringResource(R.string.settings_open_app_details))
+                    }
                 }
             }
-        }
-        PauseCard(state, actions)
-        SettingsCard(
-            title = stringResource(R.string.settings_log_title),
-            help = stringResource(R.string.settings_log_privacy),
-        ) {
-            Text(text = stringResource(R.string.settings_log_count, state.logCount))
-            OutlinedButton(onClick = actions::openLog) { Text(stringResource(R.string.settings_log_open)) }
+            PauseCard(state, actions)
+            SettingsCard(
+                title = stringResource(R.string.settings_log_title),
+                icon = "📒",
+                help = stringResource(R.string.settings_log_privacy),
+            ) {
+                Text(text = stringResource(R.string.settings_log_count, state.logCount))
+                OutlinedButton(onClick = actions::openLog) { Text(stringResource(R.string.settings_log_open)) }
+            }
         }
     }
 }
@@ -82,12 +92,25 @@ fun AboutScreen(
 ) {
     BackHandler(onBack = navigation::navigateUp)
     AppScaffold(title = stringResource(R.string.menu_about), navigateUp = navigation::navigateUp) {
-        Text(text = stringResource(distributionLabelRes(state.features)), style = MaterialTheme.typography.labelMedium)
-        SettingsCard(title = stringResource(R.string.disclosure_title)) {
+        SettingsCard(title = stringResource(R.string.settings_distribution_title), icon = "🏷️") {
+            Text(
+                text = stringResource(distributionLabelRes(state.features)),
+                style = MaterialTheme.typography.titleMedium,
+            )
+        }
+        SettingsCard(title = stringResource(R.string.disclosure_title), icon = "👀") {
             Text(text = stringResource(R.string.disclosure_body))
         }
-        SettingsCard(title = stringResource(R.string.settings_log_title)) {
+        SettingsCard(title = stringResource(R.string.settings_log_title), icon = "📒") {
             Text(text = stringResource(R.string.settings_log_privacy))
+        }
+        SettingsCard(
+            title = stringResource(R.string.support_title),
+            help = stringResource(R.string.support_help),
+            icon = "🙋",
+        ) {
+            Text(text = stringResource(R.string.support_body))
+            Button(onClick = navigation::openSupportPage) { Text(text = stringResource(R.string.support_open)) }
         }
     }
 }
@@ -98,13 +121,29 @@ fun AboutScreen(
 internal fun AppScaffold(
     title: String,
     navigateUp: (() -> Unit)?,
+    titleBadge: String? = null,
     actions: @Composable RowScope.() -> Unit = {},
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = title) },
+                title = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        if (navigateUp == null) {
+                            Image(
+                                painter = painterResource(R.drawable.badge_owl_wide),
+                                contentDescription = null,
+                                modifier = Modifier.size(32.dp),
+                            )
+                        }
+                        Text(text = title)
+                        titleBadge?.let { Text(text = it, style = MaterialTheme.typography.titleMedium) }
+                    }
+                },
                 navigationIcon = {
                     if (navigateUp != null) {
                         IconButton(onClick = navigateUp) {

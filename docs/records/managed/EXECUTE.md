@@ -5,6 +5,45 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-10-22 01:00
+  summary: 実機（Pixel 8 Pro）で見つけた表示の不整合・不具合を修正し、画面をポップにする（BL-046〜BL-051）
+  details:
+    変更内容: >-
+      実機で次を確認し修正した。(1) 同意文の改行が空白に潰れていた（文字列リソースの改行を \n 表記に変更。BL-046）。
+      (2) 画面を回転すると設定・このアプリについて・ログからホームへ戻っていた（開いていた画面とログの表示を
+      rememberSaveable で保持し、SettingsController に initialScreen を追加。BL-047）。(3) 文字が小さい指摘に対し、
+      テーマの文字サイズを全体で 1.125 倍にした。ⓘ の説明文は bodyMedium へ拡大し、カードのタイトルとアイコンは
+      titleMedium・36dp に抑えた（BL-048）。(4) 同意前は開示だけを出し、ⓘ の面をネイビー基調の色にし、バッジの説明へ
+      「見張りがオフの間は出ません」を追記した（BL-049）。(5) カードのタイトルへ絵文字アイコン（丸い面）、状態へ
+      みみづくの表情と絵文字を付け、カードの角を丸くした。版の表示は上部のアイコン（🐙／🛍️）だけにして、文言は
+      「このアプリについて」へ移し、上部のバーにみみづくの画像を置いた（BL-050）。(6) 「このアプリについて」の一番下へ
+      「困ったとき・ご意見」（開発ページ＝GitHub を開く）のカードを追加した。ブラウザへの ACTION_VIEW のみで、アプリ自身は通信しない
+      （BL-051）。実機でホーム・設定・このアプリについて・回転を目視し、ⓘ の開閉と回転後の画面保持を確認した。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/MainActivity.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/HomeScreen.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/SettingsCard.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/SettingsController.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/SettingsScreen.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/ui/MimidukuTheme.kt
+      - mobile/src/main/res/values/strings.xml
+      - mobile/src/test/kotlin/com/mimiduku/mobile/settings/SettingsControllerTest.kt
+      - docs/design/UI_DESIGN.html
+      - docs/TESTING.md
+      - docs/records/managed/DESIGN.md
+      - docs/records/managed/BACKLOG.md
+      - CHANGELOG.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintGithubDebug lintPlayDebug assembleDebug testGithubDebugUnitTest testPlayDebugUnitTest、
+      npx markdownlint-cli2、python scripts/validate-records.py、adb での実機インストールと目視
+    検証結果: 成功 - ゲートはすべて終了コード0。実機は GitHub 版 debug のみ（Play 版・ライトテーマ・TalkBack・横向きの全画面は未確認）
+    関連ID:
+      - BL-046
+      - BL-047
+      - BL-048
+      - BL-049
+      - BL-050
+      - BL-051
 - date: 2026-10-21 13:00
   summary: 画面の説明文を「ⓘ」ヘルプに分け、本文を状態と操作に絞る（BL-044）
   details:
