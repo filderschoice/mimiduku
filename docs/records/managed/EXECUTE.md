@@ -5,6 +5,28 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-10-21 13:00
+  summary: 画面の説明文を「ⓘ」ヘルプに分け、本文を状態と操作に絞る（BL-044）
+  details:
+    変更内容: >-
+      SettingsCard に help 引数を追加し、タイトル右の「ⓘ」で補足説明を開閉する面（HelpPanel）を実装した（SettingsCard.kt へ分離）。
+      ホームの冒頭説明を見張りの状態へ、制限された設定の手順・一時停止の説明・ログの保存内容・PIN の説明・バッジの説明を各カードの
+      ⓘ へ移した。PIN の状態は「設定済み／未設定」に短縮し、利用モードの説明は選択中の項目だけに出す。バッジのスイッチは
+      短いラベルにした。UI デザイン設計書の画面イメージと「補足説明の出し方」を更新し、DESIGN.md に FR-22 を追加した。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/SettingsCard.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/SettingsScreen.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/HomeScreen.kt
+      - mobile/src/main/res/values/strings.xml
+      - docs/design/UI_DESIGN.html
+      - docs/records/managed/DESIGN.md
+      - CHANGELOG.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintGithubDebug lintPlayDebug assembleDebug testGithubDebugUnitTest testPlayDebugUnitTest、
+      npx markdownlint-cli2、python scripts/validate-records.py
+    検証結果: 成功 - いずれも終了コード0（ⓘ の見た目と操作は実機未確認で、BL-045 として人手検証へ起票）
+    関連ID:
+      - BL-044
 - date: 2026-10-21 12:00
   summary: バッジの移動・最小化・通知操作に合わせてドキュメントを最新化する（BL-042）
   details:

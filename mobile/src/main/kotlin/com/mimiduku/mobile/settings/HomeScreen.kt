@@ -52,18 +52,22 @@ fun HomeScreen(
         },
     ) {
         Text(text = stringResource(distributionLabelRes(state.features)), style = MaterialTheme.typography.labelMedium)
-        Text(text = stringResource(R.string.settings_intro))
         if (state.consented) ServiceCard(state, actions) else DisclosureCard(consentActions)
         if (state.showRestrictedGuide && !state.serviceEnabled) {
-            SettingsCard(title = stringResource(R.string.settings_restricted_title)) {
-                Text(text = stringResource(R.string.settings_restricted_steps))
+            SettingsCard(
+                title = stringResource(R.string.settings_restricted_title),
+                help = stringResource(R.string.settings_restricted_steps),
+            ) {
                 OutlinedButton(onClick = actions::openAppDetails) {
                     Text(text = stringResource(R.string.settings_open_app_details))
                 }
             }
         }
         PauseCard(state, actions)
-        SettingsCard(title = stringResource(R.string.settings_log_title)) {
+        SettingsCard(
+            title = stringResource(R.string.settings_log_title),
+            help = stringResource(R.string.settings_log_privacy),
+        ) {
             Text(text = stringResource(R.string.settings_log_count, state.logCount))
             OutlinedButton(onClick = actions::openLog) { Text(stringResource(R.string.settings_log_open)) }
         }

@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -113,30 +112,32 @@ fun SettingsScreen(
             }
         }
         PinCard(state, actions)
-        SettingsCard(title = stringResource(R.string.settings_badge_title)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                val description =
-                    if (state.features.badgeReactsToAds) {
-                        R.string.settings_badge_description
-                    } else {
-                        R.string.settings_badge_description_limited
-                    }
-                Text(text = stringResource(description), modifier = Modifier.weight(1f))
-                Switch(checked = state.badgeVisible, onCheckedChange = actions::setBadgeVisible)
+        val badgeHelp =
+            if (state.features.badgeReactsToAds) {
+                R.string.settings_badge_description
+            } else {
+                R.string.settings_badge_description_limited
             }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(text = stringResource(R.string.settings_badge_notification), modifier = Modifier.weight(1f))
-                Switch(checked = state.badgeNotification, onCheckedChange = actions::setBadgeNotification)
-            }
+        SettingsCard(title = stringResource(R.string.settings_badge_title), help = stringResource(badgeHelp)) {
+            SwitchRow(R.string.settings_badge_show, state.badgeVisible, actions::setBadgeVisible)
+            SwitchRow(R.string.settings_badge_notification, state.badgeNotification, actions::setBadgeNotification)
         }
+    }
+}
+
+@Composable
+private fun SwitchRow(
+    labelRes: Int,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(text = stringResource(labelRes), modifier = Modifier.weight(1f))
+        Switch(checked = checked, onCheckedChange = onCheckedChange)
     }
 }
 
@@ -164,7 +165,10 @@ internal fun ServiceCard(
     state: SettingsState,
     actions: SettingsActions,
 ) {
-    SettingsCard(title = stringResource(R.string.settings_service_title)) {
+    SettingsCard(
+        title = stringResource(R.string.settings_service_title),
+        help = stringResource(R.string.settings_intro),
+    ) {
         val status =
             if (state.serviceEnabled) R.string.settings_service_enabled else R.string.settings_service_disabled
         Text(text = stringResource(status), style = MaterialTheme.typography.titleMedium)
@@ -179,7 +183,10 @@ internal fun PauseCard(
     state: SettingsState,
     actions: SettingsActions,
 ) {
-    SettingsCard(title = stringResource(R.string.settings_pause_title)) {
+    SettingsCard(
+        title = stringResource(R.string.settings_pause_title),
+        help = stringResource(R.string.settings_pause_description),
+    ) {
         if (state.pauseRemainingMinutes > 0) {
             Text(
                 text = stringResource(R.string.settings_pause_active, state.pauseRemainingMinutes),
@@ -188,7 +195,6 @@ internal fun PauseCard(
             )
             Button(onClick = actions::resume) { Text(stringResource(R.string.settings_pause_resume)) }
         } else {
-            Text(text = stringResource(R.string.settings_pause_description))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 PauseStore.DURATIONS_MINUTES.forEach { minutes ->
                     OutlinedButton(onClick = { actions.pause(minutes) }) {
@@ -205,9 +211,12 @@ private fun PinCard(
     state: SettingsState,
     actions: SettingsActions,
 ) {
-    SettingsCard(title = stringResource(R.string.settings_pin_title)) {
-        val status = if (state.pinSet) R.string.settings_pin_set else R.string.settings_pin_not_set
-        Text(text = stringResource(status))
+    SettingsCard(
+        title = stringResource(R.string.settings_pin_title),
+        help = stringResource(R.string.settings_pin_help),
+    ) {
+        val status = if (state.pinSet) R.string.settings_pin_status_set else R.string.settings_pin_status_not_set
+        Text(text = stringResource(status), style = MaterialTheme.typography.titleMedium)
         if (state.pinSet) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(onClick = actions::changePin) { Text(stringResource(R.string.settings_pin_change)) }
@@ -215,20 +224,6 @@ private fun PinCard(
             }
         } else {
             Button(onClick = actions::setPin) { Text(stringResource(R.string.settings_pin_setup)) }
-        }
-        Text(text = stringResource(R.string.settings_pin_note), style = MaterialTheme.typography.bodySmall)
-    }
-}
-
-@Composable
-fun SettingsCard(
-    title: String,
-    content: @Composable () -> Unit,
-) {
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(text = title, style = MaterialTheme.typography.titleLarge)
-            content()
         }
     }
 }
@@ -256,7 +251,7 @@ private fun ModeOption(
         RadioButton(selected = selected, onClick = null)
         Column(modifier = Modifier.padding(start = 12.dp)) {
             Text(text = stringResource(labelRes), style = MaterialTheme.typography.titleMedium)
-            Text(text = stringResource(descriptionRes), style = MaterialTheme.typography.bodyMedium)
+            if (selected) Text(text = stringResource(descriptionRes), style = MaterialTheme.typography.bodySmall)
         }
     }
 }

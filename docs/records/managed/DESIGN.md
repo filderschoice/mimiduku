@@ -47,6 +47,7 @@
 | FR-19 | GitHub 版と Play 版を同じソースから作る。productFlavors（github・play、BuildConfig.DISTRIBUTION）で版を分け、GitHub 版の applicationId は `.full` を付ける。機能の違いは `FeatureSet` に集める。Play 版は、こどもモードでも自動で戻さず確認を出し、タップのあった外部遷移には介入せず、広告画面の判定を使う機能（案内パネル・シールド・代理タップ・バッジの広告反応）を外す。知らない版の値は Play 版として扱う。設定画面は版の表示と、版に合わせた説明を出す | `FeatureSet`、`InterventionPolicy.shouldIntervene`、`BannerSpec`、`SettingsScreen` |
 | FR-20 | アクセシビリティ API の利用についての目立つ開示と同意（両方の版）。設定画面の最初に、読み取るもの・使い道・保存するもの・送信しないことを示し、チェックとボタンの操作で同意を記録する（開示文の版数 `ConsentStore.CURRENT_VERSION`。文面を変えたら上げて同意を取り直す）。同意するまではアクセシビリティ設定を開くボタンを出さず、サービスもイベントを処理しない（バッジも出さない） | `ConsentStore`、`SettingsScreen`（DisclosureCard）、`MimidukuAccessibilityService` |
 | FR-21 | バッジの移動・最小化・通知操作。バッジは指でドラッグでき（タッチ判定は `touchSlop` 以上の移動）、離すと近い方の左右の端へ吸着し、縦位置は画面の高さに対する割合で保存する（縦向き・横向きのどちらでも同じ位置に出し、向きが変わったら `onConfigurationChanged` で置き直す）。中心が画面の外へ出る位置で離すとその端へ最小化し、端から 28dp だけを見せる（半透明。最小化中も上下・内側へドラッグでき、タップで元へ戻る）。通知（既定でオン）に「バッジを隠す／出す」ボタンを付け、アプリを開かずに切り替える。通知は同意済み・設定オン・通知権限ありのときだけ出し、権限が無くても保護は動く。設定画面に通知のスイッチがあり、オンにしたとき Android 13 以降は `POST_NOTIFICATIONS` を求める。バッジの位置と通知の設定は再起動後も保つ | `BadgePlacement`、`BadgeOverlay`、`BadgeNotification`、`BadgeSettings`、`SettingsScreen` |
+| FR-22 | 説明文を「必要な情報」と「補足説明」に分ける。カード（`SettingsCard`）の本文には状態と操作だけを置き、補足はタイトル右の「ⓘ」（`help` 引数）で開閉する色付きの面に出す（開閉は `rememberSaveable`）。利用モードの短い説明は選択中の項目だけに出す。アクセシビリティの開示と同意は要件上、常に全文を表示する | `SettingsCard`（HelpToggle・HelpPanel）、`HomeScreen`、`SettingsScreen` |
 
 ## 設計方針
 
