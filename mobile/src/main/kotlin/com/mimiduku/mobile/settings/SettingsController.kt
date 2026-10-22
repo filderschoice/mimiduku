@@ -34,6 +34,9 @@ interface SettingsPlatform {
 
     fun openAppDetails()
 
+    /** サポート（GitHub のリポジトリ）をブラウザで開く。 */
+    fun openSupportPage()
+
     /** アプリ名。パッケージ可視性などで分からなければ null。 */
     fun appLabel(packageName: String): String?
 
@@ -64,6 +67,7 @@ class SettingsController(
     private val platform: SettingsPlatform,
     private val zone: () -> ZoneId = ZoneId::systemDefault,
     private val features: FeatureSet = FeatureSet.GITHUB,
+    initialScreen: Screen = Screen.HOME,
 ) : SettingsActions,
     LogActions,
     ConsentActions,
@@ -73,7 +77,7 @@ class SettingsController(
     var dialog by mutableStateOf<SettingsDialog?>(null)
         private set
 
-    var screen by mutableStateOf(Screen.HOME)
+    var screen by mutableStateOf(initialScreen)
         private set
 
     /** ログ閲覧画面に出す行。閲覧画面を閉じているときは null。 */
@@ -111,6 +115,8 @@ class SettingsController(
     override fun openAccessibilitySettings() = platform.openAccessibilitySettings()
 
     override fun openAppDetails() = platform.openAppDetails()
+
+    override fun openSupportPage() = platform.openSupportPage()
 
     override fun selectMode(mode: UsageMode) {
         val action = PinPolicy.forModeChange(state.mode, mode) ?: return

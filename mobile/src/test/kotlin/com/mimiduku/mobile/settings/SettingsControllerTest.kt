@@ -64,10 +64,32 @@ class SettingsControllerTest {
 
         override fun openAppDetails() = Unit
 
+        override fun openSupportPage() = Unit
+
         override fun appLabel(packageName: String) = if (packageName == "com.example.game") "ゲーム" else null
     }
 
     private val logFile get() = File(folder.root, "log.json")
+
+    @Test
+    fun `the screen starts from the given initial screen`() {
+        val restored =
+            SettingsController(
+                SettingsStores(
+                    modeStore = UsageModeStore(store),
+                    detectionLog = DetectionLog(logFile),
+                    pinManager = pinManager,
+                    pauseStore = pauseStore,
+                    badgeSettings = BadgeSettings(store),
+                    consentStore = ConsentStore(store),
+                ),
+                platform,
+                initialScreen = Screen.ABOUT,
+            )
+
+        assertEquals(Screen.ABOUT, restored.screen)
+        assertEquals(Screen.HOME, controller.screen)
+    }
 
     @Test
     fun `without a pin the mode switches immediately`() {

@@ -44,16 +44,15 @@
 
     <!-- アクセシビリティ API の利用についての目立つ開示と同意（ConsentStore.CURRENT_VERSION と対応。内容を変えたら版数を上げる） -->
     <string name="disclosure_title">はじめに：画面の読み取りについて</string>
-    <string name="disclosure_body">みみづくは、悪質な広告（偽の警告や、勝手なブラウザ・ストアへの移動）を見つけるために、Android のユーザー補助機能（アクセシビリティ サービス）を使います。
-
-・読み取るもの：前面に表示されているアプリの名前と、画面に表示されている文字
-・使い道：偽の警告の文言や広告の画面かどうかの照合と、勝手な移動の検知だけに使います
-・保存するもの：検知した日時・アプリの名前・検知の種類だけを、この端末の中に保存します。画面の文字や URL は保存しません
-・送信：インターネットへの接続権限を持たないため、読み取った内容を外部へ送ることはありません
-
-ユーザー補助機能はいつでも端末の設定からオフにできます。</string>
+    <string name="disclosure_body">みみづくは、悪質な広告（偽の警告や、勝手なブラウザ・ストアへの移動）を見つけるために、Android のユーザー補助機能（アクセシビリティ サービス）を使います。\n\n・読み取るもの：前面に表示されているアプリの名前と、画面に表示されている文字\n・使い道：偽の警告の文言や広告の画面かどうかの照合と、勝手な移動の検知だけに使います\n・保存するもの：検知した日時・アプリの名前・検知の種類だけを、この端末の中に保存します。画面の文字や URL は保存しません\n・送信：インターネットへの接続権限を持たないため、読み取った内容を外部へ送ることはありません\n\nユーザー補助機能はいつでも端末の設定からオフにできます。</string>
     <string name="disclosure_check">上の内容を確認し、画面の読み取りに同意します</string>
     <string name="disclosure_accept">同意して進む</string>
+
+    <!-- サポート（このアプリについて） -->
+    <string name="support_title">困ったとき・ご意見</string>
+    <string name="support_body">不具合の報告やご質問は、開発ページ（GitHub）で受け付けています。</string>
+    <string name="support_help">GitHub は、このアプリのソースコードを公開し、問い合わせを受け付けるウェブサイトです。見るだけならアカウントは要りません。ブラウザで開きます（このアプリ自身は通信しません）。</string>
+    <string name="support_open">開発ページを開く</string>
 
     <!-- 補足説明（「i」アイコンで開閉） -->
     <string name="help_open">説明を表示</string>
@@ -62,17 +61,17 @@
     <!-- 設定画面 -->
     <string name="settings_intro">広告による勝手なブラウザ・ストアへの移動と、偽の警告を見つけて知らせます。</string>
     <string name="settings_service_title">見張りの状態</string>
-    <string name="settings_service_enabled">見張っています（アクセシビリティ：オン）</string>
-    <string name="settings_service_disabled">止まっています（アクセシビリティ：オフ）</string>
+    <string name="settings_service_enabled">✅ 見張っています</string>
+    <string name="settings_service_disabled">💤 止まっています</string>
     <string name="settings_open_accessibility">アクセシビリティ設定を開く</string>
     <string name="settings_restricted_title">オンにできないとき（Android 13 以降）</string>
     <string name="settings_restricted_steps">ブラウザなどからインストールしたアプリは、アクセシビリティをオンにする前に「制限された設定」の許可が必要です。\n1. 下のボタンで「アプリ情報」を開く\n2. 右上の「︙」から「制限された設定を許可」を選ぶ（一度アクセシビリティ設定でオンにしようとした後に表示されます）\n3. アクセシビリティ設定に戻り、「みみづく（広告対策）」をオンにする</string>
     <string name="settings_open_app_details">アプリ情報を開く</string>
     <string name="settings_mode_title">利用モード</string>
-    <string name="settings_mode_child">こども</string>
+    <string name="settings_mode_child">🧒 こども</string>
     <string name="settings_mode_child_desc">外部への移動を自動で戻し、やさしい言葉で知らせます。</string>
     <string name="settings_mode_child_desc_ask">勝手な外部への移動を知らせ、やさしい言葉で「もどる」か選ばせます。</string>
-    <string name="settings_mode_adult">おとな</string>
+    <string name="settings_mode_adult">🧑 おとな</string>
     <string name="settings_mode_adult_desc">自動では戻さず、「戻る」か「このまま進む」を選べます。</string>
     <string name="settings_log_title">検知ログ</string>
     <string name="settings_log_count">検知 %1$d 件</string>
@@ -109,8 +108,8 @@
     <!-- みみづくバッジ -->
     <string name="settings_badge_show">バッジを表示する</string>
     <string name="settings_badge_title">みみづくバッジ</string>
-    <string name="settings_badge_description">画面の端にみみづくを出します。広告を見つけると耳が立ち、あやしい動きを止めると目が大きくなります。指で動かせ、画面の外へ引き出すと端にしまえます（しまったバッジを触ると戻ります）。</string>
-    <string name="settings_badge_description_limited">画面の端にみみづくを出します。あやしい動きに気づくと目が大きくなります。指で動かせ、画面の外へ引き出すと端にしまえます（しまったバッジを触ると戻ります）。</string>
+    <string name="settings_badge_description">画面の端にみみづくを出します。広告を見つけると耳が立ち、あやしい動きを止めると目が大きくなります。見張りがオフの間は出ません。指で動かせ、画面の外へ引き出すと端にしまえます（しまったバッジを触ると戻ります）。</string>
+    <string name="settings_badge_description_limited">画面の端にみみづくを出します。あやしい動きに気づくと目が大きくなります。見張りがオフの間は出ません。指で動かせ、画面の外へ引き出すと端にしまえます（しまったバッジを触ると戻ります）。</string>
     <string name="settings_badge_notification">通知からバッジを操作する</string>
     <string name="notification_channel_name">バッジの操作</string>
     <string name="notification_title">みみづくが見守っています</string>
@@ -118,13 +117,14 @@
     <string name="notification_text_hidden">バッジを隠しています</string>
     <string name="notification_action_hide">バッジを隠す</string>
     <string name="notification_action_show">バッジを出す</string>
-    <string name="settings_distribution_github">GitHub 版（全機能）</string>
-    <string name="settings_distribution_play">Google Play 版</string>
+    <string name="settings_distribution_title">配布の版</string>
+    <string name="settings_distribution_github">🐙 GitHub 版（全機能）</string>
+    <string name="settings_distribution_play">🛍️ Google Play 版</string>
 
     <!-- 保護者 PIN -->
     <string name="settings_pin_title">保護者 PIN</string>
-    <string name="settings_pin_status_set">設定済み</string>
-    <string name="settings_pin_status_not_set">未設定</string>
+    <string name="settings_pin_status_set">🔒 設定済み</string>
+    <string name="settings_pin_status_not_set">🔓 未設定</string>
     <string name="settings_pin_setup">PIN を設定する</string>
     <string name="settings_pin_change">変更する</string>
     <string name="settings_pin_remove">削除する</string>

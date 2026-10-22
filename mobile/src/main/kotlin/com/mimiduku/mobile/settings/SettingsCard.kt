@@ -2,10 +2,14 @@ package com.mimiduku.mobile.settings
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.outlined.Info
@@ -23,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
 import com.mimiduku.mobile.R
 
@@ -34,17 +39,29 @@ import com.mimiduku.mobile.R
 fun SettingsCard(
     title: String,
     help: String? = null,
+    icon: String? = null,
     content: @Composable () -> Unit,
 ) {
     var helpOpen by rememberSaveable { mutableStateOf(false) }
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(28.dp)) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                if (icon != null) IconBadge(icon)
+                Text(text = title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
                 if (help != null) HelpToggle(open = helpOpen, onToggle = { helpOpen = !helpOpen })
             }
             if (help != null) HelpPanel(visible = helpOpen, text = help)
             content()
+        }
+    }
+}
+
+/** タイトルの前に置く、絵文字を丸い面にのせたアイコン。絵文字は飾りなので、読み上げ対象から外す。 */
+@Composable
+private fun IconBadge(emoji: String) {
+    Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.size(36.dp)) {
+        Box(contentAlignment = Alignment.Center, modifier = Modifier.clearAndSetSemantics { }) {
+            Text(text = emoji, style = MaterialTheme.typography.titleMedium)
         }
     }
 }
@@ -77,7 +94,7 @@ internal fun HelpPanel(
             shape = MaterialTheme.shapes.medium,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Text(text = text, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(12.dp))
+            Text(text = text, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(12.dp))
         }
     }
 }
