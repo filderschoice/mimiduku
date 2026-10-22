@@ -299,7 +299,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 24px 40px;color:var(--sub);font-
 
 <section id="badge">
 <h2>7. みみづくバッジ・アプリアイコン</h2>
-<p class="lead">バッジは既定で画面右端・縦中央に 48dp・不透明度85%で常駐する（バッジ1つ分の領域だけがタッチを受け取り、外側は下のアプリへ届く）。指でドラッグでき、離すと近い方の左右の端へ吸着する。端の外へ半分以上引き出すと、端から28dpだけを見せる半透明の最小化表示になり、触る・内側へ引くと元に戻る。縦位置は画面の高さの割合で保存し、縦横どちらの向きでも端に合う。通知の「バッジを隠す／出す」ボタンからも切り替えられる（<code>BadgePlacement</code> / <code>BadgeOverlay</code> / <code>BadgeNotification</code>）。絵は「仮の自作画像」で、同名の drawable を差し替えれば置き換わる設計。</p>
+<p class="lead">バッジは既定で画面右端・縦中央に 64dp・不透明度85%で常駐する（バッジ1つ分の領域だけがタッチを受け取り、外側は下のアプリへ届く）。指でドラッグでき、離すと近い方の左右の端へ吸着する。端の外へ半分以上引き出すと、端から36dpだけを見せる半透明の最小化表示になり、触る・内側へ引くと元に戻る。縦位置は画面の高さの割合で保存し、縦横どちらの向きでも端に合う。バッジをタップすると隣に出る「×」（48dp・4秒で消える）でバッジを閉じられ、通知の「バッジを隠す／出す」ボタンからも切り替えられる（<code>BadgePlacement</code> / <code>BadgeOverlay</code> / <code>BadgeNotification</code>）。絵は「仮の自作画像」で、同名の drawable を差し替えれば置き換わる設計。</p>
 <div class="owlbox">
 <div class="owlcell"><svg width="128" height="128"><use href="#owl-sleepy"/></svg><b>SLEEPY</b><div style="font-size:12.5px;color:var(--sub)">平常時。うとうと（目を閉じた弧）。羽角は短い。</div></div>
 <div class="owlcell"><svg width="128" height="128"><use href="#owl-alert"/></svg><b>ALERT</b><div style="font-size:12.5px;color:var(--sub)">広告画面を見張っている。羽角が立ち、目が開く。<span class="tag gh">GitHub版のみ</span></div></div>
@@ -340,8 +340,8 @@ footer{max-width:1180px;margin:0 auto;padding:0 24px 40px;color:var(--sub);font-
 <tr><td>バナー：ボタン最小サイズ</td><td>高さ56dp・主ボタン幅120dp</td><td>overlay_banner.xml</td></tr>
 <tr><td>オーバーレイ主ボタン：形</td><td>角丸28dp・白地・文字 #1E3A5F</td><td>overlay_button_background.xml</td></tr>
 <tr><td>案内パネル：内側余白／文字／ボタン</td><td>12dp／16sp／高さ64dp・幅120dp・20sp</td><td>overlay_ad_panel.xml</td></tr>
-<tr><td>バッジ：サイズ／不透明度／既定の位置</td><td>48dp／0.85（最小化中 0.6）／右端・縦中央</td><td>BadgeOverlay / BadgePlacement</td></tr>
-<tr><td>バッジ：最小化時ののぞき幅</td><td>28dp</td><td>BadgeOverlay</td></tr>
+<tr><td>バッジ：サイズ／不透明度／既定の位置</td><td>64dp／0.85（最小化中 0.6）／右端・縦中央</td><td>BadgeOverlay / BadgePlacement</td></tr>
+<tr><td>バッジ：最小化時ののぞき幅</td><td>36dp</td><td>BadgeOverlay</td></tr>
 <tr><td>バナー自動消去</td><td>警告 8秒／確認 20秒</td><td>BannerSpec</td></tr>
 <tr><td>シールド最長時間／バッジ目大きい時間</td><td>60秒／10秒</td><td>ShieldTimer / BadgeExpression</td></tr>
 <tr><td>一時停止の選択肢／PIN桁数／ログ保持</td><td>15・30・60分／4〜8桁／500件</td><td>PauseStore / PinManager / DetectionLog</td></tr></table>

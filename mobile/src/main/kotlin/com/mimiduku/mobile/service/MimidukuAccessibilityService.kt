@@ -107,6 +107,10 @@ class MimidukuAccessibilityService : AccessibilityService() {
                 onBadgePlacementChanged = badgeSettings::setPlacement,
                 onGoBack = { performGlobalAction(GLOBAL_ACTION_BACK) },
                 onAdClose = ::closeAd,
+                onBadgeClose = {
+                    badgeSettings.setVisible(false)
+                    refreshBadge()
+                },
             )
         refreshBadge()
     }

@@ -5,6 +5,31 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-10-23 10:00
+  summary: バッジを大きくし、タップで出る「×」で閉じられるようにする（BL-054）
+  details:
+    変更内容: >-
+      バッジを 48dp から 64dp に、最小化時ののぞき分を 28dp から 36dp に大きくしてドラッグしやすくした。最小化していない
+      バッジをタップすると、画面の中央に近い側の隣に 48dp の「×」ウィンドウを出し、押すとバッジを隠す設定へ切り替える
+      （OverlayController の onBadgeClose から MimidukuAccessibilityService が badgeSettings.setVisible(false) を呼ぶ）。
+      「×」は4秒、ドラッグ開始、再タップ、バッジの削除で消える。DESIGN.md の FR-18・FR-21、UI デザイン設計書、TESTING.md、
+      CHANGELOG を更新した。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/overlay/BadgeOverlay.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/overlay/OverlayController.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/MimidukuAccessibilityService.kt
+      - mobile/src/main/res/values/strings.xml
+      - docs/records/managed/DESIGN.md
+      - docs/records/managed/BACKLOG.md
+      - docs/design/UI_DESIGN.html
+      - docs/TESTING.md
+      - CHANGELOG.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintGithubDebug lintPlayDebug assembleDebug testGithubDebugUnitTest testPlayDebugUnitTest、
+      npx markdownlint-cli2、python scripts/validate-records.py
+    検証結果: 成功 - ゲートはすべて終了コード0。実機での操作は未確認（BL-054）
+    関連ID:
+      - BL-054
 - date: 2026-10-22 02:00
   summary: GitHub 版のアプリアイコンを「タコを食べるみみづく」にし、各ドキュメントを最新化する（BL-053）
   details:
