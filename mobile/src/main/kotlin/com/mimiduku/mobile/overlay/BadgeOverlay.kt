@@ -216,7 +216,7 @@ internal class BadgeOverlay(
         const val BADGE_SIZE_DP = 64
 
         /** 最小化したときに画面の中へ残す幅。つかんで引き出せる太さにする。 */
-        const val PEEK_DP = 36
+        const val PEEK_DP = 56
 
         /** 閉じる「×」ボタンの大きさと表示時間。 */
         const val CLOSE_SIZE_DP = 48
@@ -228,6 +228,6 @@ internal class BadgeOverlay(
         const val BADGE_ALPHA = 0.85f
 
         /** 最小化中はさらに目立たなくする。 */
-        const val MINIMIZED_ALPHA = 0.6f
+        const val MINIMIZED_ALPHA = 0.75f
     }
 }
