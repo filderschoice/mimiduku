@@ -23,6 +23,8 @@ class OverlayController(
     /** バッジの置き場所を保存する。ドラッグや最小化のたびに呼ばれる。 */
     private val onBadgePlacementChanged: (BadgePlacement) -> Unit,
     private val onGoBack: () -> Unit,
+    /** バッジの「×」が押されたとき。バッジを隠す設定へ切り替える。 */
+    private val onBadgeClose: () -> Unit = {},
     /** 案内パネルの「もどる」。本物の閉じるボタンの代理タップを試し、だめなら戻る（BL-021）。 */
     private val onAdClose: () -> Unit = onGoBack,
 ) {
@@ -33,7 +35,7 @@ class OverlayController(
     private var adPanel: View? = null
     private var adPanelSpec: AdPanelSpec? = null
     private var shield: View? = null
-    private val badge = BadgeOverlay(context, windowManager, onBadgePlacementChanged)
+    private val badge = BadgeOverlay(context, windowManager, onBadgePlacementChanged, onBadgeClose)
     private val shieldTimeoutRunnable = Runnable { setShield(false) }
 
     fun show(spec: BannerSpec) {

@@ -110,6 +110,7 @@
     <string name="settings_badge_title">みみづくバッジ</string>
     <string name="settings_badge_description">画面の端にみみづくを出します。広告を見つけると耳が立ち、あやしい動きを止めると目が大きくなります。見張りがオフの間は出ません。指で動かせ、画面の外へ引き出すと端にしまえます（しまったバッジを触ると戻ります）。</string>
     <string name="settings_badge_description_limited">画面の端にみみづくを出します。あやしい動きに気づくと目が大きくなります。見張りがオフの間は出ません。指で動かせ、画面の外へ引き出すと端にしまえます（しまったバッジを触ると戻ります）。</string>
+    <string name="badge_close_description">バッジを閉じる</string>
     <string name="settings_badge_notification">通知からバッジを操作する</string>
     <string name="notification_channel_name">バッジの操作</string>
     <string name="notification_title">みみづくが見守っています</string>
