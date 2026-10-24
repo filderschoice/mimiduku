@@ -4,6 +4,13 @@
 
 ## Unreleased
 
+- ガードレール配布元 copilot-rules を 0.29.0 へ追従した。`.markdownlint-cli2.yaml`（`gitignore: true` の追加）、
+  `CONTRIBUTING.md`（Copilot にも効かせる固有規約の置き場所）、`docs/guidelines/ADOPTION.md`（`.github/copilot-instructions.md`
+  をマージ扱いへ変更、`CONTRIBUTING.local.md` の作成手順）を配布元版で置き換えた。規範そのものの追加・削除は無く、
+  `CLAUDE.md` の品質ゲート定義と `.github/copilot-instructions.md`（固有の追記なし、配布元と同一）は変更していない。
+  常時読み込みのファイルは変更していない
+- `CONTRIBUTING.local.md` を雛形から作成した（規定ブランチ `main`、レビュー責任者は全担当 `@filderschoice`、
+  自律ループ実行モードは採用）。`.github/CODEOWNERS` の雛形の値（`@your-org/...`）も同じ担当者へ置き換えた
 - バッジを 64dp（のぞき分 32dp）に大きくしてドラッグしやすくし、バッジをタップすると隣に「×」を出して閉じられるようにした。BL-054
 - GitHub 版のアプリアイコンを「タコを食べるみみづく」にした（Play 版は通常のみみづく）。ホーム上部のアイコンにも同じ絵を使い、README・PRIVACY・UI デザイン設計書・DESIGN.md を最新化。BL-053
 - 実機確認で見つけた不具合（同意文の改行の崩れ、回転でホームへ戻る）を直し、文字を大きくし、絵文字アイコン・丸いカード・みみづくの表情でポップにした。版の表示を上部のアイコンに替え、「このアプリについて」へ GitHub への導線を追加。BL-046〜BL-051
