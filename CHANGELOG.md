@@ -4,6 +4,7 @@
 
 ## Unreleased
 
+- BACKLOG に BL-055（同一 URL の確認スキップと除外対象の保持）を「要確認」で起票した。URL の取得元・保存範囲・開示文との整合・除外の安全条件の判断が必要なため、自律ループでは実装せず保留した
 - ガードレール配布元 copilot-rules を 0.29.0 へ追従した。`.markdownlint-cli2.yaml`（`gitignore: true` の追加）、
   `CONTRIBUTING.md`（Copilot にも効かせる固有規約の置き場所）、`docs/guidelines/ADOPTION.md`（`.github/copilot-instructions.md`
   をマージ扱いへ変更、`CONTRIBUTING.local.md` の作成手順）を配布元版で置き換えた。規範そのものの追加・削除は無く、
