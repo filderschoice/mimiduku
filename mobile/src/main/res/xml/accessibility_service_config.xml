@@ -2,12 +2,13 @@
 <!--
   設定の理由は docs/design/MVP_DESIGN.md 2.1。権限は最小限にする。
   - canPerformGestures は使わない（代理タップは MVP の範囲外）
+  - flagReportViewIds はブラウザのアドレスバーのビューを見分けるためだけに使う（除外サイトの照合。BL-055）
   - isAccessibilityTool は宣言しない（支援技術ではないため）
 -->
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
     android:accessibilityEventTypes="typeWindowStateChanged|typeWindowContentChanged|typeViewClicked"
     android:accessibilityFeedbackType="feedbackGeneric"
-    android:accessibilityFlags="flagIncludeNotImportantViews"
+    android:accessibilityFlags="flagIncludeNotImportantViews|flagReportViewIds"
     android:canRetrieveWindowContent="true"
     android:description="@string/accessibility_service_description"
     android:notificationTimeout="200" />

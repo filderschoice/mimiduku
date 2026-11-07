@@ -5,6 +5,65 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-11-07 12:00
+  summary: 「戻る／このまま進む」の確認を省く対象（アプリ・サイト）を追加する（BL-055）
+  details:
+    変更内容: >-
+      確認バナーに「今後は確認しない」を追加し、遷移元のアプリ（パッケージ名）とブラウザで開いたサイト（ドメインのみ）を
+      確認の対象から外せるようにした。登録は本体の設定画面のダイアログで選び、保護者 PIN を必須とする（未設定なら登録せず PIN の
+      設定を求める）。判定は ExclusionPolicy にあり、確認を出す介入（ASK_USER）だけを省き、自動で戻す介入・警告のみ・偽の警告・
+      インストーラーへの遷移は省かない。アプリの登録は ProtectionEngine で即時に判定し、サイトの登録があるときは遷移の1秒後に
+      前面ブラウザのアドレスバーを UrlBarReader で読んで DomainNormalizer（ホスト名のみ、www 除去、サブドメインは別扱い）で
+      照合する。読めない場合は確認を出す。ドメインは端末ごとのソルトつき SHA-256 でだけ保存し、アプリはパッケージ名で保存する
+      （各50件まで）。省いた検知はログへ SKIPPED_EXCLUDED で残す。設定画面に「確認を省く対象」（アプリの個別削除・サイトの全削除は
+      PIN 不要）を追加した。flagReportViewIds を追加し、開示文・ログ画面の注記・PRIVACY.md・PLAY_LISTING.md・DESIGN.md（FR-25）・
+      TESTING.md（2.9）・CHANGELOG を更新した。SettingsStores の引数を detekt の上限に収めるため ProtectionOverrides にまとめた。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/exclusion/DomainNormalizer.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/exclusion/UrlBarIds.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/exclusion/ExclusionStore.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/exclusion/ExclusionPolicy.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/UrlBarReader.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/DelayedAction.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/DevicePackages.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/NodeTextCollector.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/ProtectionEngine.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/MimidukuAccessibilityService.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/overlay/OverlayController.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/overlay/BannerSpec.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/log/DetectionLog.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/LogRows.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/PinPolicy.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/PinDialogs.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/SettingsController.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/SettingsScreen.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/MainActivity.kt
+      - mobile/src/main/AndroidManifest.xml
+      - mobile/src/main/res/layout/overlay_banner.xml
+      - mobile/src/main/res/values/strings.xml
+      - mobile/src/main/res/xml/accessibility_service_config.xml
+      - mobile/src/test/kotlin/com/mimiduku/mobile/exclusion/DomainNormalizerTest.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/exclusion/UrlBarIdsTest.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/exclusion/ExclusionStoreTest.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/exclusion/ExclusionPolicyTest.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/service/ProtectionEngineTest.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/settings/SettingsControllerTest.kt
+      - docs/records/managed/DESIGN.md
+      - docs/records/managed/BACKLOG.md
+      - docs/PRIVACY.md
+      - docs/PLAY_LISTING.md
+      - docs/TESTING.md
+      - CHANGELOG.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintGithubDebug lintPlayDebug assembleDebug testGithubDebugUnitTest testPlayDebugUnitTest、
+      npx markdownlint-cli2、python scripts/validate-records.py
+    検証結果: >-
+      成功 - Gradle の品質ゲートはすべて終了コード0（単体テストは両版で全件成功）。実機での確認（アドレスバーの読み取り、
+      バックグラウンドからの設定画面の起動、各ブラウザでの動作）は BL-056 に人手検証として起票した。
+    関連ID:
+      - BL-055
+      - BL-056
+      - BL-057
 - date: 2026-10-23 10:00
   summary: バッジを大きくし、タップで出る「×」で閉じられるようにする（BL-054）
   details:

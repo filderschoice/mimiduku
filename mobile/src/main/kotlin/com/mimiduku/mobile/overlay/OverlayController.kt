@@ -38,7 +38,11 @@ class OverlayController(
     private val badge = BadgeOverlay(context, windowManager, onBadgePlacementChanged, onBadgeClose)
     private val shieldTimeoutRunnable = Runnable { setShield(false) }
 
-    fun show(spec: BannerSpec) {
+    /** [onExclude] があれば「今後は確認しない」のボタンを出す。押すとバナーを閉じて呼ぶ。 */
+    fun show(
+        spec: BannerSpec,
+        onExclude: (() -> Unit)? = null,
+    ) {
         dismiss()
         val view = LayoutInflater.from(context).inflate(R.layout.overlay_banner, null)
         val arg = spec.formatArgRes?.let(context::getString)
@@ -56,6 +60,15 @@ class OverlayController(
                 visibility = View.VISIBLE
                 setText(label)
                 setOnClickListener { dismiss() }
+            }
+        }
+        if (onExclude != null && spec.secondaryLabelRes != null) {
+            view.findViewById<Button>(R.id.banner_exclude).apply {
+                visibility = View.VISIBLE
+                setOnClickListener {
+                    dismiss()
+                    onExclude()
+                }
             }
         }
         windowManager.addView(view, OverlayLayout.edge(Gravity.TOP))

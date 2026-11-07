@@ -44,7 +44,7 @@
 
     <!-- アクセシビリティ API の利用についての目立つ開示と同意（ConsentStore.CURRENT_VERSION と対応。内容を変えたら版数を上げる） -->
     <string name="disclosure_title">はじめに：画面の読み取りについて</string>
-    <string name="disclosure_body">みみづくは、悪質な広告（偽の警告や、勝手なブラウザ・ストアへの移動）を見つけるために、Android のユーザー補助機能（アクセシビリティ サービス）を使います。\n\n・読み取るもの：前面に表示されているアプリの名前と、画面に表示されている文字\n・使い道：偽の警告の文言や広告の画面かどうかの照合と、勝手な移動の検知だけに使います\n・保存するもの：検知した日時・アプリの名前・検知の種類だけを、この端末の中に保存します。画面の文字や URL は保存しません\n・送信：インターネットへの接続権限を持たないため、読み取った内容を外部へ送ることはありません\n\nユーザー補助機能はいつでも端末の設定からオフにできます。</string>
+    <string name="disclosure_body">みみづくは、悪質な広告（偽の警告や、勝手なブラウザ・ストアへの移動）を見つけるために、Android のユーザー補助機能（アクセシビリティ サービス）を使います。\n\n・読み取るもの：前面に表示されているアプリの名前と、画面に表示されている文字\n・使い道：偽の警告の文言や広告の画面かどうかの照合と、勝手な移動の検知だけに使います\n・保存するもの：検知した日時・アプリの名前・検知の種類だけを、この端末の中に保存します。画面の文字や URL は保存しません。ただし、保護者が「今後は確認しない」で登録したサイトは、サイト名（ドメイン）だけを暗号化（ハッシュ化）して保存します。ブラウザのアドレスバーは、登録済みのサイトか確かめるときだけ読みます\n・送信：インターネットへの接続権限を持たないため、読み取った内容を外部へ送ることはありません\n\nユーザー補助機能はいつでも端末の設定からオフにできます。</string>
     <string name="disclosure_check">上の内容を確認し、画面の読み取りに同意します</string>
     <string name="disclosure_accept">同意して進む</string>
 
@@ -75,7 +75,7 @@
     <string name="settings_mode_adult_desc">自動では戻さず、「戻る」か「このまま進む」を選べます。</string>
     <string name="settings_log_title">検知ログ</string>
     <string name="settings_log_count">検知 %1$d 件</string>
-    <string name="settings_log_privacy">ログに残すのは日時・アプリ名・検知の種類だけです。画面の文字や URL は保存せず、外部へも送信しません。</string>
+    <string name="settings_log_privacy">ログに残すのは日時・アプリ名・検知の種類だけです。画面の文字や URL は保存せず、外部へも送信しません。「今後は確認しない」で登録したサイトだけは、サイト名をハッシュ化して保存します。</string>
 
     <!-- メニュー（歯車・「⋮」） -->
     <string name="menu_settings">設定</string>
@@ -94,6 +94,7 @@
     <string name="log_kind_scareware">偽の警告</string>
     <string name="log_action_back_and_warn">自動で戻した</string>
     <string name="log_action_warn_only">警告のみ</string>
+    <string name="log_action_skipped_excluded">登録済みのため確認なし</string>
     <string name="log_action_ask_user">利用者に確認</string>
     <string name="log_apps_transition">%1$s → %2$s</string>
     <string name="log_apps_single">%1$s</string>
@@ -123,6 +124,19 @@
     <string name="settings_distribution_play">🛍️ Google Play 版</string>
 
     <!-- 保護者 PIN -->
+    <string name="banner_exclude">今後は確認しない</string>
+    <string name="settings_exclusion_title">確認を省く対象</string>
+    <string name="settings_exclusion_help">「戻る／このまま進む」の確認を出さない、信頼するアプリとサイトです。確認の画面の「今後は確認しない」から追加できます（保護者 PIN が必要）。自動で戻す設定や、偽の警告の表示は省きません。ストアやインストーラーへの移動は、アプリの登録があっても省きません。サイトはブラウザのアドレスバーを読める場合だけ判定し、読めないときは確認を出します。</string>
+    <string name="settings_exclusion_empty">登録はありません。</string>
+    <string name="settings_exclusion_remove">外す</string>
+    <string name="settings_exclusion_domains">登録済みのサイト：%1$d 件（サイト名は暗号化して保存しているため、一覧には出せません）</string>
+    <string name="settings_exclusion_clear_domains">サイトをすべて外す</string>
+    <string name="exclusion_add_title">今後は確認しない</string>
+    <string name="exclusion_add_hint">登録するものを選んでください。追加には保護者 PIN が必要です（未設定のときは先に設定します）。</string>
+    <string name="exclusion_add_app">アプリ：%1$s</string>
+    <string name="exclusion_add_site">サイト：%1$s</string>
+    <string name="exclusion_add_site_unknown">サイト：読み取れませんでした（登録できません）</string>
+    <string name="exclusion_add_confirm">登録する</string>
     <string name="settings_pin_title">保護者 PIN</string>
     <string name="settings_pin_status_set">🔒 設定済み</string>
     <string name="settings_pin_status_not_set">🔓 未設定</string>

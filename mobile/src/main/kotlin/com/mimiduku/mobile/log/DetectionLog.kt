@@ -25,6 +25,9 @@ enum class InterventionAction {
 
     /** 「戻る」「このまま進む」を出して利用者に選ばせた。 */
     ASK_USER,
+
+    /** 除外の登録（アプリ・サイト）に当たるため、確認を出さずに通した。 */
+    SKIPPED_EXCLUDED,
 }
 
 /**

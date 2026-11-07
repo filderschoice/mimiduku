@@ -54,5 +54,6 @@ object LogRows {
             InterventionAction.BACK_AND_WARN -> R.string.log_action_back_and_warn
             InterventionAction.WARN_ONLY -> R.string.log_action_warn_only
             InterventionAction.ASK_USER -> R.string.log_action_ask_user
+            InterventionAction.SKIPPED_EXCLUDED -> R.string.log_action_skipped_excluded
         }
 }

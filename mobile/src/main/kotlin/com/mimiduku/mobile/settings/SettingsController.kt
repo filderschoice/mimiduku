@@ -3,6 +3,8 @@ package com.mimiduku.mobile.settings
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.mimiduku.mobile.exclusion.ExclusionCandidate
+import com.mimiduku.mobile.exclusion.ExclusionStore
 import com.mimiduku.mobile.feature.FeatureSet
 import com.mimiduku.mobile.log.DetectionLog
 import com.mimiduku.mobile.mode.BadgeSettings
@@ -19,9 +21,15 @@ class SettingsStores(
     val modeStore: UsageModeStore,
     val detectionLog: DetectionLog,
     val pinManager: PinManager,
-    val pauseStore: PauseStore,
+    val overrides: ProtectionOverrides,
     val badgeSettings: BadgeSettings,
     val consentStore: ConsentStore,
+)
+
+/** 保護を一時的に止める・確認を省くといった、保護の例外にあたる保存先。 */
+class ProtectionOverrides(
+    val pauseStore: PauseStore,
+    val exclusionStore: ExclusionStore,
 )
 
 /** 端末側の操作（Activity が実装する）。 */
@@ -55,6 +63,12 @@ sealed interface SettingsDialog {
     ) : SettingsDialog
 
     data object Setup : SettingsDialog
+
+    /** 確認を省く対象の追加。[candidate] のうち登録するものを選ばせる。 */
+    class AddExclusion(
+        val candidate: ExclusionCandidate,
+        val appLabel: String?,
+    ) : SettingsDialog
 }
 
 /**
@@ -70,6 +84,7 @@ class SettingsController(
     initialScreen: Screen = Screen.HOME,
 ) : SettingsActions,
     LogActions,
+    ExclusionActions,
     ConsentActions,
     NavigationActions {
     var state by mutableStateOf(load())
@@ -112,6 +127,45 @@ class SettingsController(
         dialog = null
     }
 
+    /** バナーの「今後は確認しない」から開いたとき。追加するアプリ・サイトを選ぶダイアログを出す。 */
+    fun proposeExclusion(candidate: ExclusionCandidate) {
+        screen = Screen.SETTINGS
+        dialog = SettingsDialog.AddExclusion(candidate, platform.appLabel(candidate.sourcePackage))
+    }
+
+    /**
+     * 選んだものを登録する。PIN を設定していなければ登録せず PIN の設定を求める（確認を省く対象は PIN で守る）。
+     * 登録できるのは遷移元のアプリと、読めたドメインだけ。
+     */
+    fun confirmAddExclusion(
+        addPackage: Boolean,
+        addDomainChecked: Boolean,
+    ) {
+        val proposal = dialog as? SettingsDialog.AddExclusion ?: return
+        // 読めなかったドメインは登録できない（選ばれていても無視する）。
+        val addDomain = addDomainChecked && proposal.candidate.domain != null
+        when {
+            !addPackage && !addDomain -> dialog = null
+            !stores.pinManager.isSet() -> dialog = SettingsDialog.Setup
+            else ->
+                guarded(GuardedAction.ADD_EXCLUSION) {
+                    if (addPackage) stores.overrides.exclusionStore.addPackage(proposal.candidate.sourcePackage)
+                    proposal.candidate.domain?.takeIf { addDomain }?.let(stores.overrides.exclusionStore::addDomain)
+                    refresh()
+                }
+        }
+    }
+
+    override fun removeExcludedPackage(packageName: String) {
+        stores.overrides.exclusionStore.removePackage(packageName)
+        refresh()
+    }
+
+    override fun clearExcludedDomains() {
+        stores.overrides.exclusionStore.clearDomains()
+        refresh()
+    }
+
     override fun openAccessibilitySettings() = platform.openAccessibilitySettings()
 
     override fun openAppDetails() = platform.openAppDetails()
@@ -140,13 +194,13 @@ class SettingsController(
 
     override fun pause(minutes: Int) =
         guarded(GuardedAction.PAUSE_PROTECTION) {
-            stores.pauseStore.pause(minutes * MILLIS_PER_MINUTE)
+            stores.overrides.pauseStore.pause(minutes * MILLIS_PER_MINUTE)
             refresh()
         }
 
     override fun resume() =
         guarded(GuardedAction.RESUME_PROTECTION) {
-            stores.pauseStore.resume()
+            stores.overrides.pauseStore.resume()
             refresh()
         }
 
@@ -209,11 +263,14 @@ class SettingsController(
             mode = stores.modeStore.load(),
             logCount = stores.detectionLog.entries().size,
             pinSet = stores.pinManager.isSet(),
-            pauseRemainingMinutes = toMinutesRoundedUp(stores.pauseStore.remainingMillis()),
+            pauseRemainingMinutes = toMinutesRoundedUp(stores.overrides.pauseStore.remainingMillis()),
             badgeVisible = stores.badgeSettings.isVisible(),
             badgeNotification = stores.badgeSettings.isNotificationEnabled(),
             features = features,
             consented = stores.consentStore.hasConsented(),
+            excludedPackages =
+                stores.overrides.exclusionStore.packages().map { ExcludedApp(it, platform.appLabel(it) ?: it) },
+            excludedDomainCount = stores.overrides.exclusionStore.domainCount(),
         )
 
     companion object {

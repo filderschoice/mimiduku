@@ -1,5 +1,7 @@
 package com.mimiduku.mobile.settings
 
+import com.mimiduku.mobile.exclusion.ExclusionCandidate
+import com.mimiduku.mobile.exclusion.ExclusionStore
 import com.mimiduku.mobile.log.DetectionKind
 import com.mimiduku.mobile.log.DetectionLog
 import com.mimiduku.mobile.log.DetectionLogEntry
@@ -40,7 +42,7 @@ class SettingsControllerTest {
                 modeStore = UsageModeStore(store),
                 detectionLog = DetectionLog(logFile),
                 pinManager = pinManager,
-                pauseStore = pauseStore,
+                overrides = ProtectionOverrides(pauseStore, ExclusionStore(store)),
                 badgeSettings = BadgeSettings(store),
                 consentStore = ConsentStore(store),
             ),
@@ -79,7 +81,7 @@ class SettingsControllerTest {
                     modeStore = UsageModeStore(store),
                     detectionLog = DetectionLog(logFile),
                     pinManager = pinManager,
-                    pauseStore = pauseStore,
+                    overrides = ProtectionOverrides(pauseStore, ExclusionStore(store)),
                     badgeSettings = BadgeSettings(store),
                     consentStore = ConsentStore(store),
                 ),
@@ -305,4 +307,64 @@ class SettingsControllerTest {
         targetPackage = target,
         action = InterventionAction.WARN_ONLY,
     )
+
+    @Test
+    fun `adding an exclusion without a pin asks to set a pin and registers nothing`() {
+        controller.proposeExclusion(ExclusionCandidate("com.example.game", "example.com"))
+        controller.confirmAddExclusion(addPackage = true, addDomainChecked = true)
+
+        assertTrue(controller.dialog is SettingsDialog.Setup)
+        assertTrue(controller.state.excludedPackages.isEmpty())
+        assertEquals(0, controller.state.excludedDomainCount)
+    }
+
+    @Test
+    fun `adding an exclusion requires the pin and registers the chosen items`() {
+        pinManager.set("1234")
+        controller.proposeExclusion(ExclusionCandidate("com.example.game", "example.com"))
+        assertEquals(Screen.SETTINGS, controller.screen)
+
+        controller.confirmAddExclusion(addPackage = true, addDomainChecked = true)
+        assertTrue(controller.dialog is SettingsDialog.Entry)
+        assertTrue(controller.state.excludedPackages.isEmpty())
+
+        assertEquals(PinCheck.Success, controller.verifyPin("1234"))
+        controller.onPinVerified()
+
+        assertEquals(listOf(ExcludedApp("com.example.game", "ゲーム")), controller.state.excludedPackages)
+        assertEquals(1, controller.state.excludedDomainCount)
+    }
+
+    @Test
+    fun `only the chosen item is registered and an unreadable site cannot be registered`() {
+        pinManager.set("1234")
+        controller.proposeExclusion(ExclusionCandidate("com.example.game", null))
+        controller.confirmAddExclusion(addPackage = false, addDomainChecked = true)
+        assertNull(controller.dialog)
+        assertTrue(controller.state.excludedPackages.isEmpty())
+        assertEquals(0, controller.state.excludedDomainCount)
+
+        controller.proposeExclusion(ExclusionCandidate("com.example.game", null))
+        controller.confirmAddExclusion(addPackage = true, addDomainChecked = true)
+        controller.onPinVerified()
+
+        assertEquals(1, controller.state.excludedPackages.size)
+        assertEquals(0, controller.state.excludedDomainCount)
+    }
+
+    @Test
+    fun `removing exclusions needs no pin`() {
+        pinManager.set("1234")
+        val exclusions = ExclusionStore(store)
+        exclusions.addPackage("com.example.game")
+        exclusions.addDomain("example.com")
+        controller.refresh()
+
+        controller.removeExcludedPackage("com.example.game")
+        controller.clearExcludedDomains()
+
+        assertNull(controller.dialog)
+        assertTrue(controller.state.excludedPackages.isEmpty())
+        assertEquals(0, controller.state.excludedDomainCount)
+    }
 }

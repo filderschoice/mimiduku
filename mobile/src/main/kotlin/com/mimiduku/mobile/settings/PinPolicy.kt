@@ -14,12 +14,16 @@ enum class GuardedAction {
     PAUSE_PROTECTION,
     RESUME_PROTECTION,
     CLEAR_LOG,
+
+    /** 確認を省く対象（アプリ・サイト）の追加。PIN を設定していないと追加できない（[SettingsController.confirmAddExclusion]）。 */
+    ADD_EXCLUSION,
 }
 
 /**
  * どの操作で PIN を求めるか。
  *
- * 保護を弱める操作（おとなモードへの切替・PIN の変更と削除・一時停止・ログの消去）だけを守る。
+ * 保護を弱める操作（おとなモードへの切替・PIN の変更と削除・一時停止・ログの消去・確認を省く対象の追加）だけを守る。
+ * 確認を省く対象の削除は保護を強めるため、PIN なしで行える。
  * こどもモードへの切替と保護の再開は保護を強めるため、PIN なしで行える。
  */
 object PinPolicy {
@@ -30,6 +34,7 @@ object PinPolicy {
             GuardedAction.REMOVE_PIN,
             GuardedAction.PAUSE_PROTECTION,
             GuardedAction.CLEAR_LOG,
+            GuardedAction.ADD_EXCLUSION,
         )
 
     fun requiresPin(

@@ -6,9 +6,12 @@ import com.mimiduku.mobile.detect.AdScreenState
 import com.mimiduku.mobile.detect.CountdownParser
 import com.mimiduku.mobile.detect.ExternalTransition
 import com.mimiduku.mobile.detect.ExternalTransitionDetector
+import com.mimiduku.mobile.exclusion.ExclusionPolicy
+import com.mimiduku.mobile.exclusion.ExclusionStore
 import com.mimiduku.mobile.feature.FeatureSet
 import com.mimiduku.mobile.log.DetectionKind
 import com.mimiduku.mobile.log.DetectionLogEntry
+import com.mimiduku.mobile.log.InterventionAction
 import com.mimiduku.mobile.mode.Intervention
 import com.mimiduku.mobile.mode.InterventionPolicy
 import com.mimiduku.mobile.mode.UsageMode
@@ -61,7 +64,13 @@ data class Detection(
     val logEntry: DetectionLogEntry,
     /** 外部遷移のときの遷移内容。スケアウェアのときは null。 */
     val transition: ExternalTransition? = null,
-)
+    /** 除外の登録に当たるため確認を出さない。サービスはログだけ残す。 */
+    val skipConfirmation: Boolean = false,
+) {
+    /** 除外に当たるため確認を省いたものに変える（ログの介入は [InterventionAction.SKIPPED_EXCLUDED]）。 */
+    fun asSkipped() =
+        copy(skipConfirmation = true, logEntry = logEntry.copy(action = InterventionAction.SKIPPED_EXCLUDED))
+}
 
 /**
  * イベントから検知結果を出す（Android の画面操作は行わない）。
@@ -76,6 +85,7 @@ class ProtectionEngine(
     private val modeProvider: () -> UsageMode,
     private val adDetector: AdScreenDetector? = null,
     private val features: FeatureSet = FeatureSet.GITHUB,
+    private val exclusions: ExclusionStore? = null,
 ) {
     /** 前面が広告画面なら、その状態。広告画面でなければ null。サービスは処理のたびにこれを見て表示を合わせる。 */
     var adScreen: AdScreenState? = null
@@ -118,18 +128,29 @@ class ProtectionEngine(
     ): Detection {
         val mode = modeProvider()
         val intervention = InterventionPolicy.forExternalTransition(mode, transition, features)
-        val entry =
-            DetectionLogEntry(
-                atMillis = atMillis,
-                kind = DetectionKind.EXTERNAL_TRANSITION,
-                sourcePackage = transition.sourcePackage,
-                targetPackage = transition.targetPackage,
-                action = intervention.action,
-                clickedRecently = transition.clickedRecently,
-                usageMode = mode,
-            )
-        return Detection(intervention, entry, transition)
+        // 確認を出す介入だけが除外の対象（自動で戻す・警告のみの介入は省かない）。
+        val skip =
+            intervention.action == InterventionAction.ASK_USER &&
+                exclusions?.let { ExclusionPolicy.skipsByPackage(it, transition) } == true
+        val detection =
+            Detection(intervention, transitionEntry(transition, atMillis, mode, intervention.action), transition)
+        return if (skip) detection.asSkipped() else detection
     }
+
+    private fun transitionEntry(
+        transition: ExternalTransition,
+        atMillis: Long,
+        mode: UsageMode,
+        action: InterventionAction,
+    ) = DetectionLogEntry(
+        atMillis = atMillis,
+        kind = DetectionKind.EXTERNAL_TRANSITION,
+        sourcePackage = transition.sourcePackage,
+        targetPackage = transition.targetPackage,
+        action = action,
+        clickedRecently = transition.clickedRecently,
+        usageMode = mode,
+    )
 
     /** 画面の文字を1回だけ読み、広告画面の判定とスケアウェアの照合に使う。 */
     private fun scan(
