@@ -144,6 +144,7 @@ class MimidukuAccessibilityService : AccessibilityService() {
     ) {
         val engineEvent =
             EngineEvent.from(event.eventType, event.packageName, SystemClock.elapsedRealtime(), event.className)
+                ?.let { engine.promoteToForeground(it) { rootInActiveWindow?.packageName?.toString() } }
                 ?: return
         val detections = engine.handle(engineEvent) { NodeTextCollector.collect(rootInActiveWindow) }
         detections.forEach(::intervene)

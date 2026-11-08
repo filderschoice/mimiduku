@@ -5,6 +5,32 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-11-08 23:50
+  summary: 前面に出てもウィンドウ状態の変化が届かないアプリの遷移を見逃さない補正を入れる（BL-062）
+  details:
+    変更内容: >-
+      起動済みのブラウザなどが、ウィンドウ状態の変化イベントなしで前面に出ると、前面判定が古いまま残って外部遷移を
+      見逃す。`ProtectionEngine.promoteToForeground` を追加し、追跡中の前面と違うアプリの文字の変化を、そのアプリが
+      実際のアクティブなウィンドウ（`rootInActiveWindow` のパッケージ）のときだけ前面の変化として扱うようにした。
+      背景のアプリの文字の変化・一時的に重なるもの（システム UI・キーボード・本アプリ）・前面のアプリ自身では、
+      アクティブなウィンドウを調べない。検知されなかった状態そのものは実機で再現できず、原因の特定は未了のため
+      BL-062 は「進行中」で残した。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/ProtectionEngine.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/MimidukuAccessibilityService.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/detect/ExternalTransitionDetector.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/service/ProtectionEngineTest.kt
+      - docs/records/managed/BACKLOG.md
+      - docs/records/managed/DESIGN.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintGithubDebug lintPlayDebug assembleDebug testGithubDebugUnitTest testPlayDebugUnitTest、
+      python scripts/validate-records.py、npx markdownlint-cli2、adb での実機確認（Pixel 8 Pro・Android 17）
+    検証結果: >-
+      成功 - Gradle の品質ゲートはすべて終了コード0（両版の単体テスト全件成功）。実機（GitHub 版 debug）で、補正後も T5 を
+      起動済みの Chrome で 3 回（毎回 +1 件）、T1 を起動済みで 2 回（毎回 +1 件で電卓へ戻る）、T4（ホームからの起動）は +0 件で
+      退行が無いことを確認した。検知されなかった状態の再現と、補正による解消の確認は未実施。
+    関連ID:
+      - BL-062
 - date: 2026-11-08 23:42
   summary: アクセシビリティ設定の本アプリの画面で、自分自身の偽警告が出ないようにする（BL-060）
   details:

@@ -37,6 +37,9 @@ class ExternalTransitionDetector(
     /** 現在の前面パッケージ（一時的に重なるものを除く）。 */
     val currentForeground: String? get() = foregroundPackage
 
+    /** 前面の変化として扱わない、一時的に重なるもの（システム UI・キーボード・本アプリ）か。 */
+    fun isTransient(packageName: String): Boolean = classifier.isTransient(packageName)
+
     fun onViewClicked(
         packageName: String,
         nowMillis: Long,

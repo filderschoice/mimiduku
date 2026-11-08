@@ -95,6 +95,27 @@ class ProtectionEngine(
     private var lastScanAt = Long.MIN_VALUE
     private val lastScarewareWarnedAt = mutableMapOf<Pair<String, String>, Long>()
 
+    /**
+     * 前面に出たのに「ウィンドウ状態の変化」が届かないアプリ（起動済みのブラウザなど）を見逃さないための補正。
+     * 追跡中の前面と違うパッケージの文字の変化は、そのアプリが実際のアクティブなウィンドウ（[activePackage]）のときだけ、
+     * 前面の変化として扱う。背景のアプリが出す文字の変化は、アクティブなウィンドウと一致しないので前面にしない。
+     * 一時的に重なるもの（システム UI・キーボード・本アプリ）は対象にせず、[activePackage] も呼ばない。
+     */
+    fun promoteToForeground(
+        event: EngineEvent,
+        activePackage: () -> String?,
+    ): EngineEvent {
+        val candidate = event is EngineEvent.ContentChanged && isForegroundCandidate(event.packageName)
+        return if (candidate && activePackage() == event.packageName) {
+            EngineEvent.WindowChanged(event.packageName, event.atMillis)
+        } else {
+            event
+        }
+    }
+
+    private fun isForegroundCandidate(packageName: String) =
+        packageName != detector.currentForeground && !detector.isTransient(packageName)
+
     /** [textsProvider] は前面の画面の文字を返す。照合が要るときだけ呼ぶ。 */
     fun handle(
         event: EngineEvent,
