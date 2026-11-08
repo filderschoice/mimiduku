@@ -5,6 +5,43 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-11-08 23:00
+  summary: 確認を省くサイトの一覧を、PIN で復号して表示できるようにする（BL-058）
+  details:
+    変更内容: >-
+      確認を省くサイトを、照合用のソルトつきハッシュに加えて、PIN から導いた鍵（PBKDF2-HMAC-SHA256・AES-256-GCM）で暗号化した
+      控えとして保存するようにした（DomainVault・DomainSecrets）。設定画面の「サイトの一覧を見る（PIN）」で PIN を入力すると復号して
+      一覧を表示し、一覧から個別に外せる。PIN の変更では新しい PIN で暗号化し直し、PIN の削除ではサイトの登録をすべて消す
+      （ユーザー判断。強度は PIN の桁数のまま）。控えの無い旧い登録はハッシュのまま残り、件数と全削除だけできる。サービス側の判定は
+      従来どおりハッシュだけを使い、PIN を必要としない。コントローラは照合した PIN を onPinVerified の処理中だけ保持する。
+      開示文・ログ画面の注記・PRIVACY.md・PLAY_LISTING.md・DESIGN.md（FR-25）・TESTING.md（X11〜X13）・CHANGELOG を更新した。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/exclusion/DomainVault.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/exclusion/DomainSecrets.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/exclusion/ExclusionStore.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/SettingsController.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/SettingsScreen.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/PinDialogs.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/PinPolicy.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/MainActivity.kt
+      - mobile/src/main/res/values/strings.xml
+      - mobile/src/test/kotlin/com/mimiduku/mobile/exclusion/ExclusionStoreTest.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/exclusion/ExclusionPolicyTest.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/settings/SettingsControllerTest.kt
+      - docs/records/managed/DESIGN.md
+      - docs/records/managed/BACKLOG.md
+      - docs/PRIVACY.md
+      - docs/PLAY_LISTING.md
+      - docs/TESTING.md
+      - CHANGELOG.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintGithubDebug lintPlayDebug assembleDebug testGithubDebugUnitTest testPlayDebugUnitTest、
+      npx markdownlint-cli2、python scripts/validate-records.py
+    検証結果: >-
+      成功 - Gradle の品質ゲートはすべて終了コード0（単体テストは両版で全件成功）。実機での確認は BL-056（X11〜X13）に残した。
+    関連ID:
+      - BL-058
+      - BL-056
 - date: 2026-11-08 22:00
   summary: 実機確認で見つけた、最初のサイトを登録できない不具合を直す（BL-056）
   details:

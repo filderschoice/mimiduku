@@ -8,7 +8,13 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ExclusionPolicyTest {
-    private val store = ExclusionStore(MemoryStringStore(), saltGenerator = { "salt" })
+    private val memory = MemoryStringStore()
+    private val store =
+        ExclusionStore(
+            memory,
+            saltGenerator = { "salt" },
+            secrets = DomainSecrets(memory, DomainVault(iterations = 1_000)),
+        )
 
     private fun transition(target: TransitionTarget) =
         ExternalTransition("com.example.game", "target.pkg", target, clickedRecently = true, repeatCount = 1)
@@ -33,7 +39,7 @@ class ExclusionPolicyTest {
     fun `domains are checked only for browser transitions when sites are registered`() {
         assertFalse(ExclusionPolicy.needsDomain(store, transition(TransitionTarget.BROWSER)))
 
-        store.addDomain("example.com")
+        store.addDomain("example.com", "1234")
 
         assertTrue(ExclusionPolicy.needsDomain(store, transition(TransitionTarget.BROWSER)))
         assertFalse(ExclusionPolicy.needsDomain(store, transition(TransitionTarget.STORE)))
@@ -42,7 +48,7 @@ class ExclusionPolicyTest {
 
     @Test
     fun `an unreadable domain never skips the confirmation`() {
-        store.addDomain("example.com")
+        store.addDomain("example.com", "1234")
 
         assertTrue(ExclusionPolicy.skipsByDomain(store, "example.com"))
         assertFalse(ExclusionPolicy.skipsByDomain(store, "other.com"))

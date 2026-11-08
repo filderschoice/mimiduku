@@ -7,8 +7,8 @@ import java.security.SecureRandom
 /**
  * 「戻る／このまま進む」の確認を省く対象。サイト（ドメイン）とアプリ（パッケージ名）を分けて持つ。
  *
- * - サイトはドメインだけを、端末ごとのランダムな値（ソルト）を混ぜた SHA-256 にして保存する。元のドメインは
- *   保存しないため、一覧に出せない（件数と全削除だけ）。
+ * - サイトは、照合用にドメインだけを端末ごとのランダムな値（ソルト）を混ぜた SHA-256 にして保存する。表示用には、
+ *   保護者 PIN で暗号化した控え（[DomainSecrets]）を別に持ち、PIN を入力したときだけ一覧にできる。
  * - アプリは遷移元のパッケージ名をそのまま保存する（検知ログにも残るもので、一覧から個別に外せる）。
  * 登録できる件数はそれぞれ [MAX_ENTRIES] まで。登録時に PIN を求める判断は呼び出し側
  * （[com.mimiduku.mobile.settings.SettingsController]）が行う。
@@ -16,6 +16,8 @@ import java.security.SecureRandom
 class ExclusionStore(
     private val store: StringStore,
     private val saltGenerator: () -> String = ::randomSalt,
+    /** サイト名を PIN で復号して一覧に出すための暗号化した控え（照合には使わない）。 */
+    val secrets: DomainSecrets = DomainSecrets(store),
 ) {
     private val packageList = EntryList(store, KEY_PACKAGES)
     private val domainList = EntryList(store, KEY_DOMAINS)
@@ -38,10 +40,28 @@ class ExclusionStore(
     /** [domain] は [DomainNormalizer.fromUrlText] で整えた値。 */
     fun hasDomain(domain: String): Boolean = hash(domain) in domainList.read()
 
-    /** 登録する。空・上限超えは false。登録済みなら true。 */
-    fun addDomain(domain: String): Boolean = domain.isNotBlank() && domainList.add(hash(domain))
+    /**
+     * 登録する。空・上限超えは false。登録済みなら true。照合用のハッシュに加えて、[pin] で暗号化した控えを残す
+     * （PIN を入力したときの一覧表示と個別の削除のため）。
+     */
+    fun addDomain(
+        domain: String,
+        pin: String,
+    ): Boolean {
+        val added = domain.isNotBlank() && domainList.add(hash(domain))
+        if (added) secrets.put(hash(domain), domain, pin)
+        return added
+    }
 
-    fun clearDomains() = domainList.clear()
+    fun removeDomain(id: String) {
+        domainList.remove(id)
+        secrets.remove(id)
+    }
+
+    fun clearDomains() {
+        domainList.clear()
+        secrets.clear()
+    }
 
     private fun hash(domain: String): String {
         val salt = store.getString(KEY_SALT) ?: saltGenerator().also { store.putString(KEY_SALT, it) }

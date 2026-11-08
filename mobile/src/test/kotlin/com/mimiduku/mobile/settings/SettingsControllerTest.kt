@@ -357,7 +357,7 @@ class SettingsControllerTest {
         pinManager.set("1234")
         val exclusions = ExclusionStore(store)
         exclusions.addPackage("com.example.game")
-        exclusions.addDomain("example.com")
+        exclusions.addDomain("example.com", "1234")
         controller.refresh()
 
         controller.removeExcludedPackage("com.example.game")
@@ -366,5 +366,72 @@ class SettingsControllerTest {
         assertNull(controller.dialog)
         assertTrue(controller.state.excludedPackages.isEmpty())
         assertEquals(0, controller.state.excludedDomainCount)
+    }
+
+    @Test
+    fun `the site list is shown only after the pin and sites can be removed from it`() {
+        pinManager.set("1234")
+        controller.proposeExclusion(ExclusionCandidate("com.example.game", "example.com"))
+        controller.confirmAddExclusion(addPackage = false, addDomainChecked = true)
+        controller.verifyPin("1234")
+        controller.onPinVerified()
+        assertEquals(1, controller.state.excludedDomainListable)
+
+        controller.showExcludedDomains()
+        assertTrue(controller.dialog is SettingsDialog.Entry)
+        controller.verifyPin("1234")
+        controller.onPinVerified()
+
+        val list = controller.dialog as SettingsDialog.DomainList
+        assertEquals(listOf("example.com"), list.items.map { it.domain })
+
+        controller.removeExcludedDomain(list.items.single().id)
+        assertTrue((controller.dialog as SettingsDialog.DomainList).items.isEmpty())
+        assertEquals(0, controller.state.excludedDomainCount)
+    }
+
+    @Test
+    fun `a wrong pin never lists the sites`() {
+        pinManager.set("1234")
+        ExclusionStore(store).addDomain("example.com", "1234")
+        controller.refresh()
+
+        controller.showExcludedDomains()
+
+        assertTrue(controller.verifyPin("0000") is PinCheck.Wrong)
+        assertTrue(controller.dialog is SettingsDialog.Entry)
+    }
+
+    @Test
+    fun `removing the pin also deletes the registered sites`() {
+        pinManager.set("1234")
+        ExclusionStore(store).addDomain("example.com", "1234")
+        controller.refresh()
+
+        controller.removePin()
+        controller.verifyPin("1234")
+        controller.onPinVerified()
+
+        assertFalse(controller.state.pinSet)
+        assertEquals(0, controller.state.excludedDomainCount)
+        assertEquals(0, controller.state.excludedDomainListable)
+    }
+
+    @Test
+    fun `changing the pin re-encrypts the list so the new pin lists it`() {
+        pinManager.set("1234")
+        ExclusionStore(store).addDomain("example.com", "1234")
+        controller.refresh()
+
+        controller.changePin()
+        controller.verifyPin("1234")
+        controller.onPinVerified()
+        assertTrue(controller.savePin("5678"))
+
+        controller.showExcludedDomains()
+        controller.verifyPin("5678")
+        controller.onPinVerified()
+
+        assertEquals(listOf("example.com"), (controller.dialog as SettingsDialog.DomainList).items.map { it.domain })
     }
 }

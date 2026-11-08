@@ -29,6 +29,7 @@ import com.mimiduku.mobile.pin.PinManager
 import com.mimiduku.mobile.service.MimidukuAccessibilityService
 import com.mimiduku.mobile.settings.AboutScreen
 import com.mimiduku.mobile.settings.AddExclusionDialog
+import com.mimiduku.mobile.settings.ExcludedDomainsDialog
 import com.mimiduku.mobile.settings.HomeScreen
 import com.mimiduku.mobile.settings.LogScreen
 import com.mimiduku.mobile.settings.PinEntryDialog
@@ -197,6 +198,12 @@ private fun SettingsDialogHost(controller: SettingsController) {
             AddExclusionDialog(
                 dialog = dialog,
                 onConfirm = controller::confirmAddExclusion,
+                onDismiss = controller::dismissDialog,
+            )
+        is SettingsDialog.DomainList ->
+            ExcludedDomainsDialog(
+                dialog = dialog,
+                onRemove = controller::removeExcludedDomain,
                 onDismiss = controller::dismissDialog,
             )
         null -> Unit

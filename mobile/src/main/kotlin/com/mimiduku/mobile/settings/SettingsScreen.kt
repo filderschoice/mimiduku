@@ -53,6 +53,8 @@ data class SettingsState(
     val excludedPackages: List<ExcludedApp> = emptyList(),
     /** 確認を省くサイトの件数（ドメインはハッシュで保存するため、一覧には出せない）。 */
     val excludedDomainCount: Int = 0,
+    /** 一覧に出せる（暗号化した控えのある）サイトの数。残りは旧い登録で、件数と全削除だけできる。 */
+    val excludedDomainListable: Int = 0,
 )
 
 /** 確認を省くアプリ。[label] はアプリ名（分からなければパッケージ名）。 */
@@ -66,6 +68,12 @@ interface ExclusionActions {
     fun removeExcludedPackage(packageName: String)
 
     fun clearExcludedDomains()
+
+    /** 保護者 PIN を入力して、省くサイトの一覧を表示する。 */
+    fun showExcludedDomains()
+
+    /** 一覧に表示中のサイトを外す。 */
+    fun removeExcludedDomain(id: String)
 }
 
 /** みみづくバッジの操作。 */
@@ -271,6 +279,11 @@ private fun ExclusionCard(
         }
         if (state.excludedDomainCount > 0) {
             Text(text = stringResource(R.string.settings_exclusion_domains, state.excludedDomainCount))
+            if (state.excludedDomainListable > 0) {
+                OutlinedButton(onClick = actions::showExcludedDomains) {
+                    Text(stringResource(R.string.settings_exclusion_show_domains))
+                }
+            }
             OutlinedButton(onClick = actions::clearExcludedDomains) {
                 Text(stringResource(R.string.settings_exclusion_clear_domains))
             }
