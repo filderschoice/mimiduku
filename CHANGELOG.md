@@ -4,6 +4,10 @@
 
 ## Unreleased
 
+- 実機（Pixel 8 Pro・Android 17）で T1〜T7・P1〜P5・P11・B1〜B4・B8 を確認し、結果を docs/TESTING.md の記録欄と BACKLOG
+  （BL-009・BL-023・BL-043）へ記録した。見つけた不具合を BL-059（最小化中のバッジの縦ドラッグで最小化が解除される）、
+  BL-060（アクセシビリティ設定の本アプリの画面で自身の警告が出る）、BL-061（ストアへの遷移で検知が二重記録され戻りすぎる）
+  として起票した。コード変更なし
 - Play 版の公開判断（BL-024）を記録した。事前相談はせず先に Play Console へ申請し、審査で `docs/design/DISTRIBUTION.md` 6章の
   未確認点を確かめる（申請は BL-031、却下時は理由を記録して機能の絞り込みか案 A への切り替えを起票する）。
   BACKLOG から BL-024 を削除し、DESIGN.md と DISTRIBUTION.md の参照を更新した。コード変更なし
