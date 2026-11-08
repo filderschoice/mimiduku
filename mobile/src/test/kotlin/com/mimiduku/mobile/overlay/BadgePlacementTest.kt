@@ -40,9 +40,53 @@ class BadgePlacementTest {
     }
 
     @Test
+    fun `dragging the center onto the screen edge minimizes it`() {
+        // 指は画面の端までしか動かせないので、中心が端に着いた時点で最小化とする。
+        assertEquals(BadgePlacement(BadgeSide.LEFT, 0.5f, minimized = true), release(x = -size / 2, y = 950))
+        assertEquals(BadgePlacement(BadgeSide.RIGHT, 0.5f, minimized = true), release(x = width - size / 2, y = 950))
+    }
+
+    @Test
     fun `badge only half out of the screen is not minimized`() {
         assertEquals(false, release(x = -49, y = 0).minimized)
         assertEquals(false, release(x = 899, y = 0).minimized)
+    }
+
+    private fun releaseMinimized(
+        x: Int,
+        y: Int,
+    ) = BadgePlacement.fromRelease(x, y, BadgeMetrics(width, height, size, peek), wasMinimized = true)
+
+    @Test
+    fun `moving a minimized badge up or down keeps it minimized`() {
+        val left = BadgePlacement(BadgeSide.LEFT, 0.5f, minimized = true).windowX(width, size, peek)
+        val right = BadgePlacement(BadgeSide.RIGHT, 0.5f, minimized = true).windowX(width, size, peek)
+
+        assertEquals(BadgePlacement(BadgeSide.LEFT, 0.25f, minimized = true), releaseMinimized(left, 475))
+        assertEquals(BadgePlacement(BadgeSide.RIGHT, 0.75f, minimized = true), releaseMinimized(right, 1425))
+    }
+
+    @Test
+    fun `a small finger drift keeps a minimized badge minimized`() {
+        val left = BadgePlacement(BadgeSide.LEFT, 0.5f, minimized = true).windowX(width, size, peek)
+        val right = BadgePlacement(BadgeSide.RIGHT, 0.5f, minimized = true).windowX(width, size, peek)
+
+        assertEquals(true, releaseMinimized(left + size / 4, 950).minimized)
+        assertEquals(true, releaseMinimized(right - size / 4, 950).minimized)
+    }
+
+    @Test
+    fun `pulling a minimized badge well inward restores it on the nearest side`() {
+        assertEquals(BadgePlacement(BadgeSide.LEFT, 0.5f), releaseMinimized(x = 0, y = 950))
+        assertEquals(BadgePlacement(BadgeSide.RIGHT, 0.5f), releaseMinimized(x = 900, y = 950))
+        assertEquals(BadgePlacement(BadgeSide.LEFT, 0.5f), releaseMinimized(x = 300, y = 950))
+    }
+
+    @Test
+    fun `the resting position of a minimized badge is not minimized unless it was minimized before`() {
+        val left = BadgePlacement(BadgeSide.LEFT, 0.5f, minimized = true).windowX(width, size, peek)
+
+        assertEquals(false, release(left, 950).minimized)
     }
 
     @Test

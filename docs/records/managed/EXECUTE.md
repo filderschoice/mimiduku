@@ -5,6 +5,38 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-11-08 23:25
+  summary: 最小化中のバッジの縦ドラッグと、ストア遷移の二重検知を直す（BL-059・BL-061）
+  details:
+    変更内容: >-
+      BL-059 は、最小化中のバッジを縦に動かすと最小化が解除される不具合の修正。最小化中のバッジの中心は、のぞき分（32dp）が
+      大きさ（64dp）の半分と同じため端の座標ちょうどになり、`fromRelease` の厳密な不等号の判定から漏れていた。最小化中に離した
+      ときは静止位置から内側へ大きさの4分の1までのずれなら最小化を保ち、それより内側へ引き出したときだけ通常へ戻す
+      （`BadgeMetrics`・`wasMinimized`）。あわせて、指が画面の端までしか動かず中心が端に着くだけの操作でも最小化になるよう、
+      最小化の判定を端の座標を含める形（`<=` / `>=`）にした。
+      BL-061 は、戻る操作の直後にストアが同じ遷移の画面イベントをもう一度出すと、同じ遷移が二重に検知され戻る操作も二重になる
+      疑いへの対策。`ExternalTransitionDetector` が、同じ遷移元・遷移先の検知から 800ms 以内の再検知を数えない（繰り返し回数にも
+      入れない）。800ms は既存の繰り返しの判定（1秒刻み）より短い値にした。実機では二重検知を再現できず、原因は単体テストでの
+      想定（イベントの順序）に基づく。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/overlay/BadgePlacement.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/overlay/BadgeOverlay.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/detect/ExternalTransitionDetector.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/overlay/BadgePlacementTest.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/detect/ExternalTransitionDetectorTest.kt
+      - docs/records/managed/BACKLOG.md
+      - docs/records/managed/DESIGN.md
+      - docs/TESTING.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintGithubDebug lintPlayDebug assembleDebug testGithubDebugUnitTest testPlayDebugUnitTest、
+      python scripts/validate-records.py、npx markdownlint-cli2、adb での実機確認（Pixel 8 Pro・Android 17）
+    検証結果: >-
+      成功 - Gradle の品質ゲートはすべて終了コード0（両版の単体テスト全件成功）。実機は GitHub 版 debug で、最小化（内側を掴んで
+      端まで引く）・縦に動かしても最小化のまま・x=80 から内側へ引くと通常へ戻る・T2 を 3 回実行して毎回ログ 1 件で電卓へ戻る
+      ことを確認した。二重検知そのものは修正前後とも実機で再現できていない。Play 版の実機は未確認。
+    関連ID:
+      - BL-059
+      - BL-061
 - date: 2026-11-09 00:00
   summary: 確認を省く対象の実機確認の続き（X4・X8・X9）の結果を記録する（BL-056）
   details:
