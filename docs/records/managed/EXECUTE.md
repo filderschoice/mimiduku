@@ -5,6 +5,31 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-11-09 00:14
+  summary: ページの読み込み直後に操作しなくてもスケアウェアの警告が出るようにする（BL-063）
+  details:
+    変更内容: >-
+      照合は前面が変わった直後と、前回から 1 秒以上空いた文字の変化でだけ走るため、読み込みの最後の変化が間引かれて
+      その後イベントが来ないと、読み込み後の画面は次の変化まで照合されなかった。エンジンに、前面の画面で照合が間引かれたことを
+      示す `hasPendingScan` と、間引かれた照合を 1 回だけ行う `settle` を追加した。サービスは、間引きが残っている間、
+      文字の変化のたびに `DelayedAction` を 1 秒で予約し直し（デバウンス）、変化が止まった時点で `settle` を呼ぶ。待っている間に
+      一時停止・同意の取り消しがあれば行わない。間引かれていない（直近に照合した）画面では何もしないため、通常の画面で
+      照合の回数は増えない。detekt の関数数の上限のため、サービスの処理は `process` の中に置いた。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/ProtectionEngine.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/MimidukuAccessibilityService.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/service/ProtectionEngineTest.kt
+      - docs/records/managed/BACKLOG.md
+      - docs/records/managed/DESIGN.md
+      - docs/TESTING.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintGithubDebug lintPlayDebug assembleDebug testGithubDebugUnitTest testPlayDebugUnitTest、
+      python scripts/validate-records.py、npx markdownlint-cli2、adb での実機確認（Pixel 8 Pro・Android 17）
+    検証結果: >-
+      成功 - Gradle の品質ゲートはすべて終了コード0（両版の単体テスト全件成功）。実機（GitHub 版 debug）で、テストページを開いて
+      操作せず 7 秒待つと、3 回とも警告が 1 件出た（修正前は 0 件）。T5 は +1 件、T4 は +0 件で退行なし。Play 版の実機は未確認。
+    関連ID:
+      - BL-063
 - date: 2026-11-08 23:50
   summary: 前面に出てもウィンドウ状態の変化が届かないアプリの遷移を見逃さない補正を入れる（BL-062）
   details:

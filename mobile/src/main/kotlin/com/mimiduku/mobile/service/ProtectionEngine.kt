@@ -91,6 +91,10 @@ class ProtectionEngine(
     var adScreen: AdScreenState? = null
         private set
     private var foregroundClassName: String? = null
+
+    /** 文字の変化で照合が間引かれ、まだ照合していない画面があるか。変化が止まったあとの [settle] の要否に使う。 */
+    var hasPendingScan: Boolean = false
+        private set
     private var lastScanPackage: String? = null
     private var lastScanAt = Long.MIN_VALUE
     private val lastScarewareWarnedAt = mutableMapOf<Pair<String, String>, Long>()
@@ -115,6 +119,22 @@ class ProtectionEngine(
 
     private fun isForegroundCandidate(packageName: String) =
         packageName != detector.currentForeground && !detector.isTransient(packageName)
+
+    /**
+     * 照合が間引かれた文字の変化のあと、変化が止まった時点で 1 回だけ照合する。ページの読み込みが終わった画面は、次の変化が
+     * 来るまで照合されないため（BL-063）。間引かれた照合が残っていないときは何もしない。
+     */
+    fun settle(
+        atMillis: Long,
+        textsProvider: () -> List<String>,
+    ): List<Detection> {
+        val foreground = detector.currentForeground
+        return if (hasPendingScan && foreground != null) {
+            listOfNotNull(scan(EngineEvent.ContentChanged(foreground, atMillis), textsProvider, force = true))
+        } else {
+            emptyList()
+        }
+    }
 
     /** [textsProvider] は前面の画面の文字を返す。照合が要るときだけ呼ぶ。 */
     fun handle(
@@ -184,7 +204,12 @@ class ProtectionEngine(
         val due =
             packageName == detector.currentForeground &&
                 (force || packageName != lastScanPackage || event.atMillis - lastScanAt >= SCAN_INTERVAL_MILLIS)
-        if (!due) return null
+        if (!due) {
+            // 前面の画面が変わったのに間引かれたとき。読み込みの最後の変化が間引かれると、その後イベントが来ない限り照合されない。
+            if (packageName == detector.currentForeground) hasPendingScan = true
+            return null
+        }
+        hasPendingScan = false
         lastScanPackage = packageName
         lastScanAt = event.atMillis
         val texts = textsProvider()

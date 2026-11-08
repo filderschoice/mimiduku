@@ -16,6 +16,7 @@ import com.mimiduku.mobile.rules.DetectionRules
 import com.mimiduku.mobile.rules.ScarewareMatcher
 import com.mimiduku.mobile.storage.MemoryStringStore
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -79,6 +80,42 @@ class ProtectionEngineTest {
         engine.promoteToForeground(EngineEvent.Clicked(CHROME, 400), active)
 
         assertEquals(0, lookups)
+    }
+
+    @Test
+    fun `a screen whose scan was skipped is scanned once the changes settle`() {
+        screen = listOf("読み込み中")
+        handle(EngineEvent.WindowChanged(GAME, 0))
+        // 読み込みの最後の変化が 1 秒未満の間隔で来て照合が間引かれ、そのあと偽の警告が表示される。
+        handle(EngineEvent.ContentChanged(GAME, 500))
+        screen = listOf("お使いの端末はウイルスに感染しています")
+        assertTrue(handle(EngineEvent.ContentChanged(GAME, 900)).isEmpty())
+        assertTrue(engine.hasPendingScan)
+
+        val detections = engine.settle(1_900) { screen }
+
+        assertEquals(1, detections.size)
+        assertEquals(DetectionKind.SCAREWARE, detections.single().logEntry.kind)
+        assertFalse(engine.hasPendingScan)
+    }
+
+    @Test
+    fun `nothing is scanned at settle when no scan was skipped`() {
+        handle(EngineEvent.WindowChanged(GAME, 0))
+        handle(EngineEvent.ContentChanged(GAME, 2_000))
+        val before = scans
+
+        assertFalse(engine.hasPendingScan)
+        assertTrue(engine.settle(3_000) { screen }.isEmpty())
+        assertEquals(before, scans)
+    }
+
+    @Test
+    fun `a content change in the background does not leave a pending scan`() {
+        handle(EngineEvent.WindowChanged(GAME, 0))
+        handle(EngineEvent.ContentChanged(CHROME, 100))
+
+        assertFalse(engine.hasPendingScan)
     }
 
     @Test

@@ -70,6 +70,7 @@ class MimidukuAccessibilityService : AccessibilityService() {
     private lateinit var pauseStore: PauseStore
     private lateinit var exclusionStore: ExclusionStore
     private val domainCheck = DelayedAction()
+    private val scanSettle = DelayedAction()
 
     /** ログの書き込みは画面の処理を止めないよう別スレッドで行う。 */
     private val logExecutor: ExecutorService = Executors.newSingleThreadExecutor()
@@ -151,6 +152,20 @@ class MimidukuAccessibilityService : AccessibilityService() {
         val adScreen = engine.adScreen
         overlay?.setShield(FEATURES.tapShield && shieldTimer.shouldShield(adScreen, engineEvent.atMillis))
         overlay?.showAdPanel(adScreen?.takeIf { FEATURES.adScreenPanel }?.let(AdPanelSpec::from))
+        // 照合が間引かれた画面は、文字の変化が止まってから 1 回だけ照合する（読み込みが終わったページを見逃さない）。
+        // 待っている間に一時停止・同意の取り消しがあれば行わない。
+        if (engine.hasPendingScan) {
+            scanSettle.schedule(ProtectionEngine.SCAN_INTERVAL_MILLIS) {
+                if (!pauseStore.isPaused() && consentStore.hasConsented()) {
+                    val now = SystemClock.elapsedRealtime()
+                    engine.settle(now) { NodeTextCollector.collect(rootInActiveWindow) }.forEach(::intervene)
+                    val settled = engine.adScreen
+                    overlay?.setShield(FEATURES.tapShield && shieldTimer.shouldShield(settled, now))
+                    overlay?.showAdPanel(settled?.takeIf { FEATURES.adScreenPanel }?.let(AdPanelSpec::from))
+                    updateBadge(paused = false, onAdScreen = FEATURES.badgeReactsToAds && settled != null)
+                }
+            }
+        }
     }
 
     private fun intervene(detection: Detection) {
@@ -268,6 +283,7 @@ class MimidukuAccessibilityService : AccessibilityService() {
 
     override fun onDestroy() {
         domainCheck.cancel()
+        scanSettle.cancel()
         unregisterReceiver(toggleReceiver)
         badgeNotification.cancel()
         overlay?.dismissAll()
