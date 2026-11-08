@@ -5,19 +5,21 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
 import android.os.SystemClock
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
-import android.view.inputmethod.InputMethodManager
 import androidx.core.content.ContextCompat
 import com.mimiduku.mobile.BuildConfig
+import com.mimiduku.mobile.MainActivity
 import com.mimiduku.mobile.detect.AdScreenDetector
 import com.mimiduku.mobile.detect.ExternalTransitionDetector
 import com.mimiduku.mobile.detect.PackageClassifier
+import com.mimiduku.mobile.exclusion.ExclusionCandidate
+import com.mimiduku.mobile.exclusion.ExclusionPolicy
+import com.mimiduku.mobile.exclusion.ExclusionStore
 import com.mimiduku.mobile.feature.FeatureSet
 import com.mimiduku.mobile.log.DetectionLog
 import com.mimiduku.mobile.log.InterventionAction
@@ -66,6 +68,8 @@ class MimidukuAccessibilityService : AccessibilityService() {
     private lateinit var detectionLog: DetectionLog
     private lateinit var modeStore: UsageModeStore
     private lateinit var pauseStore: PauseStore
+    private lateinit var exclusionStore: ExclusionStore
+    private val domainCheck = DelayedAction()
 
     /** ログの書き込みは画面の処理を止めないよう別スレッドで行う。 */
     private val logExecutor: ExecutorService = Executors.newSingleThreadExecutor()
@@ -75,6 +79,7 @@ class MimidukuAccessibilityService : AccessibilityService() {
         detectionLog = detectionLog(this)
         modeStore = usageModeStore(this)
         pauseStore = pauseStore(this)
+        exclusionStore = exclusionStore(this)
         badgeSettings = badgeSettings(this)
         consentStore = consentStore(this)
         badgeNotification = BadgeNotification(this)
@@ -89,9 +94,17 @@ class MimidukuAccessibilityService : AccessibilityService() {
             PackageClassifier(
                 rules = rules,
                 ownPackage = packageName,
-                deviceBrowsers = resolvePackages(Intent(Intent.ACTION_VIEW, Uri.parse("https://example.com"))),
-                launchers = resolvePackages(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)),
-                inputMethods = inputMethodPackages(),
+                deviceBrowsers =
+                    DevicePackages.resolve(
+                        this,
+                        Intent(Intent.ACTION_VIEW, Uri.parse("https://example.com")),
+                    ),
+                launchers =
+                    DevicePackages.resolve(
+                        this,
+                        Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME),
+                    ),
+                inputMethods = DevicePackages.inputMethods(this),
             )
         engine =
             ProtectionEngine(
@@ -100,6 +113,7 @@ class MimidukuAccessibilityService : AccessibilityService() {
                 modeProvider = modeStore::load,
                 adDetector = AdScreenDetector(rules).takeIf { FEATURES.needsAdScreenDetection },
                 features = FEATURES,
+                exclusions = exclusionStore,
             )
         overlay =
             OverlayController(
@@ -139,14 +153,64 @@ class MimidukuAccessibilityService : AccessibilityService() {
     }
 
     private fun intervene(detection: Detection) {
+        val transition = detection.transition
+        val asksUser = detection.intervention.action == InterventionAction.ASK_USER
+        when {
+            // アプリの除外に当たる場合は、確認を出さずログだけ残す。
+            detection.skipConfirmation -> record(detection)
+            // サイトの除外がある場合は、ブラウザのアドレスバーが落ち着くのを待ってから判定する。
+            transition != null && asksUser && ExclusionPolicy.needsDomain(exclusionStore, transition) ->
+                deferForDomain(detection, transition.targetPackage)
+            else -> present(detection, domain = null)
+        }
+    }
+
+    private fun present(
+        detection: Detection,
+        domain: String?,
+    ) {
         lastDangerAt = SystemClock.elapsedRealtime()
         if (detection.intervention.action == InterventionAction.BACK_AND_WARN) {
             performGlobalAction(GLOBAL_ACTION_BACK)
         }
-        overlay?.show(BannerSpec.from(detection))
-        // ログの日時は経過時間ではなく実時刻で残す（保護者が後から読むため）。
+        val transition =
+            detection.transition?.takeIf { detection.intervention.action == InterventionAction.ASK_USER }
+        // 「今後は確認しない」は、登録の確認（PIN）を本体の設定画面で行うため、そこへ候補を渡して開く。
+        // サイト名は、サイトの登録がまだ無いと遷移の時点では読んでいないので、ボタンが押された時点で読む。
+        val onExclude =
+            transition?.let {
+                {
+                    val site = domain ?: UrlBarReader.readTarget(rootInActiveWindow, it)
+                    val intent = MainActivity.exclusionIntent(this, ExclusionCandidate(it.sourcePackage, site))
+                    startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                }
+            }
+        overlay?.show(BannerSpec.from(detection), onExclude)
+        record(detection)
+    }
+
+    /** ログの日時は経過時間ではなく実時刻で残す（保護者が後から読むため）。 */
+    private fun record(detection: Detection) {
         val entry = detection.logEntry.copy(atMillis = System.currentTimeMillis())
         logExecutor.execute { runCatching { detectionLog.append(entry) } }
+    }
+
+    /**
+     * 遷移先のブラウザのアドレスバーは、開いた直後は前のページのままのことがある。[DOMAIN_SETTLE_MILLIS] 待ってから
+     * 読み、登録済みのサイトなら確認を省く。ブラウザが前面でない・読めない場合は確認を出す。
+     */
+    private fun deferForDomain(
+        detection: Detection,
+        browserPackage: String,
+    ) {
+        domainCheck.schedule(DOMAIN_SETTLE_MILLIS) {
+            val domain = UrlBarReader.read(rootInActiveWindow, browserPackage)
+            if (ExclusionPolicy.skipsByDomain(exclusionStore, domain)) {
+                record(detection.asSkipped())
+            } else {
+                present(detection, domain)
+            }
+        }
     }
 
     /** 通知のボタンなど、イベントとは別の契機でバッジを合わせ直す。 */
@@ -202,6 +266,7 @@ class MimidukuAccessibilityService : AccessibilityService() {
     }
 
     override fun onDestroy() {
+        domainCheck.cancel()
         unregisterReceiver(toggleReceiver)
         badgeNotification.cancel()
         overlay?.dismissAll()
@@ -216,21 +281,11 @@ class MimidukuAccessibilityService : AccessibilityService() {
             .onFailure { if (it !is IOException) throw it }
             .getOrNull()
 
-    private fun resolvePackages(intent: Intent): Set<String> =
-        packageManager
-            .queryIntentActivities(intent, PackageManager.MATCH_ALL)
-            .mapNotNull { it.activityInfo?.packageName }
-            .toSet()
-
-    private fun inputMethodPackages(): Set<String> =
-        getSystemService(InputMethodManager::class.java)
-            ?.inputMethodList
-            ?.map { it.packageName }
-            ?.toSet()
-            .orEmpty()
-
     companion object {
         private const val RULES_ASSET = "rules.json"
+
+        /** 外部遷移の直後、アドレスバーのドメインを読むまで待つ時間。 */
+        private const val DOMAIN_SETTLE_MILLIS = 1_000L
 
         fun detectionLog(context: Context) = DetectionLog(File(context.filesDir, DetectionLog.FILE_NAME))
 
@@ -240,6 +295,8 @@ class MimidukuAccessibilityService : AccessibilityService() {
         val FEATURES: FeatureSet = FeatureSet.forBuild(BuildConfig.DISTRIBUTION)
 
         fun pauseStore(context: Context) = PauseStore(SharedPreferencesStringStore.of(context))
+
+        fun exclusionStore(context: Context) = ExclusionStore(SharedPreferencesStringStore.of(context))
 
         fun badgeSettings(context: Context) = BadgeSettings(SharedPreferencesStringStore.of(context))
 

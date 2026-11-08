@@ -3,6 +3,9 @@ package com.mimiduku.mobile.settings
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.mimiduku.mobile.exclusion.ExcludedDomain
+import com.mimiduku.mobile.exclusion.ExclusionCandidate
+import com.mimiduku.mobile.exclusion.ExclusionStore
 import com.mimiduku.mobile.feature.FeatureSet
 import com.mimiduku.mobile.log.DetectionLog
 import com.mimiduku.mobile.mode.BadgeSettings
@@ -19,9 +22,15 @@ class SettingsStores(
     val modeStore: UsageModeStore,
     val detectionLog: DetectionLog,
     val pinManager: PinManager,
-    val pauseStore: PauseStore,
+    val overrides: ProtectionOverrides,
     val badgeSettings: BadgeSettings,
     val consentStore: ConsentStore,
+)
+
+/** 保護を一時的に止める・確認を省くといった、保護の例外にあたる保存先。 */
+class ProtectionOverrides(
+    val pauseStore: PauseStore,
+    val exclusionStore: ExclusionStore,
 )
 
 /** 端末側の操作（Activity が実装する）。 */
@@ -55,6 +64,18 @@ sealed interface SettingsDialog {
     ) : SettingsDialog
 
     data object Setup : SettingsDialog
+
+    /** 確認を省く対象の追加。[candidate] のうち登録するものを選ばせる。 */
+    class AddExclusion(
+        val candidate: ExclusionCandidate,
+        val appLabel: String?,
+    ) : SettingsDialog
+
+    /** 確認を省くサイトの一覧（PIN で復号したもの）。[unlistedCount] は一覧に出せない旧い登録の数。 */
+    class DomainList(
+        val items: List<ExcludedDomain>,
+        val unlistedCount: Int,
+    ) : SettingsDialog
 }
 
 /**
@@ -70,6 +91,7 @@ class SettingsController(
     initialScreen: Screen = Screen.HOME,
 ) : SettingsActions,
     LogActions,
+    ExclusionActions,
     ConsentActions,
     NavigationActions {
     var state by mutableStateOf(load())
@@ -89,19 +111,32 @@ class SettingsController(
         state = load()
     }
 
-    fun verifyPin(pin: String): PinCheck = stores.pinManager.verify(pin)
+    /** 直近に照合できた PIN。サイト名の暗号化・復号に使うため、[onPinVerified] の処理が終わるまでだけ持つ。 */
+    private var verifiedPin: String? = null
+
+    /** PIN の変更で、保存済みのサイト名を暗号化し直すための旧 PIN（新しい PIN を保存するまで持つ）。 */
+    private var oldPinForChange: String? = null
+
+    fun verifyPin(pin: String): PinCheck =
+        stores.pinManager.verify(pin).also { verifiedPin = if (it == PinCheck.Success) pin else null }
 
     fun onPinVerified() {
         val entry = dialog as? SettingsDialog.Entry ?: return
         // onSuccess の中で次のダイアログ（PIN の変更）を開く場合があるため、先に閉じる。
         dialog = null
-        entry.onSuccess()
+        try {
+            entry.onSuccess()
+        } finally {
+            verifiedPin = null
+        }
     }
 
     /** 新しい PIN を保存する。形式が合わなければ false。 */
     fun savePin(pin: String): Boolean {
         val saved = stores.pinManager.set(pin)
         if (saved) {
+            oldPinForChange?.let { stores.overrides.exclusionStore.secrets.reencrypt(it, pin) }
+            oldPinForChange = null
             dialog = null
             refresh()
         }
@@ -110,6 +145,67 @@ class SettingsController(
 
     fun dismissDialog() {
         dialog = null
+        oldPinForChange = null
+    }
+
+    /** バナーの「今後は確認しない」から開いたとき。追加するアプリ・サイトを選ぶダイアログを出す。 */
+    fun proposeExclusion(candidate: ExclusionCandidate) {
+        screen = Screen.SETTINGS
+        dialog = SettingsDialog.AddExclusion(candidate, platform.appLabel(candidate.sourcePackage))
+    }
+
+    /**
+     * 選んだものを登録する。PIN を設定していなければ登録せず PIN の設定を求める（確認を省く対象は PIN で守る）。
+     * 登録できるのは遷移元のアプリと、読めたドメインだけ。
+     */
+    fun confirmAddExclusion(
+        addPackage: Boolean,
+        addDomainChecked: Boolean,
+    ) {
+        val proposal = dialog as? SettingsDialog.AddExclusion ?: return
+        // 読めなかったドメインは登録できない（選ばれていても無視する）。
+        val addDomain = addDomainChecked && proposal.candidate.domain != null
+        when {
+            !addPackage && !addDomain -> dialog = null
+            !stores.pinManager.isSet() -> dialog = SettingsDialog.Setup
+            else ->
+                guarded(GuardedAction.ADD_EXCLUSION) {
+                    if (addPackage) stores.overrides.exclusionStore.addPackage(proposal.candidate.sourcePackage)
+                    val pin = verifiedPin
+                    if (addDomain && pin != null) {
+                        proposal.candidate.domain?.let { stores.overrides.exclusionStore.addDomain(it, pin) }
+                    }
+                    refresh()
+                }
+        }
+    }
+
+    override fun removeExcludedPackage(packageName: String) {
+        stores.overrides.exclusionStore.removePackage(packageName)
+        refresh()
+    }
+
+    override fun clearExcludedDomains() {
+        stores.overrides.exclusionStore.clearDomains()
+        refresh()
+    }
+
+    override fun showExcludedDomains() =
+        guarded(GuardedAction.VIEW_EXCLUDED_DOMAINS) {
+            verifiedPin?.let { pin ->
+                val exclusions = stores.overrides.exclusionStore
+                val unlisted = exclusions.domainCount() - exclusions.secrets.ids().size
+                dialog = SettingsDialog.DomainList(exclusions.secrets.all(pin), unlisted)
+            }
+        }
+
+    override fun removeExcludedDomain(id: String) {
+        val list = dialog as? SettingsDialog.DomainList ?: return
+        stores.overrides.exclusionStore.removeDomain(id)
+        val rest = list.items.filterNot { it.id == id }
+        // 一覧が空になったら、見るものが無いので閉じる。
+        dialog = if (rest.isEmpty()) null else SettingsDialog.DomainList(rest, list.unlistedCount)
+        refresh()
     }
 
     override fun openAccessibilitySettings() = platform.openAccessibilitySettings()
@@ -130,23 +226,29 @@ class SettingsController(
         dialog = SettingsDialog.Setup
     }
 
-    override fun changePin() = guarded(GuardedAction.CHANGE_PIN) { dialog = SettingsDialog.Setup }
+    override fun changePin() =
+        guarded(GuardedAction.CHANGE_PIN) {
+            oldPinForChange = verifiedPin
+            dialog = SettingsDialog.Setup
+        }
 
+    /** PIN を外すと暗号化したサイト名を復号できなくなるため、確認を省くサイトの登録もすべて消す。 */
     override fun removePin() =
         guarded(GuardedAction.REMOVE_PIN) {
             stores.pinManager.clear()
+            stores.overrides.exclusionStore.clearDomains()
             refresh()
         }
 
     override fun pause(minutes: Int) =
         guarded(GuardedAction.PAUSE_PROTECTION) {
-            stores.pauseStore.pause(minutes * MILLIS_PER_MINUTE)
+            stores.overrides.pauseStore.pause(minutes * MILLIS_PER_MINUTE)
             refresh()
         }
 
     override fun resume() =
         guarded(GuardedAction.RESUME_PROTECTION) {
-            stores.pauseStore.resume()
+            stores.overrides.pauseStore.resume()
             refresh()
         }
 
@@ -209,11 +311,15 @@ class SettingsController(
             mode = stores.modeStore.load(),
             logCount = stores.detectionLog.entries().size,
             pinSet = stores.pinManager.isSet(),
-            pauseRemainingMinutes = toMinutesRoundedUp(stores.pauseStore.remainingMillis()),
+            pauseRemainingMinutes = toMinutesRoundedUp(stores.overrides.pauseStore.remainingMillis()),
             badgeVisible = stores.badgeSettings.isVisible(),
             badgeNotification = stores.badgeSettings.isNotificationEnabled(),
             features = features,
             consented = stores.consentStore.hasConsented(),
+            excludedPackages =
+                stores.overrides.exclusionStore.packages().map { ExcludedApp(it, platform.appLabel(it) ?: it) },
+            excludedDomainCount = stores.overrides.exclusionStore.domainCount(),
+            excludedDomainListable = stores.overrides.exclusionStore.secrets.ids().size,
         )
 
     companion object {

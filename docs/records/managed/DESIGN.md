@@ -50,6 +50,7 @@
 | FR-22 | 説明文を「必要な情報」と「補足説明」に分ける。カード（`SettingsCard`）の本文には状態と操作だけを置き、補足はタイトル右の「ⓘ」（`help` 引数）で開閉する色付きの面（secondaryContainer、bodyMedium）に出す（開閉は `rememberSaveable`）。利用モードの短い説明は選択中の項目だけに出す。アクセシビリティの開示と同意は要件上、常に全文を表示する（文字列リソース内の改行は `\n` で書く） | `SettingsCard`（HelpToggle・HelpPanel）、`HomeScreen`、`SettingsScreen` |
 | FR-23 | 画面の見た目。テーマの文字を Material3 既定の 1.125 倍にし、カードは角を丸くして、タイトルの前に絵文字アイコン（丸い面・読み上げ対象外）を付ける。状態にはみみづくの表情（見張り中は目が大きい、停止中は眠い）と絵文字を添える。同意前のホームは開示だけを出す。回転しても開いていた画面とログの表示を保つ（`SettingsController.initialScreen`） | `MimidukuTheme`、`SettingsCard`、`MainActivity` |
 | FR-24 | 版の表示とサポート。版の文言は「このアプリについて」の「配布の版」に出し、ホームの上部バーはアプリアイコン（`ic_launcher_foreground`。GitHub 版はタコを食べるみみづく、Play 版は通常のみみづく。1.6 倍に拡大）だけにして、版の違いをアイコンで表す。「このアプリについて」の一番下に、「困ったとき・ご意見」のカード（GitHub を知らない人にも分かる言葉で、開発ページ（GitHub のリポジトリ）をブラウザで開く）を両方の版で出す（`ACTION_VIEW` のみ。アプリ自身は通信しない） | `HomeScreen`（AboutScreen）、`MainActivity.openSupportPage` |
+| FR-25 | 確認を省く対象（`exclusion/`）。大人モード・Play 版のこどもモードの「戻る／このまま進む」（`InterventionAction.ASK_USER`）に限り、登録済みのアプリ（遷移元のパッケージ名）またはサイト（ドメイン）への遷移で確認を出さず、ログに `SKIPPED_EXCLUDED`（登録済みのため確認なし）だけ残す。自動で戻す介入・警告のみ・スケアウェアの警告は省かない。アプリは `ExclusionPolicy.skipsByPackage`（インストーラーへの遷移は対象外）、サイトはブラウザへの遷移だけで、サイト登録があるとき遷移の1秒後（`DOMAIN_SETTLE_MILLIS`）に前面ブラウザのアドレスバー（`UrlBarIds` の既知のビュー ID、`flagReportViewIds`）を `UrlBarReader` で読み、`DomainNormalizer` でホスト名（`www.` と大文字小文字・ポート・パス・認証情報を除く。サブドメインは別扱い）にして `ExclusionStore` と照合する。読めない・ブラウザが前面でない場合は確認を出す。ドメインは、照合用の端末ごとのソルトつき SHA-256 と、一覧表示用の PIN から導いた鍵（PBKDF2、AES-256-GCM。`DomainVault`・`DomainSecrets`）で暗号化した控えにしてだけ保存し、一覧は設定画面の「サイトの一覧を見る」で PIN を入力したときだけ復号して表示する（個別に外せる。PIN の削除でサイトの登録はすべて消え、PIN の変更で暗号化し直す。控えの無い旧い登録は件数と全削除のみ。`GuardedAction.VIEW_EXCLUDED_DOMAINS`）、アプリはパッケージ名で保存する。それぞれ50件まで。追加は確認バナーの「今後は確認しない」（`OverlayController.show` の `onExclude`）から本体の設定画面へ候補を渡し（`MainActivity.exclusionIntent`、`launchMode=singleTop`）、登録するものを選ぶダイアログ（`AddExclusionDialog`）の後に保護者 PIN を必須とする（PIN 未設定なら登録せず PIN の設定を求める。`GuardedAction.ADD_EXCLUSION`）。外す操作は PIN 不要で、設定画面の「確認を省く対象」から行う。 | `ExclusionStore`、`ExclusionPolicy`、`DomainNormalizer`、`UrlBarIds`、`UrlBarReader`、`ProtectionEngine`、`AddExclusionDialog` |
 
 ## 設計方針
 
@@ -91,7 +92,8 @@
 
 - 性能: ノードの走査は400ノード・深さ40まで。文字の変化イベントの照合は1秒間隔に間引く。`notificationTimeout` は200ms。
 - 信頼性: ルールの読み込み失敗時は既定値で動く。ログは件数上限と置き換え書き込みで破損と肥大を防ぐ。
-- セキュリティ/プライバシー: 画面の文字はメモリ上の照合にだけ使い、保存・送信しない。`INTERNET` を宣言しない。
+- セキュリティ/プライバシー: 画面の文字はメモリ上の照合にだけ使い、保存・送信しない。`INTERNET` を宣言しない。URL は保存しないが、確認を省くサイトだけは、
+  ブラウザのアドレスバーから読んだホスト名を、ソルトつきハッシュ（照合用）と PIN で暗号化した控え（一覧表示用）にして保存する（FR-25）。
   ログはバックアップと端末間転送から除外する（`allowBackup="false"` と `dataExtractionRules`）。
 
 ## 実装制約
@@ -109,7 +111,7 @@
 
 ## エージェント実装指示
 
-- 初回実装時の出力要件: 上記 FR-1〜FR-21 を満たし、判定ロジックごとに単体テストを置く。README にセットアップ・
+- 初回実装時の出力要件: 上記 FR-1〜FR-25 を満たし、判定ロジックごとに単体テストを置く。README にセットアップ・
   ビルド・サイドロード・更新・ロールバックの手順、`docs/TESTING.md` に実機確認の手順と記録欄を書く。
 - 追加実装時の出力要件: 変更が判定に関わる場合は Android 非依存のクラスへ置いて単体テストを足す。
   版によって有無を変える機能は、`BuildConfig` を直接見ずに `FeatureSet` へ項目を足して切り替える。

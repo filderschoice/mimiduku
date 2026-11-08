@@ -6,6 +6,7 @@ import com.mimiduku.mobile.detect.AdScreenDetector
 import com.mimiduku.mobile.detect.AdScreenState
 import com.mimiduku.mobile.detect.ExternalTransitionDetector
 import com.mimiduku.mobile.detect.PackageClassifier
+import com.mimiduku.mobile.exclusion.ExclusionStore
 import com.mimiduku.mobile.log.DetectionKind
 import com.mimiduku.mobile.log.InterventionAction
 import com.mimiduku.mobile.mode.UsageMode
@@ -13,6 +14,7 @@ import com.mimiduku.mobile.overlay.BannerAction
 import com.mimiduku.mobile.overlay.BannerSpec
 import com.mimiduku.mobile.rules.DetectionRules
 import com.mimiduku.mobile.rules.ScarewareMatcher
+import com.mimiduku.mobile.storage.MemoryStringStore
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -22,6 +24,7 @@ class ProtectionEngineTest {
     private var mode = UsageMode.CHILD
     private var screen = listOf("今日のニュース")
     private var scans = 0
+    private val exclusions = ExclusionStore(MemoryStringStore(), saltGenerator = { "salt" })
 
     private val engine =
         ProtectionEngine(
@@ -29,6 +32,7 @@ class ProtectionEngineTest {
             matcher = ScarewareMatcher(DetectionRules.DEFAULT.scarewarePhrases),
             modeProvider = { mode },
             adDetector = AdScreenDetector(DetectionRules.DEFAULT),
+            exclusions = exclusions,
         )
 
     private fun handle(event: EngineEvent) =
@@ -83,6 +87,42 @@ class ProtectionEngineTest {
         assertEquals(BannerAction.GO_BACK, banner.primaryAction)
         assertEquals(R.string.adult_proceed, banner.secondaryLabelRes)
         assertEquals(R.string.target_browser, banner.formatArgRes)
+    }
+
+    @Test
+    fun `adult mode skips the confirmation for an excluded source app and logs it`() {
+        mode = UsageMode.ADULT
+        exclusions.addPackage(GAME)
+        handle(EngineEvent.WindowChanged(GAME, 0))
+
+        val detection = handle(EngineEvent.WindowChanged(CHROME, 1_000)).single()
+
+        assertTrue(detection.skipConfirmation)
+        assertEquals(InterventionAction.SKIPPED_EXCLUDED, detection.logEntry.action)
+        assertEquals(GAME, detection.logEntry.sourcePackage)
+    }
+
+    @Test
+    fun `an excluded source app does not skip automatic back in child mode`() {
+        exclusions.addPackage(GAME)
+        handle(EngineEvent.WindowChanged(GAME, 0))
+
+        val detection = handle(EngineEvent.WindowChanged(CHROME, 1_000)).single()
+
+        assertEquals(InterventionAction.BACK_AND_WARN, detection.intervention.action)
+        assertEquals(false, detection.skipConfirmation)
+    }
+
+    @Test
+    fun `a source app that is not excluded is still confirmed`() {
+        mode = UsageMode.ADULT
+        exclusions.addPackage("com.example.other")
+        handle(EngineEvent.WindowChanged(GAME, 0))
+
+        val detection = handle(EngineEvent.WindowChanged(CHROME, 1_000)).single()
+
+        assertEquals(false, detection.skipConfirmation)
+        assertEquals(InterventionAction.ASK_USER, detection.logEntry.action)
     }
 
     @Test

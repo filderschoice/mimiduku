@@ -49,7 +49,32 @@ data class SettingsState(
     val features: FeatureSet = FeatureSet.GITHUB,
     /** アクセシビリティ API の利用について同意済みか。 */
     val consented: Boolean = true,
+    /** 確認を省くアプリ。 */
+    val excludedPackages: List<ExcludedApp> = emptyList(),
+    /** 確認を省くサイトの件数（ドメインはハッシュで保存するため、一覧には出せない）。 */
+    val excludedDomainCount: Int = 0,
+    /** 一覧に出せる（暗号化した控えのある）サイトの数。残りは旧い登録で、件数と全削除だけできる。 */
+    val excludedDomainListable: Int = 0,
 )
+
+/** 確認を省くアプリ。[label] はアプリ名（分からなければパッケージ名）。 */
+data class ExcludedApp(
+    val packageName: String,
+    val label: String,
+)
+
+/** 確認を省く対象の操作。追加はバナーの「今後は確認しない」から行い、ここでは外すだけ（PIN は不要）。 */
+interface ExclusionActions {
+    fun removeExcludedPackage(packageName: String)
+
+    fun clearExcludedDomains()
+
+    /** 保護者 PIN を入力して、省くサイトの一覧を表示する。 */
+    fun showExcludedDomains()
+
+    /** 一覧に表示中のサイトを外す。 */
+    fun removeExcludedDomain(id: String)
+}
 
 /** みみづくバッジの操作。 */
 interface BadgeActions {
@@ -108,6 +133,7 @@ fun SettingsScreen(
     state: SettingsState,
     actions: SettingsActions,
     navigation: NavigationActions,
+    exclusions: ExclusionActions,
 ) {
     BackHandler(onBack = navigation::navigateUp)
     AppScaffold(title = stringResource(R.string.menu_settings), navigateUp = navigation::navigateUp) {
@@ -117,6 +143,7 @@ fun SettingsScreen(
             }
         }
         PinCard(state, actions)
+        ExclusionCard(state, exclusions)
         val badgeHelp =
             if (state.features.badgeReactsToAds) {
                 R.string.settings_badge_description
@@ -220,6 +247,45 @@ internal fun PauseCard(
                         Text(stringResource(R.string.settings_pause_minutes, minutes))
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ExclusionCard(
+    state: SettingsState,
+    actions: ExclusionActions,
+) {
+    SettingsCard(
+        title = stringResource(R.string.settings_exclusion_title),
+        icon = "✅",
+        help = stringResource(R.string.settings_exclusion_help),
+    ) {
+        if (state.excludedPackages.isEmpty() && state.excludedDomainCount == 0) {
+            Text(text = stringResource(R.string.settings_exclusion_empty))
+        }
+        state.excludedPackages.forEach { app ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(text = app.label, modifier = Modifier.weight(1f))
+                OutlinedButton(onClick = { actions.removeExcludedPackage(app.packageName) }) {
+                    Text(stringResource(R.string.settings_exclusion_remove))
+                }
+            }
+        }
+        if (state.excludedDomainCount > 0) {
+            Text(text = stringResource(R.string.settings_exclusion_domains, state.excludedDomainCount))
+            if (state.excludedDomainListable > 0) {
+                OutlinedButton(onClick = actions::showExcludedDomains) {
+                    Text(stringResource(R.string.settings_exclusion_show_domains))
+                }
+            }
+            OutlinedButton(onClick = actions::clearExcludedDomains) {
+                Text(stringResource(R.string.settings_exclusion_clear_domains))
             }
         }
     }

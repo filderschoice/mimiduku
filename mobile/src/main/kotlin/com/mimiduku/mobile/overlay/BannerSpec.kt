@@ -50,7 +50,10 @@ data class BannerSpec(
         ): BannerSpec {
             val targetRes = targetLabelRes(target)
             return when (detection.intervention.action) {
-                InterventionAction.BACK_AND_WARN ->
+                // 除外で確認を省いた検知はバナーを出さない（サービスがログだけ残す）。ここへは来ないが、念のため警告にする。
+                InterventionAction.SKIPPED_EXCLUDED,
+                InterventionAction.BACK_AND_WARN,
+                ->
                     warning(
                         R.string.child_transition_blocked_title,
                         R.string.child_transition_blocked_message,

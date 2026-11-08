@@ -12,6 +12,20 @@ object NodeTextCollector {
     const val MAX_NODES = 400
     const val MAX_DEPTH = 40
 
+    /** ノードを上から順にたどる（集めるノード数と深さの上限つき）。 */
+    fun walk(root: AccessibilityNodeInfo): Sequence<AccessibilityNodeInfo> =
+        sequence {
+            val stack = ArrayDeque<Pair<AccessibilityNodeInfo, Int>>()
+            stack.addLast(root to 0)
+            var visited = 0
+            while (stack.isNotEmpty() && visited < MAX_NODES) {
+                val (node, depth) = stack.removeLast()
+                visited++
+                yield(node)
+                if (depth < MAX_DEPTH) pushChildren(stack, node, depth + 1)
+            }
+        }
+
     fun collect(root: AccessibilityNodeInfo?): List<String> {
         if (root == null) return emptyList()
         val texts = mutableListOf<String>()

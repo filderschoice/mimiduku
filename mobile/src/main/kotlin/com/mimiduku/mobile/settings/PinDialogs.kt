@@ -2,8 +2,11 @@ package com.mimiduku.mobile.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -13,6 +16,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -99,5 +104,89 @@ private fun PinField(
         singleLine = true,
         visualTransformation = PasswordVisualTransformation(),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+    )
+}
+
+/** 確認を省く対象の追加。遷移元のアプリと、読めたサイトのうち登録するものを選ばせる。 */
+@Composable
+fun AddExclusionDialog(
+    dialog: SettingsDialog.AddExclusion,
+    onConfirm: (addPackage: Boolean, addDomain: Boolean) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    var addPackage by remember { mutableStateOf(false) }
+    var addDomain by remember { mutableStateOf(false) }
+    val domain = dialog.candidate.domain
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.exclusion_add_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(stringResource(R.string.exclusion_add_hint))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(checked = addPackage, onCheckedChange = { addPackage = it })
+                    Text(
+                        stringResource(
+                            R.string.exclusion_add_app,
+                            dialog.appLabel ?: dialog.candidate.sourcePackage,
+                        ),
+                    )
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(
+                        checked = addDomain && domain != null,
+                        onCheckedChange = { addDomain = it },
+                        enabled = domain != null,
+                    )
+                    Text(
+                        if (domain != null) {
+                            stringResource(R.string.exclusion_add_site, domain)
+                        } else {
+                            stringResource(R.string.exclusion_add_site_unknown)
+                        },
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { onConfirm(addPackage, addDomain && domain != null) },
+                enabled = addPackage || (addDomain && domain != null),
+            ) { Text(stringResource(R.string.exclusion_add_confirm)) }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.pin_cancel)) } },
+    )
+}
+
+/** 確認を省くサイトの一覧。PIN で復号した内容で、閉じると破棄する。個別に外せる（PIN は不要）。 */
+@Composable
+fun ExcludedDomainsDialog(
+    dialog: SettingsDialog.DomainList,
+    onRemove: (String) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.exclusion_domains_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                dialog.items.forEach { item ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(text = item.domain, modifier = Modifier.weight(1f))
+                        TextButton(onClick = { onRemove(item.id) }) {
+                            Text(stringResource(R.string.settings_exclusion_remove))
+                        }
+                    }
+                }
+                if (dialog.unlistedCount > 0) {
+                    Text(stringResource(R.string.exclusion_domains_unlisted, dialog.unlistedCount))
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.exclusion_domains_close)) } },
     )
 }

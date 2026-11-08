@@ -4,6 +4,11 @@
 
 ## Unreleased
 
+- 「戻る／このまま進む」の確認を省く対象を追加した（BL-055）。確認バナーの「今後は確認しない」から、遷移元のアプリ
+  （パッケージ名）とブラウザで開いたサイト（ドメインのみ・照合用のハッシュと PIN で暗号化した控えで保存。一覧は PIN を入力したときだけ復号して表示し、PIN の削除で消える）を保護者 PIN で登録でき、
+  登録済みなら確認を出さずログだけ残す。自動で戻す介入・警告のみ・偽の警告・インストーラーへの遷移は省かない。
+  アドレスバーの判定のため `flagReportViewIds` を追加し、開示文・設定画面・PRIVACY.md・DESIGN.md（FR-25）・
+  TESTING.md（2.9）を更新した
 - ガードレール配布元 copilot-rules を 0.29.0 へ追従した。`.markdownlint-cli2.yaml`（`gitignore: true` の追加）、
   `CONTRIBUTING.md`（Copilot にも効かせる固有規約の置き場所）、`docs/guidelines/ADOPTION.md`（`.github/copilot-instructions.md`
   をマージ扱いへ変更、`CONTRIBUTING.local.md` の作成手順）を配布元版で置き換えた。規範そのものの追加・削除は無く、
