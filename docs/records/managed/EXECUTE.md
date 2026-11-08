@@ -5,6 +5,28 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-11-08 23:42
+  summary: アクセシビリティ設定の本アプリの画面で、自分自身の偽警告が出ないようにする（BL-060）
+  details:
+    変更内容: >-
+      システムのアクセシビリティ設定に表示されるサービス説明文（`accessibility_service_description`）に「ウイルスに感染」が
+      含まれ、設定アプリを照合する本アプリ自身の偽警告バナーとログが出ていた。設定アプリ全体を照合から外すと設定アプリ内で
+      偽の警告を装うページを見逃すため、説明文を「ウイルス感染などを装う偽の警告」へ言い換えて照合語に当たらないようにした。
+      説明文が照合語を含まないことを単体テスト（`OwnTextScarewareTest`）で固定した。
+    変更ファイル:
+      - mobile/src/main/res/values/strings.xml
+      - mobile/src/test/kotlin/com/mimiduku/mobile/rules/OwnTextScarewareTest.kt
+      - docs/records/managed/BACKLOG.md
+      - docs/records/managed/DESIGN.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintGithubDebug lintPlayDebug assembleDebug testGithubDebugUnitTest testPlayDebugUnitTest、
+      python scripts/validate-records.py、npx markdownlint-cli2、adb での実機確認（Pixel 8 Pro・Android 17）
+    検証結果: >-
+      成功 - Gradle の品質ゲートはすべて終了コード0（両版の単体テスト全件成功）。実機（GitHub 版 debug・おとなモード）で、
+      アクセシビリティ設定の本アプリの画面を開いてもバナーが出ず、スケアウェアのログも増えなかった（14 件のまま）。
+      Play 版の実機は未確認（説明文は共通のリソース）。
+    関連ID:
+      - BL-060
 - date: 2026-11-08 23:25
   summary: 最小化中のバッジの縦ドラッグと、ストア遷移の二重検知を直す（BL-059・BL-061）
   details:

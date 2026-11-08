@@ -5,7 +5,7 @@
 
     <!-- アクセシビリティ設定画面に出る説明 -->
     <string name="accessibility_service_label">みみづく（広告対策）</string>
-    <string name="accessibility_service_description">広告による勝手なブラウザ・ストアへの移動と、「ウイルスに感染」などの偽の警告を見つけて知らせます。画面の文字は照合にだけ使い、保存も送信もしません。</string>
+    <string name="accessibility_service_description">広告による勝手なブラウザ・ストアへの移動と、ウイルス感染などを装う偽の警告を見つけて知らせます。画面の文字は照合にだけ使い、保存も送信もしません。</string>
 
     <!-- 遷移先の種類 -->
     <string name="target_browser">ブラウザ</string>
