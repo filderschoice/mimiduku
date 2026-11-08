@@ -5,6 +5,22 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-11-09 00:00
+  summary: 確認を省く対象の実機確認の続き（X4・X8・X9）の結果を記録する（BL-056）
+  details:
+    変更内容: >-
+      Pixel 8 Pro（Android 17）・Chrome 156 で X4・X8・X9 を確認した。X4 は、こどもモードでは登録済みのアプリ・サイトでも
+      自動で戻る（BACK_AND_WARN）。X8 は、登録済みアプリからインストーラーへの移動でも確認バナーが出る。X9 は、前のタブが登録済みの
+      サイトの状態から別サイトを開いても、3 回続けて確認が出た（誤って省かない）。コードの変更は無い。
+      実機検証の注意として、アプリを force-stop するとアクセシビリティサービスの接続が切れ、設定値を入れ直さないとイベントが届かない。
+    変更ファイル:
+      - docs/records/managed/BACKLOG.md
+    検証コマンド: >-
+      python scripts/validate-records.py、npx markdownlint-cli2
+    検証結果: >-
+      成功 - 記録ファイルの検証と Markdown の静的解析が通った。実機の結果は BL-056 に記録した。
+    関連ID:
+      - BL-056
 - date: 2026-11-08 23:30
   summary: 確認を省くサイトの一覧が空になったらダイアログを閉じる（BL-058）
   details:
