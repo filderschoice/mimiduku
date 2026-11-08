@@ -5,6 +5,20 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-11-08 23:30
+  summary: 確認を省くサイトの一覧が空になったらダイアログを閉じる（BL-058）
+  details:
+    変更内容: >-
+      一覧から最後のサイトを外して空になったとき、「閉じる」だけが残るダイアログを自動で閉じるようにした。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/SettingsController.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/settings/SettingsControllerTest.kt
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintGithubDebug lintPlayDebug assembleDebug testGithubDebugUnitTest testPlayDebugUnitTest
+    検証結果: >-
+      成功 - すべて終了コード0。実機では未確認（単体テストで確認）。
+    関連ID:
+      - BL-058
 - date: 2026-11-08 23:00
   summary: 確認を省くサイトの一覧を、PIN で復号して表示できるようにする（BL-058）
   details:

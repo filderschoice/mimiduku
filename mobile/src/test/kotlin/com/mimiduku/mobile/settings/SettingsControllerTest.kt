@@ -386,7 +386,7 @@ class SettingsControllerTest {
         assertEquals(listOf("example.com"), list.items.map { it.domain })
 
         controller.removeExcludedDomain(list.items.single().id)
-        assertTrue((controller.dialog as SettingsDialog.DomainList).items.isEmpty())
+        assertNull(controller.dialog)
         assertEquals(0, controller.state.excludedDomainCount)
     }
 

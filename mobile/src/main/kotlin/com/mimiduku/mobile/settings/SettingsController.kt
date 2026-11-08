@@ -202,7 +202,9 @@ class SettingsController(
     override fun removeExcludedDomain(id: String) {
         val list = dialog as? SettingsDialog.DomainList ?: return
         stores.overrides.exclusionStore.removeDomain(id)
-        dialog = SettingsDialog.DomainList(list.items.filterNot { it.id == id }, list.unlistedCount)
+        val rest = list.items.filterNot { it.id == id }
+        // 一覧が空になったら、見るものが無いので閉じる。
+        dialog = if (rest.isEmpty()) null else SettingsDialog.DomainList(rest, list.unlistedCount)
         refresh()
     }
 
