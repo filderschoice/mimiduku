@@ -173,14 +173,17 @@ class MimidukuAccessibilityService : AccessibilityService() {
         if (detection.intervention.action == InterventionAction.BACK_AND_WARN) {
             performGlobalAction(GLOBAL_ACTION_BACK)
         }
-        val candidate =
-            detection.transition
-                ?.takeIf { detection.intervention.action == InterventionAction.ASK_USER }
-                ?.let { ExclusionCandidate(it.sourcePackage, domain) }
+        val transition =
+            detection.transition?.takeIf { detection.intervention.action == InterventionAction.ASK_USER }
         // 「今後は確認しない」は、登録の確認（PIN）を本体の設定画面で行うため、そこへ候補を渡して開く。
+        // サイト名は、サイトの登録がまだ無いと遷移の時点では読んでいないので、ボタンが押された時点で読む。
         val onExclude =
-            candidate?.let {
-                { startActivity(MainActivity.exclusionIntent(this, it).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
+            transition?.let {
+                {
+                    val site = domain ?: UrlBarReader.readTarget(rootInActiveWindow, it)
+                    val intent = MainActivity.exclusionIntent(this, ExclusionCandidate(it.sourcePackage, site))
+                    startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                }
             }
         overlay?.show(BannerSpec.from(detection), onExclude)
         record(detection)

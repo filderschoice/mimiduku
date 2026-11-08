@@ -5,6 +5,23 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-11-08 22:00
+  summary: 実機確認で見つけた、最初のサイトを登録できない不具合を直す（BL-056）
+  details:
+    変更内容: >-
+      サイトの除外は、登録が 1 件も無いと遷移時にアドレスバーを読まないため、最初のサイトの候補が常に空で登録できなかった。
+      「今後は確認しない」が押された時点で、遷移先のブラウザのアドレスバーを読むようにした（UrlBarReader.readTarget）。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/MimidukuAccessibilityService.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/UrlBarReader.kt
+      - docs/records/managed/BACKLOG.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintGithubDebug lintPlayDebug assembleDebug testGithubDebugUnitTest testPlayDebugUnitTest
+    検証結果: >-
+      成功 - すべて終了コード0。Pixel 8 Pro（Android 17）・Chrome 156 の実機で、サイトの登録と省略、アプリの登録と省略を確認した。
+    関連ID:
+      - BL-056
+      - BL-058
 - date: 2026-11-07 12:00
   summary: 「戻る／このまま進む」の確認を省く対象（アプリ・サイト）を追加する（BL-055）
   details:

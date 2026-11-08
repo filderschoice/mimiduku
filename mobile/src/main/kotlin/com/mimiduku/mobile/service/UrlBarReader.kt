@@ -1,6 +1,8 @@
 package com.mimiduku.mobile.service
 
 import android.view.accessibility.AccessibilityNodeInfo
+import com.mimiduku.mobile.detect.ExternalTransition
+import com.mimiduku.mobile.detect.TransitionTarget
 import com.mimiduku.mobile.exclusion.DomainNormalizer
 import com.mimiduku.mobile.exclusion.UrlBarIds
 
@@ -20,4 +22,13 @@ object UrlBarReader {
             ?.let { NodeTextCollector.walk(it) }
             ?.filter { UrlBarIds.isUrlBar(it.viewIdResourceName, browserPackage) }
             ?.firstNotNullOfOrNull { DomainNormalizer.fromUrlText(it.text?.toString()) }
+
+    /** ブラウザへの遷移のときだけ、遷移先のブラウザのアドレスバーを読む。 */
+    fun readTarget(
+        root: AccessibilityNodeInfo?,
+        transition: ExternalTransition,
+    ): String? =
+        transition.targetPackage
+            .takeIf { transition.target == TransitionTarget.BROWSER }
+            ?.let { read(root, it) }
 }
