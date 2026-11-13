@@ -15,7 +15,8 @@
   git tag -d / --delete / -f（タグの削除と上書き）。規定ブランチ以外のローカルブランチの削除は通す（BL-087。エージェントへ
   許可済みで、Skill `prune-merged-branches` の手順で確認を取ってから消す。自律ループ実行モード中に実行しないことは
   Skill `autonomous-loop` の手順で守る。hook はモードを判別できない）
-- 規定ブランチ（main / master）上での git commit・merge・cherry-pick・revert・am
+- 規定ブランチ（main / master）上での git commit・merge・cherry-pick・revert・am（ff 系の最後の指定が --ff-only の
+  git merge は、新しいコミットを作らない早送りのため通す。BL-088）
 - 検証のバイパスとエイリアス経由の実行: `git -c core.hooksPath=...`、`git config` での core.hooksPath・alias.* の設定。
   `git -c alias.x=...` は展開して判定する
 - gh の書き込み: pr のマージ・クローズ・コメント・レビュー等と issue の作成と更新、`gh api` の書き込み（`-X`/`--method` が GET 以外、または `-f`/`-F`/`--field`/
@@ -649,11 +650,30 @@ def check_git_sub(sub: str, rest: list[str], directory: str, state: dict, aliase
         if target is not None:
             state[directory] = target.removeprefix("refs/heads/")
         return None
+    if sub == "merge" and is_ff_only(longs):
+        # 早送りは新しいコミットを作らないため規定ブランチ上でも通す（BL-088）
+        return None
     if sub in COMMIT_LIKE:
         branch = state.get(directory) or current_branch(directory)
         if branch in DEFAULT_BRANCHES:
             return f"規定ブランチ（{branch}）へのコミットは禁止（guardrails 5.3・12.2）。作業ブランチで行うこと"
     return None
+
+
+def is_ff_only(longs: list) -> bool:
+    """git merge の ff 系オプション（--ff・--no-ff・--ff-only）のうち、最後の指定が --ff-only か。
+
+    git は後の指定で前の指定を打ち消すため、`--ff-only --no-ff` はマージコミットを作り得る。`--ff` は `--ff-only` の
+    接頭辞でもあるが、git は完全一致を優先して --ff と解釈するため、--ff-only の短縮形は `--ff-` より長いものだけを数える。
+    """
+    last = None
+    for o in longs:
+        name = o.split("=", 1)[0]
+        if name in ("--ff", "--no-ff"):
+            last = name
+        elif len(name) > len("--ff-") and abbrev_of(name, "--ff-only"):
+            last = "--ff-only"
+    return last == "--ff-only"
 
 
 def switch_target(sub: str, shorts: set, longs: list, values: dict, positional: list, after: list | None) -> str | None:
