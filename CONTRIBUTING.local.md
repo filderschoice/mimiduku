@@ -92,6 +92,6 @@
 | ファイル | 固有の追記 | 理由 |
 | --- | --- | --- |
 | `.claude/skills/autonomous-loop/SKILL.md` | イテレーション手順7の `scripts/scan-secrets.py` の実行（BL-064） | 秘密情報スキャンの手段がリポジトリ固有のため |
-| `.claude/skills/autonomous-loop/SKILL.md` | イテレーション手順4・5と完了条件の「段階」の扱い（BL-079） | 品質ゲートの段階を CLAUDE.md で定めているため。定めの無い配布先では全ゲートになる書き方にしてある |
+| `.claude/skills/autonomous-loop/SKILL.md` | イテレーション手順4・5と完了条件の「段階」の扱い（BL-079）、節「オーケストレータとサブエージェントの分担」（BL-068） | 品質ゲートの段階を CLAUDE.md で定めているため。定めの無い配布先では全ゲートになる書き方にしてある |
 | `.claude/settings.json`（マージ対象） | 品質ゲートの `permissions.allow`、`permissions.deny`、`hooks` | ADOPTION.md は `permissions.allow` のマージだけを述べるため、deny と hooks も残すことを明記する（BL-077） |
 | `.claude/skills/pr-create/SKILL.md` | 手順1・4の「本リポジトリ固有」の箇条（`gh pr create` 等はユーザーが実行する） | `.claude/settings.json` の deny と hooks で拒否しているため（BL-077） |

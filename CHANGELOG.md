@@ -4,6 +4,17 @@
 
 ## Unreleased
 
+- Skill `autonomous-loop` に節「オーケストレータとサブエージェントの分担」を追加した（BL-068）。役割の表（オーケストレータ・
+  backlog-implementer・diff-reviewer・quality-gate-runner。名前は `.claude/agents/` の定義と一致）、渡し方（BACKLOG の id・ブランチ・
+  ゲートの段階・報告の行数）、コミットは実装の担当が行うこと、サブエージェントは再委譲できないこと、管理できないバックグラウンド実行を
+  使わないこと（managed-agent-execution）を書いた。BACKLOG の案に加え、このセッションで分かった運用を反映した。実装の担当は同じ
+  作業ツリーを使うので1体ずつ順番に動かし、依存の無い2〜3件を1体へまとめて渡すと往復が減る。読み取り専用の diff-reviewer は
+  コミット範囲を指定すれば次の実装と並行できる。オーケストレータは担当の全文ログを読まず報告の行数を指定する。ユーザーの判断は
+  実行中の担当が終わってから次の委任に組み込む。フル検証は quality-gate-runner にループの最後に1回させる（BL-079 の段階）。
+  定義はセッション開始時に読み込まれるため追加直後のセッションでは使えないことがある。案の「1タスク1サブエージェント」は、
+  2〜3件をまとめる運用に合わせて「まとめるのはこの程度」とした。guardrails セクション12は複製せず参照した。配布スキルへの固有の
+  追記として CONTRIBUTING.local.md の表へ記載した。あわせて BL-078 を更新した（diff-reviewer は起動を確認済み、
+  quality-gate-runner と backlog-implementer は未確認のため項目は残す）
 - サブエージェント `.claude/agents/backlog-implementer.md` を追加した（BL-067）。BACKLOG のタスクを受け取り、Skill `mimiduku-change`
   に従って実装・テスト・指定段階の品質ゲート・記録ファイルの更新を行い、自律ループ実行モード中に限り作業ブランチへ1タスク1コミットする
   担当。tools は Read・Edit・Write・Bash・Grep・Glob・Skill（Agent を与えず再委譲させない）、model は inherit（実装の判断を伴うため）。
