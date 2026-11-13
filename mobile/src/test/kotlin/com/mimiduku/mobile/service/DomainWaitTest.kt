@@ -21,13 +21,19 @@ class DomainWaitTest {
     private var domain: String? = null
     private var stopped = false
     private val carried = mutableListOf<InterventionPlan>()
+    private val recorded = mutableListOf<Detection>()
+    private var domainReads = 0
     private val wait =
         DomainWait(
             planner = planner,
             timer = timer,
-            readDomain = { domain },
+            readDomain = {
+                domainReads++
+                domain
+            },
             protectionStopped = { stopped },
             carryOut = { carried += it },
+            record = { recorded += it },
         )
 
     @Test
@@ -95,6 +101,49 @@ class DomainWaitTest {
         wait.await(second)
 
         assertEquals(1, carried.size)
+    }
+
+    @Test
+    fun `a wait cut short by the service ending is logged without a banner`() {
+        val plan = awaitPlan(SOURCE_A)
+        domain = REGISTERED
+        wait.await(plan)
+
+        wait.finish()
+
+        // バナーは出さず（サービスの終了でオーバーレイを閉じるため）、ドメインを読まずに確認を省かない側でログだけ残す（BL-081）。
+        assertEquals(emptyList<InterventionPlan>(), carried)
+        assertEquals(listOf(present(plan, null).detection), recorded)
+        assertEquals(InterventionAction.ASK_USER, recorded.single().logEntry.action)
+        assertEquals(0, domainReads)
+        // 予約は取り消されており、後から重ねて記録しない。
+        timer.fire()
+        assertEquals(1, recorded.size)
+        assertEquals(emptyList<InterventionPlan>(), carried)
+    }
+
+    @Test
+    fun `nothing is logged when protection stopped before the service ends`() {
+        wait.await(awaitPlan(SOURCE_A))
+        stopped = true
+
+        wait.finish()
+
+        assertEquals(emptyList<Detection>(), recorded)
+        assertEquals(emptyList<InterventionPlan>(), carried)
+    }
+
+    @Test
+    fun `ending the service without a wait logs nothing`() {
+        domain = "other.example"
+        wait.await(awaitPlan(SOURCE_A))
+        timer.fire()
+
+        wait.finish()
+        wait.finish()
+
+        assertEquals(1, carried.size)
+        assertEquals(emptyList<Detection>(), recorded)
     }
 
     private fun present(

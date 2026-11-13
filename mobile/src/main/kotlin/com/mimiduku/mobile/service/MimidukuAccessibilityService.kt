@@ -37,6 +37,7 @@ import java.io.File
 import java.io.IOException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 /**
  * みみづくの本体。イベントを [ProtectionEngine] へ渡し、検知結果に従って戻る・警告・ログ保存を行う。
@@ -77,6 +78,7 @@ class MimidukuAccessibilityService : AccessibilityService() {
             readDomain = { UrlBarReader.read(rootInActiveWindow, it) },
             protectionStopped = { protectionStopped },
             carryOut = ::carryOut,
+            record = ::record,
         )
     }
     private val scanSettle = DelayedAction()
@@ -278,7 +280,9 @@ class MimidukuAccessibilityService : AccessibilityService() {
     }
 
     override fun onDestroy() {
-        domainCheck.cancel()
+        // サイトの判定待ちの検知は、バナーを出さずにログだけ残す（BL-081）。書き込みは下の shutdown より前に依頼する
+        // （shutdown の後の execute は拒否される）。接続前（engine が無い）なら待ちも無い。
+        if (engine != null) domainWait.finish() else domainCheck.cancel()
         scanSettle.cancel()
         unregisterReceiver(toggleReceiver)
         badgeNotification.cancel()
@@ -286,6 +290,9 @@ class MimidukuAccessibilityService : AccessibilityService() {
         overlay = null
         engine = null
         logExecutor.shutdown()
+        // 依頼済みの書き込みは shutdown 後も実行されるが、サービスの終了後はプロセスがいつ止められてもよい状態になるため、
+        // 書き終えるまで少しだけ待つ（通常は待ち行列が空で、すぐに戻る）。
+        runCatching { logExecutor.awaitTermination(LOG_FLUSH_MILLIS, TimeUnit.MILLISECONDS) }
         super.onDestroy()
     }
 
@@ -296,6 +303,9 @@ class MimidukuAccessibilityService : AccessibilityService() {
 
     companion object {
         private const val RULES_ASSET = "rules.json"
+
+        /** サービスの終了時に、依頼済みの検知ログの書き込みを待つ上限。 */
+        private const val LOG_FLUSH_MILLIS = 1_000L
 
         fun detectionLog(context: Context) = DetectionLog(File(context.filesDir, DetectionLog.FILE_NAME))
 

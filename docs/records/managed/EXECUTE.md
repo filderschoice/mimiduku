@@ -5,6 +5,40 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-11-13 18:52
+  summary: サービスの終了時にサイトの判定待ちだった検知を、バナーを出さずに検知ログへ残す（BL-081）
+  details:
+    変更内容: >-
+      ユーザーの決定「BL-081 は直す」により実装した。DomainWait に finish（予約を取り消し、待ち中の検知があれば、保護が止まって
+      いないときだけ afterDomain にドメイン未取得を渡した結果の検知を新しい引数 record でログへ残す）を足し、
+      MimidukuAccessibilityService.onDestroy は domainCheck.cancel の代わりに domainWait.finish を呼ぶ（接続前で engine が無いときは
+      従来どおり取り消しだけ）。ログの書き込みは logExecutor（単一スレッド）で行うため、finish を logExecutor.shutdown より前に
+      呼び（shutdown の後の execute は拒否されるため）、shutdown の後に awaitTermination で最大1秒（LOG_FLUSH_MILLIS）書き終えるのを
+      待つようにした（shutdown は依頼済みの書き込みを捨てないが、サービスの終了後はプロセスが止められ得るため）。利用者に見える変化は、
+      サイトを1件以上登録した大人モード等で、ブラウザへの遷移から1秒以内にアクセシビリティをオフにした・システムに止められた場合に、
+      その遷移が検知ログに1件（介入は「利用者に確認」）残るようになったこと。バナーは出ない（サービスの終了でオーバーレイを閉じるため）。
+      待ち中に一時停止・同意の取り消しがあった場合は従来どおり何も残さない。先に DomainWaitTest へ再現テストを足し、finish が予約の
+      取り消しだけ（修正前の onDestroy と同じ）の状態で失敗することを確かめてから直した。docs/TESTING.md 2.9 に X16 を足し、
+      1章の DomainWaitTest の説明を更新した。実機での確認は BL-056 の人手検証に含めた。DESIGN.md の FR-25 を更新した。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/DomainWait.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/MimidukuAccessibilityService.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/service/DomainWaitTest.kt
+      - docs/TESTING.md
+      - docs/records/managed/BACKLOG.md
+      - docs/records/managed/DESIGN.md
+      - docs/records/managed/EXECUTE.md
+    検証コマンド: >-
+      ./gradlew testGithubDebugUnitTest --tests "com.mimiduku.mobile.service.DomainWaitTest" --console=plain（修正前の再現）、
+      ./gradlew --continue ktlintCheck detekt testGithubDebugUnitTest --console=plain（軽い検証）、
+      npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml、python scripts/validate-records.py、python scripts/scan-secrets.py
+    検証結果: >-
+      成功 - 修正前は追加した「サービスの終了で切られた待ちがログに残る」テストが失敗（8件中1件）し、修正後の軽い検証は
+      compileGithubDebugKotlin・compileGithubDebugUnitTestKotlin・testGithubDebugUnitTest が UP-TO-DATE ではなく実行され、GitHub 版
+      238件が成功・失敗0。実機での確認（X16）は未確認（BL-056 の人手検証）。Play 版の単体テスト・Android Lint・assembleDebug は
+      段階「最後」のためループの最後の全ゲートで確かめる。
+    関連ID:
+      - BL-081
 - date: 2026-11-13 18:44
   summary: 差分レビューの小さな指摘と文書の食い違いを直し、BL-078 を閉じる（BL-083・BL-078）
   details:
