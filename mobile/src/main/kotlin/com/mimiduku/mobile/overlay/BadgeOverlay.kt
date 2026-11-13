@@ -140,9 +140,8 @@ internal class BadgeOverlay(
             BadgePlacement.fromRelease(
                 layoutParams.x,
                 layoutParams.y,
-                metrics.widthPixels,
-                metrics.heightPixels,
-                size,
+                BadgeMetrics(metrics.widthPixels, metrics.heightPixels, size, peek),
+                wasMinimized = placement.minimized,
             )
         // ドラッグ中の座標から端の座標へ合わせ直す。
         layoutParams.x = Int.MIN_VALUE

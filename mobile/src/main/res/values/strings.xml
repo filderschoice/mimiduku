@@ -5,7 +5,7 @@
 
     <!-- アクセシビリティ設定画面に出る説明 -->
     <string name="accessibility_service_label">みみづく（広告対策）</string>
-    <string name="accessibility_service_description">広告による勝手なブラウザ・ストアへの移動と、「ウイルスに感染」などの偽の警告を見つけて知らせます。画面の文字は照合にだけ使い、保存も送信もしません。</string>
+    <string name="accessibility_service_description">広告による勝手なブラウザ・ストアへの移動と、ウイルス感染などを装う偽の警告を見つけて知らせます。画面の文字は照合にだけ使い、保存も送信もしません。</string>
 
     <!-- 遷移先の種類 -->
     <string name="target_browser">ブラウザ</string>
@@ -96,6 +96,8 @@
     <string name="log_action_warn_only">警告のみ</string>
     <string name="log_action_skipped_excluded">登録済みのため確認なし</string>
     <string name="log_action_ask_user">利用者に確認</string>
+    <!-- 確認を出す前にみみづくの保護（サービス）が終わり、ログだけ残した行。確認は出ていない（BL-086） -->
+    <string name="log_action_ask_user_at_service_end">保護の終了時のため確認なし</string>
     <string name="log_apps_transition">%1$s → %2$s</string>
     <string name="log_apps_single">%1$s</string>
 

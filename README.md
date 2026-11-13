@@ -124,7 +124,78 @@ GitHub 版と Google Play 版は同じソースから作り、機能の違いは
   （`-d` は版の巻き戻しを許可する指定で、debug 版で使えます）。
 - **アンインストール**: `adb uninstall com.mimiduku.mobile.full.debug`（Play 版は `com.mimiduku.mobile.debug`）、
   または端末の設定から行います。
-- release 版（GitHub 版 `com.mimiduku.mobile.full`、Play 版 `com.mimiduku.mobile`）の署名設定は未整備です。
+- release 版（GitHub 版 `com.mimiduku.mobile.full`、Play 版 `com.mimiduku.mobile`）は、次の「リリースビルド」の手順で
+  同じ鍵で署名します。更新は versionCode が前の版以上の APK でしかできず、release 版では巻き戻し（`-d`）も使えないため、
+  ロールバックは前の版のソースから versionCode を上げてビルドし直した版を配布して行います。
+
+## リリースビルド
+
+GitHub 版の配布用 APK と、Play 版の申請用 AAB（Android App Bundle）を署名つきで作る手順です。
+鍵の作成・保管とリリースビルドの実行はユーザーが行います（エージェントは鍵とパスワードを扱わず、release ビルドを
+実行しません。guardrails 12.5）。鍵が無い環境でも、debug ビルドと品質ゲートは今までどおり通ります。
+
+### 1. 署名の鍵を作る（初回だけ）
+
+```bash
+keytool -genkeypair -v -keystore mimiduku-release.jks -alias <鍵の別名> \
+  -keyalg RSA -keysize 2048 -validity 10000
+```
+
+- 鍵ファイルはリポジトリの外（例 ユーザーのホームの下の専用フォルダ）に置き、パスワードマネージャー等の安全な場所に
+  バックアップとパスワードを保管します。**鍵を失うと、同じ applicationId のアプリを更新できなくなります**
+  （GitHub 版は利用者にアンインストールからやり直してもらうことになる。Play 版はアップロード鍵のリセットを Google へ依頼する）。
+- 鍵ファイル（`*.jks`・`*.keystore`・`*.p12`・`*.pfx`・`*.bks`）と `local.properties` は `.gitignore` の対象で、
+  `python scripts/scan-secrets.py` もコミットへの追加を検出します。**絶対にコミットしないでください。**
+- 同じ鍵を、GitHub 版の APK の署名と、Play 版の AAB のアップロード鍵の両方に使います（Play 版の配信時の署名は
+  Play App Signing の鍵で、アップロード鍵とは別）。
+
+### 2. 鍵の場所とパスワードを `local.properties` へ書く
+
+`local.properties`（リポジトリの直下。`.gitignore` の対象）へ次のキーを足します。値はプレースホルダーで、実際の値に置き換えます。
+
+```properties
+RELEASE_STORE_FILE=/absolute/path/to/mimiduku-release.jks
+RELEASE_STORE_PASSWORD=<鍵ストアのパスワード>
+RELEASE_KEY_ALIAS=<鍵の別名>
+RELEASE_KEY_PASSWORD=<鍵のパスワード>
+```
+
+`mobile/build.gradle.kts` は4つのキーがすべてあるときだけ release の署名を設定します。すべて無い場合、release の成果物は
+署名なしのままで、`assembleDebug` などの通常のビルドには影響しません。一部だけある場合は、release のビルドを実行したときに
+足りないキーの名前を示して失敗します（debug のビルドと品質ゲートは通る）。`RELEASE_STORE_FILE` を相対パスで書いた場合は、
+リポジトリの直下（`local.properties` と同じフォルダ）を基準に解決します。
+
+### 3. 版を上げてビルドする（`scripts/release-build.bat`）
+
+現在の版は `scripts/version.properties`（`VERSION_CODE`・`VERSION_NAME`）に記録し、ビルドが成功したときだけ更新されます。
+GitHub 版と Play 版は applicationId が異なるため、版は両方で共通の1系列です。
+
+```bat
+rem versionCode を 1 つ上げてビルドする（versionName は変えない）
+scripts\release-build.bat
+
+rem versionCode・versionName を指定してビルドする（上げない。現在値より小さい versionCode は中止する）
+scripts\release-build.bat -VersionCode 2 -VersionName 0.2.0
+```
+
+- versionCode は、配布するたびに前の版より大きい整数にします（既定は1つ上げる）。versionName は利用者に見える版で、
+  両方の版で共通です（現在 `0.1.0`）
+- `scripts/version.properties` の記録は `VERSION_CODE=1` から始まるため、引数なしで実行すると**最初の配布の versionCode は 2**
+  になります。最初の配布を 1 にしたい場合は、初回だけ `scripts\release-build.bat -VersionCode 1` と指定します
+- `-VersionCode` に 0 以下・整数でない値を指定した場合と、`scripts/version.properties` に読めない行がある場合は、
+  ビルドに進まずに中止します（読めない行は行番号で示す）
+- スクリプトは Gradle へ `-PappVersionCode`・`-PappVersionName` を渡して上書きします。指定しない通常のビルドは
+  `mobile/build.gradle.kts` の既定値（versionCode 1・versionName `0.1.0`）のままです
+- ビルドには数分かかります。失敗した場合は `scripts/version.properties` は更新されないため、そのまま再実行できます
+
+| 成果物 | 出力先 | 配布先 |
+| --- | --- | --- |
+| GitHub 版の APK | `mobile/build/outputs/apk/github/release/mobile-github-release.apk` | GitHub Releases など |
+| Play 版の AAB | `mobile/build/outputs/bundle/playRelease/mobile-play-release.aab` | Google Play Console |
+
+ビルド後は、`keytool -printcert -jarfile <APK または AAB>` で、両方の成果物の証明書の SHA-256 が同じ（作った鍵のもの）
+であることを確かめます。リリースのときは、利用者向けの変更点を [docs/RELEASE_NOTES.md](docs/RELEASE_NOTES.md) へ追記し、
+`scripts/version.properties` の更新をコミットします。
 
 ## テスト
 

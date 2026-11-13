@@ -1,0 +1,41 @@
+<!doctype html>
+<!--
+  みみづくの実機確認用のテストページ（スクロールで警告の文言が出る版。BL-073）。
+  読み込み直後の画面には照合語が無く、下までスクロールした時点で <template> の中身を本文へ差し込む。
+  読み込み直後には警告が出ず、スクロール後（画面の内容が変わったとき）に出ることを確かめる。
+  注意事項は index.html の冒頭と同じ（架空の文言・外部へ通信しない・APK に入らない）。
+-->
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>みみづく 確認用ページ（スクロールで表示）</title>
+<style>
+  body { font-family: sans-serif; margin: 16px; line-height: 1.6; }
+  .spacer { height: 250vh; border-left: 4px dashed #888; padding-left: 8px; }
+  .alert { border: 3px solid #c00; padding: 12px; color: #c00; font-weight: bold; }
+  .note { color: #555; font-size: 0.9em; }
+</style>
+</head>
+<body>
+<p class="note">これはアプリ「みみづく」の動作確認用のテストページです。下までスクロールすると架空の警告が出ます。</p>
+<div class="spacer">↓ 下までスクロールしてください</div>
+<div id="late-slot"></div>
+<template id="late">
+  <div class="alert">
+    <p>Virus detected on this phone.</p>
+    <p>ウイルスを検出しました。</p>
+  </div>
+</template>
+<p><a href="index.html">最初のページへ戻る</a></p>
+<script>
+  // 下端付近まで来たら1回だけ差し込む（外部への通信はしない）
+  window.addEventListener("scroll", function onScroll() {
+    if (window.innerHeight + window.scrollY < document.body.scrollHeight - 200) return;
+    var slot = document.getElementById("late-slot");
+    slot.appendChild(document.getElementById("late").content.cloneNode(true));
+    window.removeEventListener("scroll", onScroll);
+  });
+</script>
+</body>
+</html>

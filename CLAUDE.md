@@ -26,21 +26,41 @@ Claude Code 固有の差分と追加規約です。全エージェント共通�
 - ローカル実行手順が未定義のゲートは「未定義（未確認）」と明記する。推測でコマンドを書かない。
 -->
 
-| ゲート | コマンド | 合否基準 |
-| --- | --- | --- |
-| コードスタイル（ktlint） | `./gradlew ktlintCheck` | 終了コード0 |
-| 静的解析（detekt） | `./gradlew detekt` | 終了コード0（`config/detekt/detekt.yml` の `maxIssues: 0`） |
-| Android Lint | `./gradlew lintGithubDebug lintPlayDebug` | 終了コード0（GitHub 版・Play 版の両方） |
-| 型検査・ビルド | `./gradlew assembleDebug` | 終了コード0（全ての版の debug をビルドする） |
-| 単体テスト | `./gradlew testGithubDebugUnitTest testPlayDebugUnitTest` | 全件成功（両方の版） |
-| 脆弱性チェック | （未導入。リポジトリの公開後に GitHub の Dependabot で依存の脆弱性を確認する想定） | 導入した場合は本行を実コマンドへ更新する |
-| Markdown の静的解析 | `npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml` | `Summary: 0 issues`、かつ出力の `Linting: N files` が `git ls-files --cached --others --exclude-standard "*.md"` の件数と一致（対象漏れの検出） |
-| 記録ファイルの検証 | `python scripts/validate-records.py`（PyYAMLが必要） | 終了コード0 |
+| ゲート | 段階 | コマンド | 合否基準 |
+| --- | --- | --- | --- |
+| コードスタイル（ktlint） | 最後 | `./gradlew ktlintCheck` | 終了コード0 |
+| 静的解析（detekt） | 最後 | `./gradlew detekt` | 終了コード0（`config/detekt/detekt.yml` の `maxIssues: 0`） |
+| 軽い検証（Gradle） | コード | `./gradlew --continue ktlintCheck detekt testGithubDebugUnitTest --console=plain` | 終了コード0、かつ変更したコードのコンパイルとテストのタスクが実行されている（確かめ方は下記の参照先） |
+| Android Lint | 最後 | `./gradlew lintGithubDebug lintPlayDebug` | 終了コード0（GitHub 版・Play 版の両方） |
+| 型検査・ビルド | 最後 | `./gradlew assembleDebug` | 終了コード0（全ての版の debug をビルドする） |
+| 単体テスト | 最後 | `./gradlew testGithubDebugUnitTest testPlayDebugUnitTest` | 全件成功（両方の版） |
+| 脆弱性チェック | － | （未導入。リポジトリの公開後に GitHub の Dependabot で依存の脆弱性を確認する想定） | 導入した場合は本行を実コマンドへ更新する |
+| Markdown の静的解析 | 毎回 | `npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml` | `Summary: 0 issues`、かつ出力の `Linting: N files` が `git ls-files --cached --others --exclude-standard "*.md"` の件数と一致（対象漏れの検出） |
+| 記録ファイルの検証 | 毎回 | `python scripts/validate-records.py`（PyYAMLが必要） | 終了コード0 |
+| 秘密情報スキャン | 毎回 | `git add` の後に `python scripts/scan-secrets.py`（ステージ済みの差分を検査） | 終了コード0 |
+| 秘密情報スキャン（ブランチ全体） | 最後 | `python scripts/scan-secrets.py --range main...HEAD`（`git add` しないフル検証でコミット済みの差分を検査） | 終了コード0 |
 
-## 記録ファイルの権限設定（MUST）
+段階: `毎回` は全イテレーション、`コード` は Kotlin・Gradle（`mobile/`・`*.gradle.kts`・`gradle/`・`config/`）を
+変えたイテレーションで `毎回` に追加、`最後` は自律ループの最後と PR 作成前で、軽い検証を除く全行を実行する
+（対話実行での確認も全行が既定）。実測値・up-to-date の確かめ方・失う保証は `CONTRIBUTING.local.md`「品質ゲートの段階」。
 
-`docs/records/managed/` 配下の3ファイルは `.claude/settings.json` の `permissions.allow` により権限プロンプトなしで
-編集できます（妥当性はコミット前の差分確認と `FORMAT.md` 準拠で担保する）。それ以外の編集は確認を挟みます。
+## 記録ファイルの権限設定と禁止操作の強制（MUST）
+
+`.claude/settings.json` の内容です（BL-077。変更は確認を挟む高リスク操作として扱う）。
+
+- `permissions.allow`: `docs/records/managed/` 配下の3ファイルの編集と、上表の品質ゲートのコマンド（表の文字列と完全一致の
+  ときだけ。オプションやパイプを足すと確認を挟む）。それ以外の編集・コマンドは確認を挟む
+- `permissions.deny`: guardrails 12.2 の禁止操作（push・amend・rebase・reset --hard・タグの削除・`--no-verify`・
+  gh による PR のマージ・クローズ・コメント・レビュー等と Issue の作成・更新）。Bash と PowerShell の両方。
+  `gh pr create` / `gh pr edit` は対話実行でエージェントが実行してよい（Skill `pr-create`）。ローカルブランチの削除
+  （`git branch -d` / `-D`。規定ブランチを除く）も対話実行でエージェントが実行してよい（Skill `prune-merged-branches` の手順で
+  消す一覧を示して確認を取る。BL-087）。どちらも自律ループ実行モード中は 12.2 で禁止のままで、deny と hook はモードを
+  判別できないため Skill `autonomous-loop` の手順で守る
+- hooks: PreToolUse の `.claude/hooks/guard-commands.py` が deny の先頭一致で漏れる書き方（`git -C . push` 等）、
+  規定ブランチ上でのコミット、gh の書き込み（`gh api` の POST 等。PR の作成・編集を除く）を語として判定して拒否する。誤操作の安全網であり
+  サンドボックスではない（限界とテストは `CONTRIBUTING.local.md`「禁止操作の hook」）。
+  PostToolUse の `.claude/hooks/validate-records-after-edit.py` が
+  記録ファイルの編集後に `scripts/validate-records.py` を実行し、失敗を理由つきで返す
 
 <!-- 配布バンドルの .claude/settings.json は記録ファイル関連の許可のみを含む。本リポジトリ固有の許可を追加する
 場合は、確認を挟まずに編集させてよい範囲かを判断してから permissions.allow へ追記する。 -->

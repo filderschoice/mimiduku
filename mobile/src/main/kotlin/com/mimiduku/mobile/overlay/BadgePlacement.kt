@@ -3,6 +3,14 @@ package com.mimiduku.mobile.overlay
 /** バッジが止まる画面の端。 */
 enum class BadgeSide { LEFT, RIGHT }
 
+/** バッジの置き場所の計算に使う画面とバッジの寸法（ピクセル）。[peek] は最小化中に画面内へ残す幅。 */
+data class BadgeMetrics(
+    val screenWidth: Int,
+    val screenHeight: Int,
+    val badgeSize: Int,
+    val peek: Int = 0,
+)
+
 /**
  * バッジの置き場所。左右どちらかの端に吸着し、縦位置は画面の高さに対する割合で持つ（縦横の回転や解像度が変わっても
  * 同じ見た目の位置に戻せる）。[minimized] のときは端から一部（のぞき分）だけを見せ、触ると元に戻る。
@@ -52,8 +60,12 @@ data class BadgePlacement(
         }
 
         /**
-         * ドラッグを離した位置（ウィンドウの左上の座標）から置き場所を決める。バッジの中心が画面の外へ出ていれば
+         * ドラッグを離した位置（ウィンドウの左上の座標）から置き場所を決める。バッジの中心が画面の端まで（端の座標を含む）出ていれば
          * その端へ最小化し、そうでなければ近い方の端へ吸着する。最小化したバッジを上下に動かしただけなら最小化のまま。
+         *
+         * 最小化中のバッジの中心は、のぞき分 [peek] が大きさの半分以上のとき画面の中（端の座標そのもの以上）にある。
+         * そのため中心が外へ出ているかだけでは「最小化のまま」を表せない。[wasMinimized] のときは、最小化中の静止位置から
+         * 内側へ [badgeSize] の4分の1までのずれ（指のぶれ）なら最小化を保ち、それより内側へ引き出したときだけ通常の表示へ戻す。
          */
         fun fromRelease(
             windowX: Int,
@@ -61,13 +73,30 @@ data class BadgePlacement(
             screenWidth: Int,
             screenHeight: Int,
             badgeSize: Int,
+        ): BadgePlacement =
+            fromRelease(windowX, windowY, BadgeMetrics(screenWidth, screenHeight, badgeSize), wasMinimized = false)
+
+        fun fromRelease(
+            windowX: Int,
+            windowY: Int,
+            metrics: BadgeMetrics,
+            wasMinimized: Boolean,
         ): BadgePlacement {
+            val badgeSize = metrics.badgeSize
+            val screenWidth = metrics.screenWidth
+            val peek = metrics.peek
             val centerX = windowX + badgeSize / 2
-            val range = (screenHeight - badgeSize).coerceAtLeast(1)
+            val range = (metrics.screenHeight - badgeSize).coerceAtLeast(1)
             val fraction = (windowY.toFloat() / range).coerceIn(0f, 1f)
+            val restOffset = peek - badgeSize / 2
+            val tolerance = badgeSize / 4
             return when {
-                centerX < 0 -> BadgePlacement(BadgeSide.LEFT, fraction, minimized = true)
-                centerX > screenWidth -> BadgePlacement(BadgeSide.RIGHT, fraction, minimized = true)
+                centerX <= 0 -> BadgePlacement(BadgeSide.LEFT, fraction, minimized = true)
+                centerX >= screenWidth -> BadgePlacement(BadgeSide.RIGHT, fraction, minimized = true)
+                wasMinimized && peek > 0 && centerX <= restOffset + tolerance ->
+                    BadgePlacement(BadgeSide.LEFT, fraction, minimized = true)
+                wasMinimized && peek > 0 && centerX >= screenWidth - restOffset - tolerance ->
+                    BadgePlacement(BadgeSide.RIGHT, fraction, minimized = true)
                 centerX < screenWidth / 2 -> BadgePlacement(BadgeSide.LEFT, fraction)
                 else -> BadgePlacement(BadgeSide.RIGHT, fraction)
             }

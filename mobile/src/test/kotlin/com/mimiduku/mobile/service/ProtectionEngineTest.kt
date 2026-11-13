@@ -16,6 +16,7 @@ import com.mimiduku.mobile.rules.DetectionRules
 import com.mimiduku.mobile.rules.ScarewareMatcher
 import com.mimiduku.mobile.storage.MemoryStringStore
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -40,6 +41,82 @@ class ProtectionEngineTest {
             scans++
             screen
         }
+
+    @Test
+    fun `a browser that comes to the front without a window event is detected`() {
+        handle(EngineEvent.WindowChanged(GAME, 0))
+
+        // ウィンドウ状態の変化が届かず、文字の変化だけが届く。実際のアクティブなウィンドウはブラウザ。
+        val event = engine.promoteToForeground(EngineEvent.ContentChanged(CHROME, 1_000)) { CHROME }
+        val detections = handle(event)
+
+        assertEquals(EngineEvent.WindowChanged(CHROME, 1_000), event)
+        assertEquals(1, detections.size)
+        assertEquals(GAME, detections.single().transition?.sourcePackage)
+    }
+
+    @Test
+    fun `a content change in the background is not taken as the foreground`() {
+        handle(EngineEvent.WindowChanged(GAME, 0))
+
+        val event = EngineEvent.ContentChanged(CHROME, 1_000)
+
+        assertEquals(event, engine.promoteToForeground(event) { GAME })
+        assertEquals(event, engine.promoteToForeground(event) { null })
+    }
+
+    @Test
+    fun `the active window is not looked up for the foreground app or transient windows`() {
+        handle(EngineEvent.WindowChanged(GAME, 0))
+        var lookups = 0
+        val active = {
+            lookups++
+            GAME
+        }
+
+        engine.promoteToForeground(EngineEvent.ContentChanged(GAME, 100), active)
+        engine.promoteToForeground(EngineEvent.ContentChanged("com.android.systemui", 200), active)
+        engine.promoteToForeground(EngineEvent.ContentChanged(OWN, 300), active)
+        engine.promoteToForeground(EngineEvent.Clicked(CHROME, 400), active)
+
+        assertEquals(0, lookups)
+    }
+
+    @Test
+    fun `a screen whose scan was skipped is scanned once the changes settle`() {
+        screen = listOf("読み込み中")
+        handle(EngineEvent.WindowChanged(GAME, 0))
+        // 読み込みの最後の変化が 1 秒未満の間隔で来て照合が間引かれ、そのあと偽の警告が表示される。
+        handle(EngineEvent.ContentChanged(GAME, 500))
+        screen = listOf("お使いの端末はウイルスに感染しています")
+        assertTrue(handle(EngineEvent.ContentChanged(GAME, 900)).isEmpty())
+        assertTrue(engine.hasPendingScan)
+
+        val detections = engine.settle(1_900) { screen }
+
+        assertEquals(1, detections.size)
+        assertEquals(DetectionKind.SCAREWARE, detections.single().logEntry.kind)
+        assertFalse(engine.hasPendingScan)
+    }
+
+    @Test
+    fun `nothing is scanned at settle when no scan was skipped`() {
+        handle(EngineEvent.WindowChanged(GAME, 0))
+        handle(EngineEvent.ContentChanged(GAME, 2_000))
+        val before = scans
+
+        assertFalse(engine.hasPendingScan)
+        assertTrue(engine.settle(3_000) { screen }.isEmpty())
+        assertEquals(before, scans)
+    }
+
+    @Test
+    fun `a content change in the background does not leave a pending scan`() {
+        handle(EngineEvent.WindowChanged(GAME, 0))
+        handle(EngineEvent.ContentChanged(CHROME, 100))
+
+        assertFalse(engine.hasPendingScan)
+    }
 
     @Test
     fun `accessibility events are converted to engine events`() {

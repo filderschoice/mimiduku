@@ -5,6 +5,489 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-11-14 00:15
+  summary: サービスの終了時に残す検知ログの行を、種別は ASK_USER のまま印で見分けてログの画面に「保護の終了時のため確認なし」と出す（BL-086）。鍵の兼用をユーザーの決定として記録する（BL-085）
+  details:
+    変更内容: >-
+      (1) BL-086。ユーザーの決定「(b) 種別はそのまま、文言で分かるようにする」により実装した。既存の項目（日時・パッケージ名・種類・
+      ルール ID・介入・直前のクリック・利用モード）は確認バナーを出した通常の ASK_USER の行と同じ値になり区別できないため、
+      DetectionLogEntry へ省略可能な真偽値 recordedAtServiceEnd（既定 false）を1つだけ足した。中身は終了時に記録したという事実だけで、
+      個人情報やドメインなど新しい情報は持たない。InterventionAction の値は増やしていない。DomainWait.finish は Detection.atServiceEnd()
+      で印を立ててから記録し、LogRows は印があり種別が ASK_USER の行の介入を strings.xml の log_action_ask_user_at_service_end
+      「保護の終了時のため確認なし」にする（既存の「登録済みのため確認なし」に調子を合わせた。他の種別は印があっても文言を変えない）。
+      ログの書き出し・共有の機能は無いため対象外。版による違いは無い（FeatureSet を使わず両方の版で同じ）。開示文と settings_log_privacy の
+      文面は変えていない（新しい情報を保存しないため）。DESIGN.md の FR-8（保存形式と互換）・FR-25、TESTING.md の 1章と X16、
+      UI 設計書の検知ログ画面の対応表、Skill mimiduku-device-verification のログの読み方を更新した。BACKLOG の BL-056 に X16 の文言の確認を足した。
+      互換性。保存は kotlinx.serialization の既定（encodeDefaults=false）で既定値を書き出さないため、通常の行の保存形式は変わらない。
+      印の無い古い行は false として読む（アプリの更新）。読み込みの Json は初版（fc7e3a6）から ignoreUnknownKeys = true で、
+      git log -S で外した履歴が無いことを確かめた。このため印を知らない古い版は印を無視して全件を読み、その行は従来どおり
+      「利用者に確認」と出る（ダウングレード。ログ全体を失わない）。古い版が次に追記すると、書き直しで印が落ち、その後に新しい版へ戻しても
+      その行は「利用者に確認」と出る（表示の情報が戻るだけで、件数は失わない）。リリースのタグは無く versionCode は 1 のまま。
+      (2) BL-085。根拠の「鍵を GitHub 版の配布鍵と Play 版のアップロード鍵に兼用する」を、担当の既定値から 2026-11-14 のユーザーの決定へ
+      書き換え、DESIGN.md の FR-19 の該当箇所にも決定日を足した。README.md・build.gradle.kts は事実として書かれており仮の前提の書き方は
+      無いため変えていない。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/log/DetectionLog.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/ProtectionEngine.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/DomainWait.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/LogRows.kt
+      - mobile/src/main/res/values/strings.xml
+      - mobile/src/test/kotlin/com/mimiduku/mobile/log/DetectionLogTest.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/service/DomainWaitTest.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/settings/LogRowsTest.kt
+      - docs/TESTING.md
+      - docs/design/UI_DESIGN.html
+      - .claude/skills/mimiduku-device-verification/SKILL.md
+      - docs/records/managed/BACKLOG.md
+      - docs/records/managed/DESIGN.md
+      - docs/records/managed/EXECUTE.md
+    検証コマンド: >-
+      ./gradlew --continue ktlintCheck detekt testGithubDebugUnitTest --console=plain（軽い検証）、フル検証として ./gradlew ktlintCheck、
+      ./gradlew detekt、./gradlew lintGithubDebug lintPlayDebug、./gradlew assembleDebug、./gradlew testGithubDebugUnitTest testPlayDebugUnitTest
+      （test-results を消してから実行）、npx markdownlint-cli2、python scripts/validate-records.py、python scripts/test-guard-commands.py、
+      python scripts/scan-secrets.py（ステージ済みの差分）、python scripts/scan-secrets.py --range main...HEAD。古い版の読み込みは
+      DetectionLogTest で印の無い型（BL-086 より前の DetectionLogEntry と同じ項目）と同じ Json の設定を使って再現した。
+    検証結果: >-
+      成功 - 軽い検証は1回目に detekt の LongParameterList（LogRowsTest の補助関数）で失敗し、直して成功。フル検証の ktlintCheck・
+      detekt・Lint（両版）・assembleDebug は成功（Lint・パッケージ・Play 版のコンパイルは実行され、GitHub 版の本体のコンパイルは同じ内容で
+      軽い検証の1回目に実行済み）。単体テストは実行され GitHub 版 244件・Play 版 244件で失敗0（前回 238件から DetectionLogTest 4件・
+      LogRowsTest 2件が増えた）。markdownlint は 36ファイルで0件、hook のテストは216件で失敗0件。実機での X16 の表示は未確認（BL-056）。
+    関連ID:
+      - BL-086
+      - BL-085
+- date: 2026-11-14 00:06
+  summary: 差分レビューの指摘（release 署名のキーの不足、版の入力の検査、終了時の待ちの上限）を直し、終了時の検知ログの種別を要確認で起票する（BL-075・BL-081・BL-086）
+  details:
+    変更内容: >-
+      (1) BL-075 の続き。mobile/build.gradle.kts は RELEASE_STORE_FILE だけでなく4つのキー（RELEASE_STORE_PASSWORD・
+      RELEASE_KEY_ALIAS・RELEASE_KEY_PASSWORD を含む。空の値は無いものとみなす）がすべてあるときだけ署名の設定を作る。一部だけある場合は
+      署名の設定を作らず、pre〜ReleaseBuild のタスクの実行時に、欠けているキーの名前だけ（値は出さない）を示して GradleException で
+      失敗させる。debug のビルドと品質ゲートは通す。sesami-wear の方式（local.properties の同じキー名、rootProject.file で解決）は維持した。
+      (2) scripts/release-build.ps1 は -VersionCode を文字列で受け、1 以上 2100000000（Google Play の上限）以下の整数でなければビルドに
+      進まずに中止する（[int] で受けると 1.5 が丸められるため）。scripts/version.properties の空行・# の行以外で読めない行や、
+      VERSION_CODE が整数でない行は、行番号と行を示して中止する。release-build.bat はコメントだけ足した。
+      (3) README.md と docs/RELEASE_NOTES.md に、引数なしの実行では最初の配布の versionCode が 2 になること・1 にするなら初回に
+      -VersionCode 1 を指定すること、RELEASE_STORE_FILE の相対パスはリポジトリの直下を基準に解決することを書いた。
+      (4) BL-081 の続き。MimidukuAccessibilityService の LOG_FLUSH_MILLIS を 1000ms から 500ms に下げ、onDestroy がメインスレッドで
+      呼ばれ最大でこの時間止めること（通常は待ち行列が空ですぐ戻る）を KDoc に書いた。DESIGN.md の FR-25 も合わせた（TESTING.md の
+      「1秒」はサイトの判定待ち DomainWait.SETTLE_MILLIS の記述で、この待ちとは別のため変えていない）。
+      (5) BL-086 を起票した（終了時の検知ログの介入の種別が ASK_USER になる件。要確認）。
+    変更ファイル:
+      - mobile/build.gradle.kts
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/MimidukuAccessibilityService.kt
+      - scripts/release-build.ps1
+      - scripts/release-build.bat
+      - README.md
+      - docs/RELEASE_NOTES.md
+      - docs/records/managed/BACKLOG.md
+      - docs/records/managed/DESIGN.md
+      - docs/records/managed/EXECUTE.md
+    検証コマンド: >-
+      署名の設定は、リポジトリを作業用フォルダへ git clone して変更後の build.gradle.kts を写し、その複製の中だけに仮の値の local.properties
+      を作って確かめた（リポジトリの local.properties は開かず変更していない）。一部のキーで ./gradlew :mobile:assembleGithubDebug と
+      ktlintCheck detekt lintPlayDebug、:mobile:assembleGithubRelease、キー無しと仮の4キーで :mobile:assembleGithubRelease。
+      スクリプトは作業用フォルダへ写した release-build.ps1 を、壊した version.properties と不正な -VersionCode で pwsh と
+      Windows PowerShell 5.1 から実行した（gradlew.bat の無い場所のためビルドには進まない）。リポジトリではフル検証の全ゲート。
+    検証結果: >-
+      成功 - 一部のキー（RELEASE_STORE_FILE・RELEASE_KEY_ALIAS だけ）では debug のビルドと ktlint・detekt・Lint は成功し、release は
+      preGithubReleaseBuild で「足りないキー RELEASE_STORE_PASSWORD、RELEASE_KEY_PASSWORD」を示して失敗した。キー無しでは署名なしの
+      APK ができた。仮の4キーでは署名の設定が作られ、鍵ストアが複製の直下を基準に解決されて見つからないことで失敗した（想定どおり）。
+      スクリプトは 0・-5・abc・1.5・99999999999 の -VersionCode、読めない行・VERSION_CODE=x・VERSION_CODE=0・空の VERSION_NAME で
+      いずれも中止し、正しい入力はビルドの手前（gradlew.bat が無い）まで進んだ。実際の鍵での release ビルドは未確認（BL-085）。
+      リポジトリのフル検証は ktlintCheck・detekt・lintGithubDebug lintPlayDebug・assembleDebug が成功（コンパイルと Lint、パッケージの
+      タスクは実行された）、単体テストは GitHub 版 238件・Play 版 238件ですべて成功、markdownlint は 36ファイルで0件、記録ファイルの
+      検証は成功、hook のテストは216件で失敗0件、秘密情報スキャン（ステージ済みの差分とブランチ全体）は成功。
+    関連ID:
+      - BL-075
+      - BL-081
+      - BL-086
+- date: 2026-11-13 23:55
+  summary: release 署名と版の管理を sesami-wear と同じ方式で入れ、鍵ストアの追加を秘密情報スキャンで検出する（BL-075）
+  details:
+    変更内容: >-
+      ユーザーの決定「鍵をユーザーが作成・保管する」「versionCode は既存の規則を維持し sesami-wear を前提にする」により実装した。
+      sesami-wear はビルドスクリプト・.gitignore・README・scripts だけを読み取り（鍵や値の入ったファイルは開いていない）、同じ方式に
+      揃えた。(1) mobile/build.gradle.kts は local.properties（.gitignore の対象）の RELEASE_STORE_FILE・RELEASE_STORE_PASSWORD・
+      RELEASE_KEY_ALIAS・RELEASE_KEY_PASSWORD を読み、RELEASE_STORE_FILE があるときだけ signingConfigs の release を作って release
+      ビルドへ設定する（無ければ署名なし。debug と品質ゲートは影響なし）。GitHub 版・Play 版は同じ鍵で署名する。versionCode・versionName は
+      -PappVersionCode・-PappVersionName で上書きでき、既定は従来の 1・0.1.0。(2) scripts/version.properties（VERSION_CODE=1・
+      VERSION_NAME=0.1.0）と scripts/release-build.bat・release-build.ps1 を追加した。versionCode を1つ上げて（指定時はその値、
+      現在値より小さければ中止）assembleGithubRelease と bundlePlayRelease を実行し、成功したときだけ version.properties を LF で更新する。
+      sesami-wear との違いは、wear の別系列（1001始まり）が無く両方の版で共通の1系列であること、現在値より小さい指定を止める検査を
+      足したこと。(3) .gitignore に *.p12・*.pfx・*.bks を足し、scripts/scan-secrets.py の鍵ストアのファイル名の規則を
+      jks・keystore に p12・pfx・bks を加えた形にした。(4) README.md に「リリースビルド」（鍵の作成と保管、local.properties のキー、
+      版の上げ方、成果物、署名の確かめ方）を書き、更新とロールバックの release 版の記述を直した。sesami-wear と同じ構成で
+      docs/RELEASE_NOTES.md（位置づけと運用ルール。配布前のため記録なし）を追加した。CONTRIBUTING.local.md の文書構成と DESIGN.md の
+      FR-19・運用制約を更新した。実際の鍵での release ビルドの確認は BL-085（人手検証）として起票し、BL-031 の依存へ加えた。
+      Gradle プラグインと依存の追加は無い。鍵の作成・入力と release ビルドは行っていない。
+    変更ファイル:
+      - mobile/build.gradle.kts
+      - scripts/version.properties
+      - scripts/release-build.bat
+      - scripts/release-build.ps1
+      - scripts/scan-secrets.py
+      - .gitignore
+      - README.md
+      - docs/RELEASE_NOTES.md
+      - CONTRIBUTING.local.md
+      - CHANGELOG.md
+      - docs/records/managed/BACKLOG.md
+      - docs/records/managed/DESIGN.md
+      - docs/records/managed/EXECUTE.md
+    検証コマンド: >-
+      ./gradlew --continue ktlintCheck detekt testGithubDebugUnitTest --console=plain（軽い検証）、
+      ./gradlew --rerun-tasks --continue ktlintCheck detekt lintGithubDebug lintPlayDebug assembleDebug testGithubDebugUnitTest
+      testPlayDebugUnitTest --console=plain（フル検証。強制再実行）、一時リポジトリの空ファイルでの python scripts/scan-secrets.py、
+      git check-ignore -v、PowerShell の構文解析（release-build.ps1。実行はしない）、npx markdownlint-cli2 "**/*.md" --config
+      .markdownlint-cli2.yaml、python scripts/validate-records.py、python scripts/test-guard-commands.py、python scripts/scan-secrets.py、
+      python scripts/scan-secrets.py --range main...HEAD
+    検証結果: >-
+      成功 - フル検証は BUILD SUCCESSFUL（強制再実行。ktlint の main・test・スクリプトの検査が実行された）、単体テストは GitHub 版 238件・
+      Play 版 238件がすべて成功。一時リポジトリでは .jks・.KEYSTORE・.p12・.pfx・.bks の空ファイルの追加を5件とも検出して終了コード1、
+      p12.txt・jks.kt・keystore-guide.md などでは検出なしの0。local.properties と各鍵ストアの拡張子が .gitignore で除外されることを確認。
+      release-build.ps1 は構文エラー0。markdownlint 0件、記録ファイルの検証・hook のテスト 216件・秘密情報スキャンは成功。
+      実際の鍵での release ビルドと署名の確認は未確認（BL-085 の人手検証）。
+    関連ID:
+      - BL-075
+- date: 2026-11-13 18:52
+  summary: サービスの終了時にサイトの判定待ちだった検知を、バナーを出さずに検知ログへ残す（BL-081）
+  details:
+    変更内容: >-
+      ユーザーの決定「BL-081 は直す」により実装した。DomainWait に finish（予約を取り消し、待ち中の検知があれば、保護が止まって
+      いないときだけ afterDomain にドメイン未取得を渡した結果の検知を新しい引数 record でログへ残す）を足し、
+      MimidukuAccessibilityService.onDestroy は domainCheck.cancel の代わりに domainWait.finish を呼ぶ（接続前で engine が無いときは
+      従来どおり取り消しだけ）。ログの書き込みは logExecutor（単一スレッド）で行うため、finish を logExecutor.shutdown より前に
+      呼び（shutdown の後の execute は拒否されるため）、shutdown の後に awaitTermination で最大1秒（LOG_FLUSH_MILLIS）書き終えるのを
+      待つようにした（shutdown は依頼済みの書き込みを捨てないが、サービスの終了後はプロセスが止められ得るため）。利用者に見える変化は、
+      サイトを1件以上登録した大人モード等で、ブラウザへの遷移から1秒以内にアクセシビリティをオフにした・システムに止められた場合に、
+      その遷移が検知ログに1件（介入は「利用者に確認」）残るようになったこと。バナーは出ない（サービスの終了でオーバーレイを閉じるため）。
+      待ち中に一時停止・同意の取り消しがあった場合は従来どおり何も残さない。先に DomainWaitTest へ再現テストを足し、finish が予約の
+      取り消しだけ（修正前の onDestroy と同じ）の状態で失敗することを確かめてから直した。docs/TESTING.md 2.9 に X16 を足し、
+      1章の DomainWaitTest の説明を更新した。実機での確認は BL-056 の人手検証に含めた。DESIGN.md の FR-25 を更新した。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/DomainWait.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/MimidukuAccessibilityService.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/service/DomainWaitTest.kt
+      - docs/TESTING.md
+      - docs/records/managed/BACKLOG.md
+      - docs/records/managed/DESIGN.md
+      - docs/records/managed/EXECUTE.md
+    検証コマンド: >-
+      ./gradlew testGithubDebugUnitTest --tests "com.mimiduku.mobile.service.DomainWaitTest" --console=plain（修正前の再現）、
+      ./gradlew --continue ktlintCheck detekt testGithubDebugUnitTest --console=plain（軽い検証）、
+      npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml、python scripts/validate-records.py、python scripts/scan-secrets.py
+    検証結果: >-
+      成功 - 修正前は追加した「サービスの終了で切られた待ちがログに残る」テストが失敗（8件中1件）し、修正後の軽い検証は
+      compileGithubDebugKotlin・compileGithubDebugUnitTestKotlin・testGithubDebugUnitTest が UP-TO-DATE ではなく実行され、GitHub 版
+      238件が成功・失敗0。実機での確認（X16）は未確認（BL-056 の人手検証）。Play 版の単体テスト・Android Lint・assembleDebug は
+      段階「最後」のためループの最後の全ゲートで確かめる。
+    関連ID:
+      - BL-081
+- date: 2026-11-13 18:44
+  summary: 差分レビューの小さな指摘と文書の食い違いを直し、BL-078 を閉じる（BL-083・BL-078）
+  details:
+    変更内容: >-
+      BL-083 は (1) mimiduku-change 4章を「自律ループでは autonomous-loop と CLAUDE.md の段階、対話実行は軽い検証を除く全ゲート」に直した。
+      (2) backlog-implementer に、同じコミットで BACKLOG から削除するタスクは進行中への更新を省いてよいことと、単体テストの件数を
+      mobile/build/test-results の TEST-*.xml の testsuite 属性から版ごとに集計することを足し、autonomous-loop の手順2にも同じ例外を
+      書いた（配布スキルへの固有の追記として CONTRIBUTING.local.md の表を更新）。(3) ConsentStoreTest の版数が 2 であることだけを
+      確かめるテストを、現在の1つ前の版（CURRENT_VERSION - 1）の同意が無効になることを確かめるテストへ置き換えた（値を固定しない）。
+      (4) scripts/scan-secrets.py に --range（git diff へ渡すコミット範囲。--include-unstaged と併用不可、- で始まる値は拒否）を足し、
+      CLAUDE.md の品質ゲート表へ段階「最後」の行（python scripts/scan-secrets.py --range main...HEAD）を加え、quality-gate-runner に
+      フル検証ではブランチ全体の行で判定することを書いた。BL-078 は、このセッションで diff-reviewer・quality-gate-runner・
+      backlog-implementer の3つが実際に起動して定義どおりの報告を返したため閉じた（確かめた範囲は CHANGELOG.md）。
+      DESIGN.md の FR-20 にテストの確かめ方を足した。
+    変更ファイル:
+      - mobile/src/test/kotlin/com/mimiduku/mobile/mode/ConsentStoreTest.kt
+      - scripts/scan-secrets.py
+      - CLAUDE.md
+      - .claude/agents/quality-gate-runner.md
+      - .claude/agents/backlog-implementer.md
+      - .claude/skills/autonomous-loop/SKILL.md
+      - .claude/skills/mimiduku-change/SKILL.md
+      - CONTRIBUTING.local.md
+      - CHANGELOG.md
+      - docs/records/managed/BACKLOG.md
+      - docs/records/managed/DESIGN.md
+      - docs/records/managed/EXECUTE.md
+    検証コマンド: >-
+      ./gradlew --rerun-tasks --continue ktlintCheck detekt lintGithubDebug lintPlayDebug assembleDebug testGithubDebugUnitTest
+      testPlayDebugUnitTest --console=plain（フル検証。UP-TO-DATE の素通りを避けるため強制再実行）、表のとおりの各 Gradle コマンド、
+      一時リポジトリでの python scripts/scan-secrets.py --range base...HEAD、npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml、
+      python scripts/validate-records.py、python scripts/scan-secrets.py、python scripts/scan-secrets.py --range main...HEAD、
+      python scripts/test-guard-commands.py
+    検証結果: >-
+      成功 - フル検証は全タスクが実行され（UP-TO-DATE は動作を持たないライフサイクルのタスクだけ）BUILD SUCCESSFUL、単体テストは
+      GitHub 版 235件・Play 版 235件がすべて成功（置き換えたテストが両方の版で実行されたことを XML で確認）。--range は、明らかな
+      ダミー値（password へのリテラル代入）を含むコミットの範囲で終了コード1と該当行、含まない範囲で0、--include-unstaged との併用と
+      - で始まる値で2を返した。markdownlint 0件、記録ファイルの検証・秘密情報スキャン（ステージ済み・ブランチ全体）・hook のテスト
+      205件はすべて成功。
+    関連ID:
+      - BL-083
+      - BL-078
+- date: 2026-11-13 18:19
+  summary: スケアウェア文言の実機確認用テストページ・TESTING.md の配信手順・実機確認スキルを追加し、ページの本文を単体テストで確かめる（BL-073）
+  details:
+    変更内容: >-
+      (1) tools/verification/scareware-page/ に index.html（読み込み直後に警告の文言）・scroll.html（下までスクロールすると template の中身を
+      差し込む）・safe.html（T11 のリンク先、文言なし）を追加した。文言は rules.json の照合語（your device is infected・ウイルスに感染・
+      virus detected・ウイルスを検出）だけを使った架空のもので、実在の名前・ロゴ・電話番号、外部の画像・スクリプト・リンクは無い。
+      mobile/ の外に置くため APK に入らない（置き場所は BACKLOG の既定値）。(2) ScarewarePageTest を追加し、index.html の表示文字が
+      DetectionRules.DEFAULT で一致すること、scroll.html は読み込み直後に一致せず template の中身は一致すること、safe.html は一致しない
+      ことを確かめる（コメント・head・script・template を除いてタグを外した文字で照合）。(3) docs/TESTING.md 2.2 に手順3として、
+      python -m http.server を 127.0.0.1 だけで待ち受けて adb reverse tcp:8000 tcp:8000 で端末の Chrome から開く手順と後片付けを足し、
+      T9 の手順をテストページへ向け、1章の一覧へ ScarewarePageTest を足した。(4) プロジェクト固有スキル mimiduku-device-verification を
+      作成した（BACKLOG の人手検証と TESTING.md の節の対応、入れる版、素材、検知ログをテキストで読む方法、元へ戻すこと、記録先）。
+      adb 接続と利用量の抑え方はユーザー共通スキル adb-device-connection・verification-cost-control を参照し、複製していない。
+      全体を通して実機で使っていないことをスキル内に明記した。mimiduku-change の3章から新しいスキルを参照した。DESIGN.md の FR-4 へ
+      テストページとテストを足した。
+    変更ファイル:
+      - tools/verification/scareware-page/index.html
+      - tools/verification/scareware-page/scroll.html
+      - tools/verification/scareware-page/safe.html
+      - mobile/src/test/kotlin/com/mimiduku/mobile/rules/ScarewarePageTest.kt
+      - docs/TESTING.md
+      - .claude/skills/mimiduku-device-verification/SKILL.md
+      - .claude/skills/mimiduku-change/SKILL.md
+      - docs/records/managed/BACKLOG.md
+      - docs/records/managed/DESIGN.md
+      - docs/records/managed/EXECUTE.md
+    検証コマンド: >-
+      ./gradlew --continue ktlintCheck detekt testGithubDebugUnitTest --console=plain（軽い検証）、
+      python -m http.server 8765 --bind 127.0.0.1 --directory tools/verification/scareware-page と curl での取得、
+      npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml、python scripts/validate-records.py、python scripts/scan-secrets.py
+    検証結果: >-
+      成功 - 軽い検証は compileGithubDebugUnitTestKotlin と testGithubDebugUnitTest が UP-TO-DATE ではなく実行され、GitHub 版 235件
+      （うち ScarewarePageTest 3件）成功・失敗0。PC 上の配信で3ページとも HTTP 200。端末の Chrome での表示と警告の確認、adb reverse
+      経由の配信は未確認（実機を操作しないため。BL-009 の T9〜T11 の実施時に確かめる）。Play 版の単体テストと Android Lint・
+      assembleDebug は段階「最後」のためループの最後の全ゲートで確かめる（本イテレーションでは未実行）。
+    関連ID:
+      - BL-073
+- date: 2026-11-13 18:16
+  summary: ログ閲覧画面の行への変換 LogRows の単体テスト LogRowsTest を追加する（BL-072）
+  details:
+    変更内容: >-
+      LogRowsTest を追加した（本体は変えていない）。新しい順の並べ替え、アプリ名が取れないときのパッケージ名への代替（遷移元・遷移先の
+      両方）、遷移先の無いスケアウェアの行で targetApp が null、DetectionKind 2種と InterventionAction 4種（SKIPPED_EXCLUDED を含む）が
+      それぞれの文字列リソースへ対応すること（全値を列挙して期待値の表と突き合わせるため、WARN_ONLY と ASK_USER の入れ替えのような
+      取り違えも失敗になる）、UTC と Asia/Tokyo で同じ時刻が別の表示になる書式、空のログで行が無いことを確かめる7件。テストを書く中で
+      本体の不具合は見つからなかった。docs/TESTING.md 1章のテスト一覧と DESIGN.md の FR-13 へ LogRowsTest を足した。
+    変更ファイル:
+      - mobile/src/test/kotlin/com/mimiduku/mobile/settings/LogRowsTest.kt
+      - docs/TESTING.md
+      - docs/records/managed/BACKLOG.md
+      - docs/records/managed/DESIGN.md
+      - docs/records/managed/EXECUTE.md
+    検証コマンド: >-
+      ./gradlew --continue ktlintCheck detekt testGithubDebugUnitTest --console=plain（軽い検証）、
+      npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml、python scripts/validate-records.py、python scripts/scan-secrets.py
+    検証結果: >-
+      成功 - 軽い検証は1回目に ktlint・detekt の行長の指摘（LogRowsTest の2行）で失敗し、直して成功。compileGithubDebugUnitTestKotlin と
+      testGithubDebugUnitTest は UP-TO-DATE ではなく実行され、GitHub 版 232件（うち LogRowsTest 7件）成功・失敗0。Play 版の単体テストと
+      Android Lint・assembleDebug は段階「最後」のためループの最後の全ゲートで確かめる（本イテレーションでは未実行）。
+    関連ID:
+      - BL-072
+- date: 2026-11-13 18:09
+  summary: 開示文の版数 ConsentStore.CURRENT_VERSION を 1 から 2 へ上げ、旧版の同意で保護が動かないことを単体テストで確かめる（BL-074）
+  details:
+    変更内容: >-
+      ユーザーの決定「BL-074 は版数を上げる」に従い、ConsentStore.CURRENT_VERSION を 2 にした（BL-055 で開示文へ足したサイト名の
+      ハッシュ・PIN で暗号化した控えの保存とアドレスバーの読み取りに対する同意を取り直す。DESIGN.md の FR-20）。開示文の文面と
+      版数以外の挙動は変えていない。ConsentStoreTest を追加し、版 1 で同意済みの保存値では hasConsented が false（サービスの
+      protectionStopped が true になり、イベントを処理せずバッジも出さない）、accept の後は true で保存値が 2 になること、
+      版数が 2 であること、読めない保存値は同意とみなさないことを確かめた。既存の SettingsControllerTest
+      「a consent for an older disclosure version asks again」は CURRENT_VERSION - 1（今回から実際の旧版 1）で開示の再表示を
+      押さえている。再同意が要ることをリリースノートの原本（CHANGELOG.md の Unreleased）と DESIGN.md の FR-20 へ書き、
+      実機の再同意の流れを docs/TESTING.md 2.3 の T16 として BL-009 の確認範囲へ加えた。BL-057 の版数の記述を現状へ合わせた。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/mode/ConsentStore.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/mode/ConsentStoreTest.kt
+      - docs/TESTING.md
+      - CHANGELOG.md
+      - docs/records/managed/BACKLOG.md
+      - docs/records/managed/DESIGN.md
+      - docs/records/managed/EXECUTE.md
+    検証コマンド: >-
+      ./gradlew --continue ktlintCheck detekt testGithubDebugUnitTest --console=plain（軽い検証）、
+      npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml、python scripts/validate-records.py、python scripts/scan-secrets.py
+    検証結果: >-
+      成功 - 軽い検証は終了コード0で、compileGithubDebugKotlin・compileGithubDebugUnitTestKotlin・testGithubDebugUnitTest は
+      UP-TO-DATE でなく実行された。GitHub 版の単体テスト 225 件成功（ConsentStoreTest 4 件を含む）。Android Lint・assembleDebug・
+      Play 版の単体テストは段階「最後」のためこのイテレーションでは未実行。実機での再同意は未確認（BL-009 の T16）。
+    関連ID:
+      - BL-074
+- date: 2026-11-13 17:52
+  summary: サイトの判定待ちの間に次の遷移が来ると前の検知がログに残らない不具合と、待機中の一時停止を見ていない点を直す（BL-071）
+  details:
+    変更内容: >-
+      サイトの除外の判定待ち（遷移の1秒後にアドレスバーを読む）を、サービスから Android 非依存の `DomainWait` へ移して直した。
+      (1) 待っている間に次のドメイン待ちが来ると、DelayedAction が前の予約を取り消すため、前の検知は確認バナーもログも残らなかった。
+      前の待ちをドメインを読まずにその場で確定させ、`InterventionPlanner.afterDomain`（ドメイン null）で確認を出してログに残すようにした。
+      (2) 待っている間に一時停止・同意の取り消しがあっても1秒後に確認を出してログに残していた。待ち終えた時点で保護が止まっていれば
+      何もしない（スケアウェアの settle と同じ扱い。FR-12）。待ち時間の定数はサービスの DOMAIN_SETTLE_MILLIS から
+      `DomainWait.SETTLE_MILLIS`（1秒のまま）へ移した。テストのため DelayedAction に `OneShotTimer` の interface を付けた。
+      先に DomainWaitTest を修正前の挙動のまま実行し、2件のテスト（2件目の遷移で1件目が残る・待ち中の一時停止）が失敗することを
+      確かめてから直した。
+      利用者に見える変化は次のとおり（サイトを1件以上登録し、確認を出す介入のときだけ。登録が無い・自動で戻す介入では変わらない）。
+      (1) 1秒以内に続いた2件目のブラウザ遷移で、1件目の確認バナーがすぐに出て、約1秒後に2件目の確認バナー（または登録済みならバナーなし）
+      に置き換わる。検知ログは1件から2件になる（1件目は登録済みのサイトであっても、ドメインを読まないため「戻る／このまま進む」として
+      残る）。1件目のバナーの「今後は確認しない」ではサイト名をボタンを押した時点で読む。
+      (2) 待ち中に一時停止・同意の取り消しをすると、確認バナーもログも出なくなる（修正前は1件出ていた）。
+      直し方の選択は BL-071 の既定値どおりで、(1) は確認を省かない側（FR-25 の「読めない場合は確認を出す」と同じ側）、(2) は FR-12 に揃えた。
+      補足（BL-080 で追記）。直前の BL-070 の記録にある「ドメイン待ちの予約は介入を行う関数の分岐の中に置いた」は本変更で改められ、
+      予約と待ちの管理は DomainWait へ移り、サービスの carryOut は InterventionPlan.AwaitDomain を DomainWait.await へ渡すだけになった。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/DomainWait.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/OneShotTimer.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/DelayedAction.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/MimidukuAccessibilityService.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/service/DomainWaitTest.kt
+      - docs/TESTING.md
+      - docs/records/managed/BACKLOG.md
+      - docs/records/managed/DESIGN.md
+      - docs/records/managed/EXECUTE.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintGithubDebug lintPlayDebug assembleDebug testGithubDebugUnitTest testPlayDebugUnitTest --rerun-tasks、
+      npx markdownlint-cli2、python scripts/validate-records.py
+    検証結果: >-
+      成功 - Gradle の品質ゲートはすべて終了コード0。単体テストは両版とも221件成功（新規 DomainWaitTest 5件を含む。修正前の挙動では
+      5件中2件が失敗することを確認済み）。実機確認は未実施（未確認）で、docs/TESTING.md 2.9 の X14・X15 として BL-056 の実施時に行う。
+    関連ID:
+      - BL-071
+- date: 2026-11-13 17:47
+  summary: サービスに残る介入の分岐を Android 非依存の InterventionPlanner へ移し、単体テストを足す（BL-070）
+  details:
+    変更内容: >-
+      MimidukuAccessibilityService の intervene・present・deferForDomain にあった分岐（アプリの除外ならログのみ、サイトの除外の登録が
+      あるブラウザへの確認ならドメイン待ち、BACK_AND_WARN なら戻る、ASK_USER なら「今後は確認しない」を付ける、待機後に登録済みの
+      ドメインなら SKIPPED_EXCLUDED でログのみ）を、結果を表す値 `InterventionPlan`（LogOnly／AwaitDomain／Present）を返す
+      `InterventionPlanner`（service パッケージ）の `plan` と `afterDomain` へ移した。サービスは返った計画をそのまま Android の操作として行う。
+      イベントの処理後と照合の settle 後に同じ形で書いていたシールド・案内パネル・バッジの同期を `syncAdScreen` 1つにまとめ、
+      一時停止・未同意の判定も1か所（`protectionStopped`）にした。挙動は変えていない（判定の順序・条件・ログの内容・ShieldTimer の
+      呼び出し時機は移す前と同じ。判定に使わないイベントと一時停止中は従来どおりバッジだけ合わせる）。detekt の関数数の上限（11 未満）に
+      収めるため、ドメイン待ちの予約は介入を行う関数の分岐の中に置いた。InterventionPlannerTest（11件）で各分岐と版（FeatureSet）に
+      よる違いを確かめ、既存のテストは変更していない。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/InterventionPlanner.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/MimidukuAccessibilityService.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/service/InterventionPlannerTest.kt
+      - docs/TESTING.md
+      - docs/records/managed/BACKLOG.md
+      - docs/records/managed/DESIGN.md
+      - docs/records/managed/EXECUTE.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintGithubDebug lintPlayDebug assembleDebug --rerun-tasks、
+      ./gradlew testGithubDebugUnitTest testPlayDebugUnitTest、npx markdownlint-cli2、python scripts/validate-records.py
+    検証結果: >-
+      成功 - Gradle の品質ゲートはすべて終了コード0。単体テストは両版とも216件成功（新規 InterventionPlannerTest 11件を含み、
+      既存の ProtectionEngineTest は変更なしで成功）。リファクタリングのため実機確認は行っていない（未確認）。
+    関連ID:
+      - BL-070
+- date: 2026-11-09 00:14
+  summary: ページの読み込み直後に操作しなくてもスケアウェアの警告が出るようにする（BL-063）
+  details:
+    変更内容: >-
+      照合は前面が変わった直後と、前回から 1 秒以上空いた文字の変化でだけ走るため、読み込みの最後の変化が間引かれて
+      その後イベントが来ないと、読み込み後の画面は次の変化まで照合されなかった。エンジンに、前面の画面で照合が間引かれたことを
+      示す `hasPendingScan` と、間引かれた照合を 1 回だけ行う `settle` を追加した。サービスは、間引きが残っている間、
+      文字の変化のたびに `DelayedAction` を 1 秒で予約し直し（デバウンス）、変化が止まった時点で `settle` を呼ぶ。待っている間に
+      一時停止・同意の取り消しがあれば行わない。間引かれていない（直近に照合した）画面では何もしないため、通常の画面で
+      照合の回数は増えない。detekt の関数数の上限のため、サービスの処理は `process` の中に置いた。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/ProtectionEngine.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/MimidukuAccessibilityService.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/service/ProtectionEngineTest.kt
+      - docs/records/managed/BACKLOG.md
+      - docs/records/managed/DESIGN.md
+      - docs/TESTING.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintGithubDebug lintPlayDebug assembleDebug testGithubDebugUnitTest testPlayDebugUnitTest、
+      python scripts/validate-records.py、npx markdownlint-cli2、adb での実機確認（Pixel 8 Pro・Android 17）
+    検証結果: >-
+      成功 - Gradle の品質ゲートはすべて終了コード0（両版の単体テスト全件成功）。実機（GitHub 版 debug）で、テストページを開いて
+      操作せず 7 秒待つと、3 回とも警告が 1 件出た（修正前は 0 件）。T5 は +1 件、T4 は +0 件で退行なし。Play 版の実機は未確認。
+    関連ID:
+      - BL-063
+- date: 2026-11-08 23:50
+  summary: 前面に出てもウィンドウ状態の変化が届かないアプリの遷移を見逃さない補正を入れる（BL-062）
+  details:
+    変更内容: >-
+      起動済みのブラウザなどが、ウィンドウ状態の変化イベントなしで前面に出ると、前面判定が古いまま残って外部遷移を
+      見逃す。`ProtectionEngine.promoteToForeground` を追加し、追跡中の前面と違うアプリの文字の変化を、そのアプリが
+      実際のアクティブなウィンドウ（`rootInActiveWindow` のパッケージ）のときだけ前面の変化として扱うようにした。
+      背景のアプリの文字の変化・一時的に重なるもの（システム UI・キーボード・本アプリ）・前面のアプリ自身では、
+      アクティブなウィンドウを調べない。検知されなかった状態そのものは実機で再現できず、原因の特定は未了のため
+      BL-062 は「進行中」で残した。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/ProtectionEngine.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/MimidukuAccessibilityService.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/detect/ExternalTransitionDetector.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/service/ProtectionEngineTest.kt
+      - docs/records/managed/BACKLOG.md
+      - docs/records/managed/DESIGN.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintGithubDebug lintPlayDebug assembleDebug testGithubDebugUnitTest testPlayDebugUnitTest、
+      python scripts/validate-records.py、npx markdownlint-cli2、adb での実機確認（Pixel 8 Pro・Android 17）
+    検証結果: >-
+      成功 - Gradle の品質ゲートはすべて終了コード0（両版の単体テスト全件成功）。実機（GitHub 版 debug）で、補正後も T5 を
+      起動済みの Chrome で 3 回（毎回 +1 件）、T1 を起動済みで 2 回（毎回 +1 件で電卓へ戻る）、T4（ホームからの起動）は +0 件で
+      退行が無いことを確認した。検知されなかった状態の再現と、補正による解消の確認は未実施。
+    関連ID:
+      - BL-062
+- date: 2026-11-08 23:42
+  summary: アクセシビリティ設定の本アプリの画面で、自分自身の偽警告が出ないようにする（BL-060）
+  details:
+    変更内容: >-
+      システムのアクセシビリティ設定に表示されるサービス説明文（`accessibility_service_description`）に「ウイルスに感染」が
+      含まれ、設定アプリを照合する本アプリ自身の偽警告バナーとログが出ていた。設定アプリ全体を照合から外すと設定アプリ内で
+      偽の警告を装うページを見逃すため、説明文を「ウイルス感染などを装う偽の警告」へ言い換えて照合語に当たらないようにした。
+      説明文が照合語を含まないことを単体テスト（`OwnTextScarewareTest`）で固定した。
+    変更ファイル:
+      - mobile/src/main/res/values/strings.xml
+      - mobile/src/test/kotlin/com/mimiduku/mobile/rules/OwnTextScarewareTest.kt
+      - docs/records/managed/BACKLOG.md
+      - docs/records/managed/DESIGN.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintGithubDebug lintPlayDebug assembleDebug testGithubDebugUnitTest testPlayDebugUnitTest、
+      python scripts/validate-records.py、npx markdownlint-cli2、adb での実機確認（Pixel 8 Pro・Android 17）
+    検証結果: >-
+      成功 - Gradle の品質ゲートはすべて終了コード0（両版の単体テスト全件成功）。実機（GitHub 版 debug・おとなモード）で、
+      アクセシビリティ設定の本アプリの画面を開いてもバナーが出ず、スケアウェアのログも増えなかった（14 件のまま）。
+      Play 版の実機は未確認（説明文は共通のリソース）。
+    関連ID:
+      - BL-060
+- date: 2026-11-08 23:25
+  summary: 最小化中のバッジの縦ドラッグと、ストア遷移の二重検知を直す（BL-059・BL-061）
+  details:
+    変更内容: >-
+      BL-059 は、最小化中のバッジを縦に動かすと最小化が解除される不具合の修正。最小化中のバッジの中心は、のぞき分（32dp）が
+      大きさ（64dp）の半分と同じため端の座標ちょうどになり、`fromRelease` の厳密な不等号の判定から漏れていた。最小化中に離した
+      ときは静止位置から内側へ大きさの4分の1までのずれなら最小化を保ち、それより内側へ引き出したときだけ通常へ戻す
+      （`BadgeMetrics`・`wasMinimized`）。あわせて、指が画面の端までしか動かず中心が端に着くだけの操作でも最小化になるよう、
+      最小化の判定を端の座標を含める形（`<=` / `>=`）にした。
+      BL-061 は、戻る操作の直後にストアが同じ遷移の画面イベントをもう一度出すと、同じ遷移が二重に検知され戻る操作も二重になる
+      疑いへの対策。`ExternalTransitionDetector` が、同じ遷移元・遷移先の検知から 800ms 以内の再検知を数えない（繰り返し回数にも
+      入れない）。800ms は既存の繰り返しの判定（1秒刻み）より短い値にした。実機では二重検知を再現できず、原因は単体テストでの
+      想定（イベントの順序）に基づく。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/overlay/BadgePlacement.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/overlay/BadgeOverlay.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/detect/ExternalTransitionDetector.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/overlay/BadgePlacementTest.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/detect/ExternalTransitionDetectorTest.kt
+      - docs/records/managed/BACKLOG.md
+      - docs/records/managed/DESIGN.md
+      - docs/TESTING.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintGithubDebug lintPlayDebug assembleDebug testGithubDebugUnitTest testPlayDebugUnitTest、
+      python scripts/validate-records.py、npx markdownlint-cli2、adb での実機確認（Pixel 8 Pro・Android 17）
+    検証結果: >-
+      成功 - Gradle の品質ゲートはすべて終了コード0（両版の単体テスト全件成功）。実機は GitHub 版 debug で、最小化（内側を掴んで
+      端まで引く）・縦に動かしても最小化のまま・x=80 から内側へ引くと通常へ戻る・T2 を 3 回実行して毎回ログ 1 件で電卓へ戻る
+      ことを確認した。二重検知そのものは修正前後とも実機で再現できていない。Play 版の実機は未確認。
+    関連ID:
+      - BL-059
+      - BL-061
 - date: 2026-11-09 00:00
   summary: 確認を省く対象の実機確認の続き（X4・X8・X9）の結果を記録する（BL-056）
   details:

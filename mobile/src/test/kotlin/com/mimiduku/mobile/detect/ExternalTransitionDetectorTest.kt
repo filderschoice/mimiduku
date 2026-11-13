@@ -136,6 +136,37 @@ class ExternalTransitionDetectorTest {
     }
 
     @Test
+    fun `the same transition again right after is not detected twice`() {
+        val store = "com.android.vending"
+        detector.onWindowStateChanged(GAME, 0)
+        assertEquals(1, detector.onWindowStateChanged(store, 100)!!.repeatCount)
+
+        // 戻る操作の直後、元のアプリとストアの画面イベントがもう一度続けて出る。
+        detector.onWindowStateChanged(GAME, 300)
+        assertNull(detector.onWindowStateChanged(store, 400))
+    }
+
+    @Test
+    fun `a duplicate is not counted as a repeat`() {
+        detector.onWindowStateChanged(GAME, 0)
+        detector.onWindowStateChanged(CHROME, 100)
+        detector.onWindowStateChanged(GAME, 300)
+        assertNull(detector.onWindowStateChanged(CHROME, 400))
+
+        detector.onWindowStateChanged(GAME, 2_000)
+        assertEquals(2, detector.onWindowStateChanged(CHROME, 2_100)!!.repeatCount)
+    }
+
+    @Test
+    fun `the same transition after the duplicate window is detected again`() {
+        detector.onWindowStateChanged(GAME, 0)
+        detector.onWindowStateChanged(CHROME, 100)
+        detector.onWindowStateChanged(GAME, 900)
+
+        assertEquals(2, detector.onWindowStateChanged(CHROME, 1_000)?.repeatCount)
+    }
+
+    @Test
     fun `the repeat count resets after the window and is kept per source`() {
         detector.onWindowStateChanged(GAME, 0)
         detector.onWindowStateChanged(CHROME, 100)

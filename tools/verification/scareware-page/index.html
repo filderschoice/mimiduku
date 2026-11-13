@@ -1,0 +1,36 @@
+<!doctype html>
+<!--
+  みみづくの実機確認用のテストページ（docs/TESTING.md 2.3 の T9〜T11。BL-073）。
+  - 偽の警告の文言は、検知ルール（mobile/src/main/assets/rules.json の scarewarePhrases）の照合語だけを使った架空のもの。
+    実在のサイト・企業・製品の名前、ロゴ、電話番号は入れない。
+  - 外部への通信をしない（外部の画像・スクリプト・フォント・リンクを置かない）。リンク先は同じフォルダのページだけ。
+  - 配布物（APK）には入らない（mobile/ の外に置いている）。PC で配信して端末の Chrome から開く手順は TESTING.md 2.2。
+  - 本文が警告の対象になることは ScarewarePageTest（単体テスト）で確かめている。文言を変えたらテストも見直す。
+-->
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>みみづく 確認用ページ（読み込み直後）</title>
+<style>
+  body { font-family: sans-serif; margin: 16px; line-height: 1.6; }
+  .alert { border: 3px solid #c00; padding: 12px; color: #c00; font-weight: bold; }
+  .note { color: #555; font-size: 0.9em; }
+  nav a { display: block; margin: 12px 0; padding: 12px; border: 1px solid #888; }
+</style>
+</head>
+<body>
+<p class="note">これはアプリ「みみづく」の動作確認用のテストページです。表示されている警告は架空のもので、端末には何も起きていません。</p>
+
+<div class="alert">
+  <p>Your device is infected!</p>
+  <p>お使いの端末はウイルスに感染しています。</p>
+</div>
+
+<nav>
+  <!-- T11: バナーが出ている間にこのリンクをタップし、遷移できればバナーがタップを吸収していない -->
+  <a id="outside-link" href="safe.html">T11 用: 警告の無いページへ移動する（バナーの外のタップ確認）</a>
+  <a href="scroll.html">スクロールすると警告が出るページを開く</a>
+</nav>
+</body>
+</html>

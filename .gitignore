@@ -3,6 +3,9 @@ local.properties
 secrets.properties
 *.jks
 *.keystore
+*.p12
+*.pfx
+*.bks
 .env
 .env.*
 
