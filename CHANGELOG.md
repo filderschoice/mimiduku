@@ -4,7 +4,11 @@
 
 ## Unreleased
 
-- 規定ブランチ上の `git merge --ff-only` を hook が誤って止める不具合を起票した（BL-088。PR #10 のマージ後の整理で発生）
+- 規定ブランチ上の `git merge --ff-only` を hook が誤って止める不具合を直した（BL-088。PR #10 のマージ後の整理で発生し、
+  起票して同じループで完了）。`.claude/hooks/guard-commands.py` は merge の ff 系オプション（`--ff`・`--no-ff`・`--ff-only`）の
+  最後の指定が `--ff-only` のときだけ規定ブランチ上でも通す。オプション無しの merge と、`--ff-only` を後の指定で打ち消す形は
+  拒否のまま。hook の冒頭コメントと CONTRIBUTING.local.md「禁止操作の hook」を合わせて直し、hook のテストは CASES_MAIN へ
+  拒否 5件・通過 5件を足して 236件（拒否 143・通過 93）がすべて成功
 
 - ローカルブランチの削除をエージェントへ許可した（BL-087。対話実行に限る）。`.claude/settings.json` の `permissions.deny` から
   `git branch -D` / `-d` / `--delete`（Bash・PowerShell）を外し、`.claude/hooks/guard-commands.py` は規定ブランチ（main / master）を

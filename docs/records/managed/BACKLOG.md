@@ -5,26 +5,6 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
-- id: BL-088
-  区分: 不具合
-  タスク内容: >-
-    .claude/hooks/guard-commands.py が、規定ブランチ（main）上での git merge --ff-only origin/main を「規定ブランチへのコミット」として
-    拒否する誤止めを直す。現状は COMMIT_LIKE（commit・merge・cherry-pick・revert・am）の判定がオプションを見ずに merge を一律に拒否するため、
-    PR のマージ後に main を origin/main へ早送りで追従させる手順（Skill prune-merged-branches の「削除の実行」1）が止まる
-    （2026-11-14、PR #10 のマージ後の整理で発生）。早送りは新しいコミットを作らないため、merge の ff 系オプションの最後が --ff-only の
-    ときだけ通し、--ff・--no-ff が後に来る形やオプション無しの merge は拒否のままにする。
-  優先度: P2
-  状態: 未着手
-  担当: AIエージェント
-  完了条件: >-
-    main 上の git merge --ff-only origin/main が hook を通り、main 上の git merge feature・git merge --ff-only --no-ff x・
-    git merge --ff-only --ff x は拒否のままであることを scripts/test-guard-commands.py の CASES_MAIN で確かめ、全件成功している。
-    hook の冒頭コメント・CONTRIBUTING.local.md「禁止操作の hook」・CHANGELOG.md が実態と一致している。
-  依存: []
-  根拠: >-
-    ユーザーの指示「登録して対応して」（2026-11-14）。早送りは既存のコミットを指す位置を進めるだけで、規定ブランチへの直接コミットを
-    禁じる guardrails 5.3 の趣旨（変更の確定は人が判断する）に触れないため、通してよいと判断した。--ff-only が後の --ff・--no-ff で
-    打ち消されるとマージコミットを作り得るため、最後の指定で判定する。
 - id: BL-085
   区分: 人手検証
   タスク内容: >-
