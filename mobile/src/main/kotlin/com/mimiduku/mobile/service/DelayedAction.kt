@@ -6,10 +6,10 @@ import android.os.Looper
 /** 少し待ってから 1 回だけ行う処理。新しく予約すると、前の予約は取り消す。 */
 class DelayedAction(
     private val handler: Handler = Handler(Looper.getMainLooper()),
-) {
+) : OneShotTimer {
     private var pending: Runnable? = null
 
-    fun schedule(
+    override fun schedule(
         delayMillis: Long,
         action: () -> Unit,
     ) {
@@ -23,7 +23,7 @@ class DelayedAction(
         handler.postDelayed(task, delayMillis)
     }
 
-    fun cancel() {
+    override fun cancel() {
         pending?.let(handler::removeCallbacks)
         pending = null
     }

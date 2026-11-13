@@ -5,6 +5,42 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-11-13 17:52
+  summary: サイトの判定待ちの間に次の遷移が来ると前の検知がログに残らない不具合と、待機中の一時停止を見ていない点を直す（BL-071）
+  details:
+    変更内容: >-
+      サイトの除外の判定待ち（遷移の1秒後にアドレスバーを読む）を、サービスから Android 非依存の `DomainWait` へ移して直した。
+      (1) 待っている間に次のドメイン待ちが来ると、DelayedAction が前の予約を取り消すため、前の検知は確認バナーもログも残らなかった。
+      前の待ちをドメインを読まずにその場で確定させ、`InterventionPlanner.afterDomain`（ドメイン null）で確認を出してログに残すようにした。
+      (2) 待っている間に一時停止・同意の取り消しがあっても1秒後に確認を出してログに残していた。待ち終えた時点で保護が止まっていれば
+      何もしない（スケアウェアの settle と同じ扱い。FR-12）。待ち時間の定数はサービスの DOMAIN_SETTLE_MILLIS から
+      `DomainWait.SETTLE_MILLIS`（1秒のまま）へ移した。テストのため DelayedAction に `OneShotTimer` の interface を付けた。
+      先に DomainWaitTest を修正前の挙動のまま実行し、2件のテスト（2件目の遷移で1件目が残る・待ち中の一時停止）が失敗することを
+      確かめてから直した。
+      利用者に見える変化は次のとおり（サイトを1件以上登録し、確認を出す介入のときだけ。登録が無い・自動で戻す介入では変わらない）。
+      (1) 1秒以内に続いた2件目のブラウザ遷移で、1件目の確認バナーがすぐに出て、約1秒後に2件目の確認バナー（または登録済みならバナーなし）
+      に置き換わる。検知ログは1件から2件になる（1件目は登録済みのサイトであっても、ドメインを読まないため「戻る／このまま進む」として
+      残る）。1件目のバナーの「今後は確認しない」ではサイト名をボタンを押した時点で読む。
+      (2) 待ち中に一時停止・同意の取り消しをすると、確認バナーもログも出なくなる（修正前は1件出ていた）。
+      直し方の選択は BL-071 の既定値どおりで、(1) は確認を省かない側（FR-25 の「読めない場合は確認を出す」と同じ側）、(2) は FR-12 に揃えた。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/DomainWait.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/OneShotTimer.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/DelayedAction.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/MimidukuAccessibilityService.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/service/DomainWaitTest.kt
+      - docs/TESTING.md
+      - docs/records/managed/BACKLOG.md
+      - docs/records/managed/DESIGN.md
+      - docs/records/managed/EXECUTE.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintGithubDebug lintPlayDebug assembleDebug testGithubDebugUnitTest testPlayDebugUnitTest --rerun-tasks、
+      npx markdownlint-cli2、python scripts/validate-records.py
+    検証結果: >-
+      成功 - Gradle の品質ゲートはすべて終了コード0。単体テストは両版とも221件成功（新規 DomainWaitTest 5件を含む。修正前の挙動では
+      5件中2件が失敗することを確認済み）。実機確認は未実施（未確認）で、docs/TESTING.md 2.9 の X14・X15 として BL-056 の実施時に行う。
+    関連ID:
+      - BL-071
 - date: 2026-11-13 17:47
   summary: サービスに残る介入の分岐を Android 非依存の InterventionPlanner へ移し、単体テストを足す（BL-070）
   details:

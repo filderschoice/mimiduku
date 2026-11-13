@@ -68,8 +68,17 @@ class MimidukuAccessibilityService : AccessibilityService() {
     private lateinit var modeStore: UsageModeStore
     private lateinit var pauseStore: PauseStore
     private lateinit var exclusionStore: ExclusionStore
-    private lateinit var planner: InterventionPlanner
     private val domainCheck = DelayedAction()
+    private val planner by lazy { InterventionPlanner(exclusionStore) }
+    private val domainWait by lazy {
+        DomainWait(
+            planner = planner,
+            timer = domainCheck,
+            readDomain = { UrlBarReader.read(rootInActiveWindow, it) },
+            protectionStopped = { protectionStopped },
+            carryOut = ::carryOut,
+        )
+    }
     private val scanSettle = DelayedAction()
 
     /** ログの書き込みは画面の処理を止めないよう別スレッドで行う。 */
@@ -81,7 +90,6 @@ class MimidukuAccessibilityService : AccessibilityService() {
         modeStore = usageModeStore(this)
         pauseStore = pauseStore(this)
         exclusionStore = exclusionStore(this)
-        planner = InterventionPlanner(exclusionStore)
         badgeSettings = badgeSettings(this)
         consentStore = consentStore(this)
         badgeNotification = BadgeNotification(this)
@@ -188,13 +196,8 @@ class MimidukuAccessibilityService : AccessibilityService() {
     private fun carryOut(plan: InterventionPlan) {
         when (plan) {
             is InterventionPlan.LogOnly -> record(plan.detection)
-            // 遷移先のブラウザのアドレスバーは、開いた直後は前のページのままのことがある。DOMAIN_SETTLE_MILLIS 待ってから
-            // 読み、登録済みのサイトなら確認を省く。ブラウザが前面でない・読めない場合は確認を出す。
-            is InterventionPlan.AwaitDomain ->
-                domainCheck.schedule(DOMAIN_SETTLE_MILLIS) {
-                    val domain = UrlBarReader.read(rootInActiveWindow, plan.browserPackage)
-                    carryOut(planner.afterDomain(plan.detection, domain))
-                }
+            // アドレスバーが落ち着くのを待ってから読み、登録済みのサイトなら確認を省く（待ちの扱いは DomainWait）。
+            is InterventionPlan.AwaitDomain -> domainWait.await(plan)
             is InterventionPlan.Present -> present(plan)
         }
     }
@@ -293,9 +296,6 @@ class MimidukuAccessibilityService : AccessibilityService() {
 
     companion object {
         private const val RULES_ASSET = "rules.json"
-
-        /** 外部遷移の直後、アドレスバーのドメインを読むまで待つ時間。 */
-        private const val DOMAIN_SETTLE_MILLIS = 1_000L
 
         fun detectionLog(context: Context) = DetectionLog(File(context.filesDir, DetectionLog.FILE_NAME))
 
