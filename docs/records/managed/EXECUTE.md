@@ -52,6 +52,8 @@
       残る）。1件目のバナーの「今後は確認しない」ではサイト名をボタンを押した時点で読む。
       (2) 待ち中に一時停止・同意の取り消しをすると、確認バナーもログも出なくなる（修正前は1件出ていた）。
       直し方の選択は BL-071 の既定値どおりで、(1) は確認を省かない側（FR-25 の「読めない場合は確認を出す」と同じ側）、(2) は FR-12 に揃えた。
+      補足（BL-080 で追記）。直前の BL-070 の記録にある「ドメイン待ちの予約は介入を行う関数の分岐の中に置いた」は本変更で改められ、
+      予約と待ちの管理は DomainWait へ移り、サービスの carryOut は InterventionPlan.AwaitDomain を DomainWait.await へ渡すだけになった。
     変更ファイル:
       - mobile/src/main/kotlin/com/mimiduku/mobile/service/DomainWait.kt
       - mobile/src/main/kotlin/com/mimiduku/mobile/service/OneShotTimer.kt
