@@ -4,6 +4,17 @@
 
 ## Unreleased
 
+- PR の作成と本文の編集をエージェントへ許可した（BL-084。ユーザーの決定「PRの作成はエージェントに実施させる」「gh pr edit も
+  許可でOK」を起票し、同じイテレーションで完了）。`.claude/settings.json` の `permissions.deny` から `gh pr create *` と
+  `gh pr edit *`（Bash・PowerShell）を外し、`.claude/hooks/guard-commands.py` の GH_WRITE の pr から `create`・`new`・`edit` を外した。
+  PR のマージ・クローズ・再開・コメント・レビュー・ready・update-branch・lock・revert と、Issue・release・workflow・repo などの書き込み、
+  `gh api` の書き込みは拒否のまま。自律ループ実行モード中は guardrails 12.2 で PR の作成・更新が禁止のままで、deny と hook は
+  モードを判別できないため、Skill `autonomous-loop` の終了時の報告の節に「ループ中は PR を作成・更新しない」を足して手順で守る
+  （`rules/` は変えていない）。Skill `pr-create` は BL-077 で足した「ユーザーが実行する」の記述を外し、エージェントが
+  `gh pr create` / `gh pr edit` を実行する形へ戻した（push は引き続きユーザー）。あわせて品質ゲート表の
+  `python scripts/scan-secrets.py --range main...HEAD` を `permissions.allow`（Bash・PowerShell、表の文字列と完全一致）へ足した。
+  CLAUDE.md と CONTRIBUTING.local.md（禁止操作の hook・配布物への固有の追記）を実態に合わせた。hook のテストは PR の作成・編集を
+  通過側へ移し、PR のクローズ・コメント・レビュー・ready と Issue の作成・編集を拒否側へ足して 216件（拒否 134・通過 82）がすべて成功
 - サブエージェントの起動確認を終えた（BL-078）。2026-11-13 のセッション（feature/loop-20261113-brushup）で、diff-reviewer・
   quality-gate-runner・backlog-implementer の3つとも Agent ツールから定義名で起動し、定義どおりの報告（重大度つきの指摘、
   ゲートごとの成否表、30行程度の実装報告）を返した（オーケストレータの確認）。frontmatter が効いていることは backlog-implementer

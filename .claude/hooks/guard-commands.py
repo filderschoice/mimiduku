@@ -15,8 +15,10 @@
 - 規定ブランチ（main / master）上での git commit・merge・cherry-pick・revert・am
 - 検証のバイパスとエイリアス経由の実行: `git -c core.hooksPath=...`、`git config` での core.hooksPath・alias.* の設定。
   `git -c alias.x=...` は展開して判定する
-- gh の書き込み: pr・issue の作成と更新、`gh api` の書き込み（`-X`/`--method` が GET 以外、または `-f`/`-F`/`--field`/
-  `--raw-field`/`--input` で本文を送る形）、release の作成・編集・削除、workflow run、pr update-branch など（GH_WRITE）
+- gh の書き込み: pr のマージ・クローズ・コメント・レビュー等と issue の作成と更新、`gh api` の書き込み（`-X`/`--method` が GET 以外、または `-f`/`-F`/`--field`/
+  `--raw-field`/`--input` で本文を送る形）、release の作成・編集・削除、workflow run、pr update-branch など（GH_WRITE）。
+  `gh pr create`（別名 `new`）と `gh pr edit` は通す（PR の作成・本文の編集はエージェントへ許可済み。自律ループ実行モード中に
+  実行しないことは Skill `autonomous-loop`・`pr-create` の手順で守る。hook はモードを判別できない）
 
 判定する書き方:
 
@@ -66,8 +68,9 @@ COMMIT_LIKE = {"commit", "merge", "cherry-pick", "revert", "am"}
 MAX_DEPTH = 8
 
 GH_WRITE = {
-    "pr": {"create", "new", "edit", "merge", "close", "reopen", "comment", "review", "ready", "lock", "unlock",
-           "update-branch", "revert"},
+    # pr の create・new・edit は通す（ユーザーの決定で PR の作成と本文の編集をエージェントへ許可した。
+    # 自律ループ実行モード中は guardrails 12.2 で禁止のままで、モードは hook で判別できないため手順で守る）
+    "pr": {"merge", "close", "reopen", "comment", "review", "ready", "lock", "unlock", "update-branch", "revert"},
     "issue": {"create", "new", "edit", "close", "reopen", "comment", "delete", "transfer", "pin", "unpin", "lock",
               "unlock", "develop"},
     "release": {"create", "new", "edit", "delete", "upload", "delete-asset"},
@@ -692,8 +695,8 @@ def check_gh(args: list[str]) -> str | None:
     if len(positional) >= 2 and group in GH_WRITE and positional[1][1] in GH_WRITE[group]:
         sub = positional[1][1]
         if group in ("pr", "issue"):
-            return (f"gh {group} {sub}（PR・Issue の作成と更新）はエージェントから実行しない（guardrails 12.2・"
-                    "BL-077）。本文をファイルへ用意し、コマンド例をユーザーへ提示すること")
+            return (f"gh {group} {sub}（PR のマージ・クローズ・コメント等と Issue の操作）はエージェントから実行しない"
+                    "（guardrails 12.2・BL-077）。コマンド例をユーザーへ提示すること")
         if group == "alias":
             return "gh のエイリアスの定義は判定のすり抜けにつながるため禁止（guardrails 12.2）"
         return (f"gh {group} {sub} は GitHub 上を変更する操作のためエージェントから実行しない（guardrails 12.2）。"

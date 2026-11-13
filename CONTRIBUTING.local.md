@@ -51,6 +51,9 @@
 - 限界（判定しない）: 変数・展開を経由する名前（`$GIT push`、`git $(echo push)`）、標準入力やファイルから読まれる引数と
   スクリプト（`echo push | xargs git`、`echo "git push" | bash`、`bash script.sh`）、gitconfig に定義済みのエイリアスと
   gh のエイリアス・拡張、`Start-Process`・`find -exec` など別プログラム経由の起動
+- 通すもの: `gh pr create`（別名 `new`）と `gh pr edit`。PR の作成と本文の編集はエージェントへ許可している（ユーザーの決定）。
+  自律ループ実行モード中は guardrails 12.2 で禁止のままで、hook はモードを判別できないため Skill `autonomous-loop`・
+  `pr-create` の手順で守る。PR のマージ・クローズ・再開・コメント・レビュー・ready・update-branch と Issue の書き込みは拒否する
 - 承知している誤止め: `gh api graphql` は読み取りでも POST で本文を送るため拒否する（読み取りは REST の GET で行う）
 - 判定中に例外が起きた場合は、コマンドに禁止操作の語（push・amend・commit・gh など）が含まれるときだけ「hook の判定に失敗
   したので安全側で止めた」と返して拒否し、それ以外は通す（hook の不具合で全コマンドが止まらないため）
@@ -118,5 +121,6 @@ python scripts/test-guard-commands.py
 | `.claude/skills/autonomous-loop/SKILL.md` | イテレーション手順7の `scripts/scan-secrets.py` の実行（BL-064） | 秘密情報スキャンの手段がリポジトリ固有のため |
 | `.claude/skills/autonomous-loop/SKILL.md` | イテレーション手順4・5と完了条件の「段階」の扱い（BL-079）、節「オーケストレータとサブエージェントの分担」（BL-068）、手順2の「同じコミットで削除するタスクは `進行中` への更新を省いてよい」（BL-083） | 品質ゲートの段階を CLAUDE.md で定めているため。定めの無い配布先では全ゲートになる書き方にしてある |
 | `.claude/settings.json`（マージ対象） | 品質ゲートの `permissions.allow`、`permissions.deny`、`hooks` | ADOPTION.md は `permissions.allow` のマージだけを述べるため、deny と hooks も残すことを明記する（BL-077） |
-| `.claude/skills/pr-create/SKILL.md` | 手順1・4の「本リポジトリ固有」の箇条（`gh pr create` 等はユーザーが実行する） | `.claude/settings.json` の deny と hooks で拒否しているため（BL-077） |
+| `.claude/skills/autonomous-loop/SKILL.md` | 終了時の報告の「ループ中は PR を作成・更新しない」段落 | `.claude/settings.json` と hook が `gh pr create` / `gh pr edit` を通しており、モードを判別できないため手順で守る |
+| `.claude/skills/pr-create/SKILL.md` | 手順1の、settings.json と hook が `gh pr create` / `gh pr edit` を通しループ中は手順で止める旨の記述 | PR の作成・本文の編集をエージェントへ許可したため（それ以外の gh の書き込みは拒否のまま） |
 | `scripts/validate-records.py` | `区分` の許容値、BACKLOG の `id` の重複、EXECUTE.md の必須キー・`date` の形式・配列で書くキーの検査（BL-069） | FORMAT.md の定義のうち配布元版が検査していなかったものを補うため。配布元版が同じ検査を持つようになったら配布元版へ寄せる |

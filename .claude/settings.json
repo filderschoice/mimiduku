@@ -15,6 +15,7 @@
       "Bash(npx markdownlint-cli2 \"**/*.md\" --config .markdownlint-cli2.yaml)",
       "Bash(python scripts/validate-records.py)",
       "Bash(python scripts/scan-secrets.py)",
+      "Bash(python scripts/scan-secrets.py --range main...HEAD)",
       "PowerShell(./gradlew ktlintCheck)",
       "PowerShell(./gradlew detekt)",
       "PowerShell(./gradlew --continue ktlintCheck detekt testGithubDebugUnitTest --console=plain)",
@@ -23,7 +24,8 @@
       "PowerShell(./gradlew testGithubDebugUnitTest testPlayDebugUnitTest)",
       "PowerShell(npx markdownlint-cli2 \"**/*.md\" --config .markdownlint-cli2.yaml)",
       "PowerShell(python scripts/validate-records.py)",
-      "PowerShell(python scripts/scan-secrets.py)"
+      "PowerShell(python scripts/scan-secrets.py)",
+      "PowerShell(python scripts/scan-secrets.py --range main...HEAD)"
     ],
     "deny": [
       "Bash(git push *)",
@@ -36,8 +38,6 @@
       "Bash(git branch --delete *)",
       "Bash(git tag -d *)",
       "Bash(git tag --delete *)",
-      "Bash(gh pr create *)",
-      "Bash(gh pr edit *)",
       "Bash(gh pr merge *)",
       "Bash(gh pr close *)",
       "Bash(gh pr reopen *)",
@@ -60,8 +60,6 @@
       "PowerShell(git branch --delete *)",
       "PowerShell(git tag -d *)",
       "PowerShell(git tag --delete *)",
-      "PowerShell(gh pr create *)",
-      "PowerShell(gh pr edit *)",
       "PowerShell(gh pr merge *)",
       "PowerShell(gh pr close *)",
       "PowerShell(gh pr reopen *)",
