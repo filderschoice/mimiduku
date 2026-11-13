@@ -5,6 +5,268 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- id: BL-077
+  区分: 品質ゲート
+  タスク内容: >-
+    `.claude/settings.json` の権限と hooks を見直す。現状は記録ファイル3つの Edit と docs/records の Read を許可するだけで、
+    guardrails 12.2 の禁止操作は指示文でしか担保されていない。提案は3つ。(1) permissions.deny に
+    `Bash(git push:*)`・`Bash(git commit --amend:*)`・`Bash(git rebase:*)`・`Bash(git reset --hard:*)`・`Bash(git branch -D:*)`・
+    `Bash(git tag -d:*)`・`Bash(gh pr create:*)` など PR・Issue の作成と更新を加える（PowerShell ツールにも同じ指定）。
+    (2) hooks の PreToolUse で、Bash・PowerShell のコマンドに `--no-verify`・`push`・`--force` が含まれたら拒否する
+    （deny のパターンで表せない引数の並びを補う）。PostToolUse で記録ファイルを編集したら `python scripts/validate-records.py` を実行する。
+    (3) permissions.allow に品質ゲートのコマンド（CLAUDE.md の品質ゲート表の各コマンドを完全一致で）を加え、確認の回数を減らす。
+  優先度: P2
+  状態: 要確認
+  担当: ユーザー
+  完了条件: >-
+    3つの提案それぞれの採否が決まり、採用分が settings.json に反映され、Claude Code の起動時に設定の読み込みエラーが出ないことを
+    確かめている。採用しなかった提案は理由が CHANGELOG.md に残っている。
+  依存: []
+  根拠: >-
+    権限の変更は共通規約で確認が必要な高リスク操作で、エージェントが自分の権限を変える判断はしないため要確認とした。
+    (1)(2) は既存の禁止を機械的に強制するだけで規範は変えない。(3) は許可を広げる変更で、Gradle の任意のタスクまで許可しないよう
+    コマンドを完全一致で書くのが既定案。
+- id: BL-076
+  区分: 品質ゲート
+  タスク内容: >-
+    GitHub Actions で品質ゲートを自動実行するかを決める。現状は `.github/workflows/` が無く、品質ゲートはエージェントと人の手元でしか
+    実行されない。既定案は、pull_request と main への push を契機に、CLAUDE.md の品質ゲート表のコマンド（ktlint・detekt・両方の版の
+    Android Lint・assembleDebug・両方の版の単体テスト・markdownlint・validate-records）を実行する1ジョブ。リポジトリの公開（BL-052）後に
+    予定している Dependabot の導入（CLAUDE.md の脆弱性チェック行）とあわせて判断する。
+  優先度: P3
+  状態: 要確認
+  担当: ユーザー
+  完了条件: >-
+    導入の可否と契機のイベントが決まり、導入する場合は人がワークフローを追加するか、エージェントに実装を任せる旨が記録されている。
+  依存: []
+  根拠: >-
+    CI/CD 定義の変更は guardrails 12.2 で自律ループ実行モードでは禁止のため要確認とした。非公開リポジトリでは Actions の無料枠を
+    消費する（課金に関わる）点も人の判断が要る。
+- id: BL-075
+  区分: 品質ゲート
+  タスク内容: >-
+    release 版の署名設定と版番号の運用を決める。現状は README.md「更新とロールバック」に「release 版の署名設定は未整備」とあり、
+    mobile/build.gradle.kts は versionCode = 1・versionName = "0.1.0" の固定で signingConfigs が無い。Play 版の申請（BL-031）には
+    アップロード鍵で署名した AAB が、GitHub 版の配布には自前の鍵で署名した APK が要る。既定案は、鍵ストアのパスとパスワードを
+    local.properties または環境変数から読み、無いときは release の署名を設定しない（ビルドは通る）形で、鍵ファイルが .gitignore の
+    `*.jks`・`*.keystore` で除外されていることを確かめる。versionCode の採番規則（例 リリースごとに1つ上げる）と、README の更新・
+    ロールバック手順への release 版の追記も含む。
+  優先度: P2
+  状態: 要確認
+  担当: ユーザー
+  完了条件: >-
+    鍵の作成者・保管場所と versionCode の規則が決まり、エージェントが実装できる指示（読み込み元のキー名と既定の挙動）が本項目へ
+    書かれている。鍵とパスワードはリポジトリにもプロンプトにも含まれていない。
+  依存: []
+  根拠: >-
+    鍵とパスワードは秘密情報で、guardrails 12.5 によりエージェントは取得・入力しない。鍵を失うと同じ applicationId で更新できなくなるため、
+    保管の方法は人が決める。
+- id: BL-074
+  区分: 不具合
+  タスク内容: >-
+    BL-055 でアクセシビリティ API の開示文（strings.xml の disclosure_body）にサイト名のハッシュと PIN で暗号化した控えの保存・
+    アドレスバーの読み取りを足したが、ConsentStore.CURRENT_VERSION は 1 のまま据え置いている。DESIGN.md の FR-20 は「文面を変えたら
+    上げて同意を取り直す」と定めており、現状は設計と食い違う。上げると既存の利用者は、開示を読み直して同意するまで保護が止まる
+    （サービスがイベントを処理しない）。上げるか、上げずに FR-20 の例外として理由を記録するかを決める。決まれば実装は版数の変更と
+    再同意の単体テストだけ。
+  優先度: P2
+  状態: 要確認
+  担当: ユーザー
+  完了条件: >-
+    方針が決まり、上げる場合は CURRENT_VERSION を 2 にして再同意の単体テスト・DESIGN.md・EXECUTE.md を更新している。上げない場合は
+    FR-20 の例外とその理由が DESIGN.md に記録されている。
+  依存: []
+  根拠: >-
+    開示と同意はプライバシーとストアのポリシー（目立つ開示）に関わり、既存の利用者の保護が一時的に止まる影響もあるため、エージェントは
+    判断せず要確認とした。BL-057 の本文で触れている判断を、実装できる単位として切り出した（BL-057 はストアの申告の確認として残す）。
+- id: BL-073
+  区分: 品質ゲート
+  タスク内容: >-
+    実機確認の素材と手順を再利用できる形で残す。2026-11-09 の確認（BL-009 の T9〜T11）では、スケアウェア文言のテストページを使い捨てで
+    作って `adb reverse` で配信し、確認後に削除している（docs/TESTING.md 4章の記録）。(1) テストページを
+    `tools/verification/scareware-page/index.html`（置き場所は既定値）として追加する。読み込み直後に文言を出す版、スクロールで出す版、
+    バナー外のリンク（T11）を含め、文言は rules.json の照合語から取る。外部への通信、実在のサイトや企業の名前・ロゴは含めない。
+    (2) docs/TESTING.md 2.2「準備」へ、PC で `python -m http.server` を起動し `adb reverse tcp:8000 tcp:8000` で端末の Chrome から開く
+    手順を足す。(3) プロジェクト固有スキル `.claude/skills/mimiduku-device-verification/SKILL.md` を作り、TESTING.md の項目と BACKLOG の
+    人手検証の対応、確認後に端末の設定（利用モード・PIN・バッジ）を元へ戻すこと、記録先（TESTING.md 4章と BACKLOG の根拠）、
+    ユーザー共通スキル adb-device-connection・verification-cost-control への参照をまとめる。
+  優先度: P3
+  状態: 未着手
+  担当: AIエージェント
+  完了条件: >-
+    テストページ・TESTING.md の手順・スキルが追加され、テストページの本文が ScarewareMatcher で警告の対象になることを単体テストで
+    確かめている（ページの本文をテストから読む形が既定）。全品質ゲートが成功する。端末での表示確認は各人手検証の実施時に行う。
+  依存: []
+  根拠: >-
+    広告画面を真似た検証用アプリ（BL-023 の P 系で使用）は、別モジュールの追加で settings.gradle.kts と品質ゲートの対象が増えるため
+    本タスクに含めない（必要になれば別に起票する）。テストページは端末内でだけ開くローカルの素材で、外部へ公開しない。
+- id: BL-072
+  区分: 品質ゲート
+  タスク内容: >-
+    LogRows（settings/LogRows.kt、検知ログを画面の行へ変える）に単体テストが無い。新しい順の並べ替え、アプリ名が取れないときの
+    パッケージ名への代替、遷移先が無い（スケアウェア）ときの null、DetectionKind 2種と InterventionAction 4種（SKIPPED_EXCLUDED を
+    含む）の文字列リソースの対応、ZoneId を指定した時刻の書式をテストする。when の網羅はコンパイラが保証するため、リソースの
+    取り違え（例 WARN_ONLY と ASK_USER の入れ替え）を検出できる期待値にする。
+  優先度: P3
+  状態: 未着手
+  担当: AIエージェント
+  完了条件: LogRowsTest が追加され、両方の版の単体テストを含む全品質ゲートが成功し、EXECUTE.md に記録されている
+  依存: []
+- id: BL-071
+  区分: 不具合
+  タスク内容: >-
+    サイトの除外の判定待ち（MimidukuAccessibilityService.deferForDomain、DOMAIN_SETTLE_MILLIS は1秒）の扱いを直す。コードを読んでの
+    所見で、実機では未確認。(1) 待っている間に次の確認対象の遷移が来ると、DelayedAction.schedule が前の予約を取り消すため、前の検知は
+    確認バナーもログも残らない（FR-8 の検知ログに反する）。(2) 待っている間に一時停止・同意の取り消しがあっても、1秒後に確認を出して
+    ログに残す（スケアウェアの settle は待機後に isPaused と hasConsented を確かめているが、こちらは確かめていない。FR-12）。
+    既定値として、(1) は前の保留をドメインを読まずにその場で確定させ（確認を出してログに残す）、(2) は待機後に一時停止中または
+    未同意なら何もしない。
+  優先度: P2
+  状態: 未着手
+  担当: AIエージェント
+  完了条件: >-
+    BL-070 で切り出したクラス（または待ちを管理するクラス）の単体テストで、1秒以内に2件の遷移が来たとき2件ともログに残ること、
+    待機中に一時停止したら確認もログも出ないことが確かめられ、全品質ゲートが成功する。DESIGN.md の FR-25 と EXECUTE.md を更新し、
+    docs/TESTING.md 2.9 に実機で確かめる項目を足している（実機確認は BL-056 の実施時に行い、BL-056 の完了条件は変えない）。
+  依存:
+    - BL-070
+  根拠: >-
+    (1) の既定値は「確認を省かない側」（保護を弱めない）で、出たバナーは次の遷移のバナーで置き換わるだけのため安全。
+    (2) は FR-12（停止中は検知も介入もしない）と settle の既存の扱いに揃えるもので、新しい仕様を足さない。
+- id: BL-070
+  区分: 品質ゲート
+  タスク内容: >-
+    MimidukuAccessibilityService（322行）に残る判断を Android 非依存のクラスへ移し、単体テストを足す。(1) intervene・present・
+    deferForDomain の分岐（アプリの除外ならログのみ、サイトの除外があればアドレスバーを待つ、BACK_AND_WARN なら戻る、ASK_USER なら
+    「今後は確認しない」を付ける）を、結果を表す値（ログのみ／ドメイン待ち／表示と戻る操作の有無と除外ボタンの有無）を返す
+    `InterventionPlanner`（service パッケージ。名前は既定値）へ移す。(2) process と scanSettle のコールバックで同じ形に書いている
+    シールド・案内パネル・バッジの同期を1つの関数へまとめる。挙動は変えない（暗黙の仕様変更をしない）。
+  優先度: P2
+  状態: 未着手
+  担当: AIエージェント
+  完了条件: >-
+    新しいクラスの単体テストで (1) の各分岐と版（FeatureSet）による違いが確かめられ、既存の ProtectionEngineTest を含む全品質ゲートが
+    成功する。DESIGN.md の設計方針（判定は Android 非依存のクラスに置く）へ新しいクラスを追記し、EXECUTE.md に記録している。
+  依存: []
+  根拠: >-
+    DESIGN.md の設計方針は判定を Android 非依存のクラスに置くと定めているが、FR-25 の追加でサービス側に分岐が増え、単体テストで
+    確かめられない範囲が広がった。BL-071 の修正をテストで固定する前提として先に行う。
+- id: BL-069
+  区分: 品質ゲート
+  タスク内容: >-
+    `scripts/validate-records.py` の検査を FORMAT.md の定義へ近づける。現状は BACKLOG の必須キー・優先度・状態・依存と改行コードだけを
+    検査し、(1) `区分` が FORMAT.md の6値以外、(2) `id` の重複、(3) EXECUTE.md の必須キー（date・summary・details の変更内容・
+    変更ファイル・検証コマンド・検証結果）の欠落と date の `YYYY-MM-DD HH:mm` 形式、(4) EXECUTE の `関連ID`・`変更ファイル` が配列で
+    あること、を検出しない。追加後に既存の記録が不合格になったら、記録側の誤りか検査の誤りかを見極めて直す。
+  優先度: P3
+  状態: 未着手
+  担当: AIエージェント
+  完了条件: >-
+    各検査の違反例（一時ファイルで作り、コミットしない）で終了コード1、現在の記録で終了コード0になる。スクリプト冒頭の説明に
+    追加した検査が書かれ、CHANGELOG.md に記録されている。
+  依存: []
+  根拠: >-
+    本スクリプトがガードレール配布元から取り込んだファイルかは未確認。配布元のファイルなら次回の取り込みで上書きされうるため、
+    取り込み時に差分として扱えるよう追加した検査を CHANGELOG.md に明記する。
+- id: BL-068
+  区分: 品質ゲート
+  タスク内容: >-
+    `.claude/skills/autonomous-loop/SKILL.md` に「オーケストレータとサブエージェントの分担」節を足す。現状の手順は1つのエージェントが
+    すべてを行う前提で、オーケストレータが作業管理だけを行い、タスクごとにサブエージェントへ実装を渡す運用の取り決めが無い。
+    含める内容は、タスクの渡し方（BACKLOG の id と完了条件、ブランチ名）、コミットするのはサブエージェント側であること、報告の形式と
+    行数、オーケストレータが行う最終確認（quality-gate-runner と diff-reviewer の起動）、サブエージェントは別のサブエージェントを
+    呼べないこと、状態を照会・停止できないバックグラウンド実行を使わないこと（ユーザー共通スキル managed-agent-execution）、
+    利用量の観点で1タスク1サブエージェントとし、1つの会話を長く続けないこと。
+  優先度: P2
+  状態: 未着手
+  担当: AIエージェント
+  完了条件: >-
+    節が追加され、記載したエージェント名が BL-065・BL-067 の定義ファイルと一致している。guardrails セクション12の規範を複製せず参照
+    している。Markdown lint が通り、CHANGELOG.md に記録されている。
+  依存:
+    - BL-065
+    - BL-067
+- id: BL-067
+  区分: 品質ゲート
+  タスク内容: >-
+    サブエージェント `.claude/agents/backlog-implementer.md` を定義する。BACKLOG の1タスクを受け取り、BL-066 のスキルに従って実装・
+    テストの追加・品質ゲート・記録ファイルの更新までを行い、自律ループ実行モード中に限り作業ブランチへ1コミットして、変更ファイル・
+    ゲートの結果・コミットのハッシュ・残課題を40行以内で返す。tools は Read・Edit・Write・Bash・Grep・Glob・Skill（Agent は与えず
+    再委譲させない）、model は inherit。本文には、禁止操作（guardrails 12.2）、コミット前の秘密情報スキャン（BL-064）、`要確認` を
+    自己解決しないこと、同一原因の失敗が3回続いたら止めて報告することを、規範の参照先とともに書く（本文へ規範を複製しない）。
+  優先度: P2
+  状態: 未着手
+  担当: AIエージェント
+  完了条件: >-
+    定義ファイルが frontmatter（name・description・model・tools）つきで追加され、tools に Agent が含まれていない。
+    CONTRIBUTING.local.md「ドキュメント構成（追加分）」の役割表に追記され、Markdown lint が通り、CHANGELOG.md に記録されている。
+  依存:
+    - BL-064
+    - BL-065
+    - BL-066
+  根拠: >-
+    model を inherit にしたのは、実装の判断を伴い軽量モデルへ固定すると品質が落ちるため。git 操作の可否は CLAUDE.md の差分表に従い、
+    エージェント定義で権限を広げない。
+- id: BL-066
+  区分: 品質ゲート
+  タスク内容: >-
+    プロジェクト固有スキル `.claude/skills/mimiduku-change/SKILL.md`（名前は既定値）を作り、本アプリへ機能追加・不具合修正・検知
+    ルールの更新を入れるときの手順と点検表をまとめる。現状は DESIGN.md「エージェント実装指示」・README.md「検知ルールの更新」・
+    strings.xml のコメント・docs/TESTING.md に分散し、毎回の再調査が要る。含める内容は、判定ロジックの置き場所（Android 非依存の
+    クラスと JVM の単体テスト、MemoryStringStore）、版による差は FeatureSet に項目を足すこと、rules.json と DetectionRules.DEFAULT の
+    同時更新と RulesLoaderTest、スケアウェア文言を足したら OwnTextScarewareTest、UrlBarIds の追加、文言は strings.xml のみ、
+    開示文を変えたら ConsentStore.CURRENT_VERSION と docs/PRIVACY.md・docs/PLAY_LISTING.md、実機確認が要るものは TESTING.md へ
+    項目を足して人手検証を起票すること、UI を変えたら docs/design/UI_DESIGN.html の追従の要否（ユーザー共通スキル ui-design-doc-html）、
+    記録ファイルの更新（DESIGN.md の FR の行と EXECUTE.md）。規範は既存ファイルを正本として参照し、本文へ複製しない。
+  優先度: P2
+  状態: 未着手
+  担当: AIエージェント
+  完了条件: >-
+    スキルが追加され、上記の各項目が参照先（ファイルと節）つきで載っている。description は常時読み込みのため300字程度に収める。
+    DESIGN.md「エージェント実装指示」から本スキルへの参照を足し、同じ規範が2か所に無いことを確かめている。Markdown lint が通り、
+    CHANGELOG.md に記録されている。
+  依存: []
+- id: BL-065
+  区分: 品質ゲート
+  タスク内容: >-
+    `.claude/agents/` を作り、読み取り中心のサブエージェントを2つ定義する。(1) quality-gate-runner。model は haiku、tools は Bash・Read・
+    Grep・Glob。CLAUDE.md「本リポジトリの品質ゲート定義」のコマンドを表の順に実行し、ゲートごとの成否と、失敗したものだけ先頭の
+    エラー（ファイル・行・ルール名）を30行以内で返す。ファイルを編集しない、失敗を直そうとしない、Gradle の出力全文を返さない。
+    コマンドは都度 CLAUDE.md から読み、定義へ複製しない。(2) diff-reviewer。model は sonnet、tools は Read・Grep・Glob・Bash
+    （git diff・git log・git show の読み取りに限ると本文で明記）。作業ブランチの差分を本アプリ固有の観点（判定は Android 非依存の
+    クラスと単体テスト、版の差は FeatureSet、rules.json と DetectionRules.DEFAULT の同時更新、文言は strings.xml のみ、開示文を
+    変えたら ConsentStore.CURRENT_VERSION、INTERNET 権限を足さない・画面の文字を保存しない、記録ファイルの FORMAT.md 準拠と
+    DESIGN.md の FR の更新）で点検し、指摘を重大度つきで返す。どちらも git add・git commit をしない。
+  優先度: P2
+  状態: 未着手
+  担当: AIエージェント
+  完了条件: >-
+    2つの定義ファイルが frontmatter（name・description・model・tools）つきで追加され、CONTRIBUTING.local.md「ドキュメント構成
+    （追加分）」に置き場所と役割が書かれている（CONTRIBUTING.md は配布元のファイルのため変えない）。quality-gate-runner を作業ブランチで
+    1回起動して全ゲートの成否表が返ることを確かめ、結果を CHANGELOG.md に記録している。Markdown lint が通る。
+  依存: []
+  根拠: >-
+    モデルの既定値は、定型の実行と要約は haiku（ユーザー共通スキル skill-model-pinning の「定型・判断材料が揃う」分類）、
+    レビューは判断を含むため sonnet とした。どちらも読み取り中心で、settings.json の権限は変えないため安全。
+- id: BL-064
+  区分: 品質ゲート
+  タスク内容: >-
+    コミット前の秘密情報スキャン（guardrails 12.1）を機械的に行う `scripts/scan-secrets.py` を追加する。現状は autonomous-loop の
+    手順7が「git status と git diff で検査する」とするだけで、目視と判断に依存している。ステージ済みの差分（`git diff --cached`。
+    オプションで未ステージも含める）の追加行から、秘密鍵のヘッダ、AWS・GitHub・Google の API キーの形式、storePassword・
+    keyPassword・password への代入、`.jks`・`.keystore`・`local.properties`・`.env` のファイル名を検出し、検出があれば終了コード1で
+    ファイル名と行番号を出す（値は伏せる）。標準ライブラリだけで書き、スクリプト自身の正規表現が自分に当たらないようにする。
+    CLAUDE.md の品質ゲート表へ1行足し、autonomous-loop の手順7から参照する。
+  優先度: P2
+  状態: 未着手
+  担当: AIエージェント
+  完了条件: >-
+    検出対象を含むダミーの差分（一時ディレクトリの使い捨てリポジトリで作り、コミットしない）で終了コード1、現在の差分で終了コード0に
+    なる。CLAUDE.md の品質ゲート表と autonomous-loop の手順7から参照され、Markdown lint が通り、CHANGELOG.md に記録されている。
+  依存: []
+  根拠: >-
+    gitleaks などの外部ツールは依存の追加で、利用者の環境へ入れる判断が要るため既定では使わない。validate-records.py と同じく
+    Python の標準ライブラリで足りる範囲に絞った。
 - id: BL-057
   区分: 人手検証
   タスク内容: >-
