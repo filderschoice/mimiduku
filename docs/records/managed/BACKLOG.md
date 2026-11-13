@@ -18,14 +18,17 @@
     （マージ済みか内容が包含済みかを確かめ、消す一覧をユーザーへ示して確認を取る。規定ブランチと現在のブランチは消さない）に
     従うことを CLAUDE.md の権限設定の節と CONTRIBUTING.local.md「禁止操作の hook」へ書き、hook のテストを通過側・拒否側へ直す。
     BL-084（PR の作成）と同じく rules/ は変えない。
+    2026-11-14 の自律ループで、deny の6件の削除、hook の変更（規定ブランチを対象にした削除は拒否のまま）、テスト 226件の成功、
+    CLAUDE.md・CONTRIBUTING.local.md・Skill autonomous-loop（ループ中はブランチを削除しない）の更新までを実施済み。
   優先度: P2
-  状態: 未着手
+  状態: 進行中
   担当: AIエージェント
   完了条件: >-
     エージェントの git branch -d / -D / --delete が deny と hook で止まらず、git branch -f・-M・-C、git tag -d、git push の削除形は
     拒否のままであることを hook のテストで確かめ、全件成功している。CLAUDE.md・CONTRIBUTING.local.md・CHANGELOG.md が実態と一致している。
     対話実行で、上記2ブランチを Skill prune-merged-branches の手順でユーザーの確認を取ったうえでエージェントが削除し、
-    git branch -vv に main と作業ブランチだけが残っている。
+    git branch -vv に main と作業ブランチだけが残っている。2ブランチの削除はループ中に行えない（guardrails 12.2）ため、
+    ループの終了後の対話実行で行う（未実施）。
   依存: []
   根拠: >-
     ユーザーの決定「ブランチの整理はエージェントで実施していい。自律ループの継続タスクとして整理して」（2026-11-14）。

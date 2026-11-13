@@ -69,6 +69,11 @@
 - 通すもの: `gh pr create`（別名 `new`）と `gh pr edit`。PR の作成と本文の編集はエージェントへ許可している（ユーザーの決定）。
   自律ループ実行モード中は guardrails 12.2 で禁止のままで、hook はモードを判別できないため Skill `autonomous-loop`・
   `pr-create` の手順で守る。PR のマージ・クローズ・再開・コメント・レビュー・ready・update-branch と Issue の書き込みは拒否する
+- 通すもの: 規定ブランチ（main / master）以外のローカルブランチの削除（`git branch -d` / `-D` / `--delete`）。ブランチの整理は
+  エージェントへ許可している（ユーザーの決定。BL-087）。消す前に Skill `prune-merged-branches` の手順でマージ済みか内容が
+  包含済みかを確かめ、消す一覧を示して確認を取る。自律ループ実行モード中は guardrails 12.2 で禁止のままで、Skill
+  `autonomous-loop` の手順で守る。上書き（`-f`・`-M`・`-C`）、`--force` 付きの削除、規定ブランチの削除、タグの削除、
+  `git push` によるリモートブランチの削除は拒否する
 - 承知している誤止め: `gh api graphql` は読み取りでも POST で本文を送るため拒否する（読み取りは REST の GET で行う）
 - 判定中に例外が起きた場合は、コマンドに禁止操作の語（push・amend・commit・gh など）が含まれるときだけ「hook の判定に失敗
   したので安全側で止めた」と返して拒否し、それ以外は通す（hook の不具合で全コマンドが止まらないため）
@@ -136,7 +141,7 @@ python scripts/test-guard-commands.py
 | `.claude/skills/autonomous-loop/SKILL.md` | イテレーション手順7の `scripts/scan-secrets.py` の実行（BL-064） | 秘密情報スキャンの手段がリポジトリ固有のため |
 | `.claude/skills/autonomous-loop/SKILL.md` | イテレーション手順4・5と完了条件の「段階」の扱い（BL-079）、節「オーケストレータとサブエージェントの分担」（BL-068）、手順2の「同じコミットで削除するタスクは `進行中` への更新を省いてよい」（BL-083） | 品質ゲートの段階を CLAUDE.md で定めているため。定めの無い配布先では全ゲートになる書き方にしてある |
 | `.claude/settings.json`（マージ対象） | 品質ゲートの `permissions.allow`、`permissions.deny`、`hooks` | ADOPTION.md は `permissions.allow` のマージだけを述べるため、deny と hooks も残すことを明記する（BL-077） |
-| `.claude/skills/autonomous-loop/SKILL.md` | 終了時の報告の「ループ中は PR を作成・更新しない」段落 | `.claude/settings.json` と hook が `gh pr create` / `gh pr edit` を通しており、モードを判別できないため手順で守る |
+| `.claude/skills/autonomous-loop/SKILL.md` | 終了時の報告の「ループ中は PR を作成・更新しない」段落と「ループ中はブランチを削除しない」の一文（BL-087） | `.claude/settings.json` と hook が `gh pr create` / `gh pr edit` とローカルブランチの削除を通しており、モードを判別できないため手順で守る |
 | `.claude/skills/pr-create/SKILL.md` | 手順1の、settings.json と hook が `gh pr create` / `gh pr edit` を通しループ中は手順で止める旨の記述 | PR の作成・本文の編集をエージェントへ許可したため（それ以外の gh の書き込みは拒否のまま） |
 | `.claude/skills/pr-create/SKILL.md` | 手順3の「本リポジトリ固有」の段落（PR の作成・更新の前に段階「最後」の全行を実行する） | CI を導入しないため、PR 作成前のフル検証が唯一の関門になる（BL-076） |
 | `scripts/validate-records.py` | `区分` の許容値、BACKLOG の `id` の重複、EXECUTE.md の必須キー・`date` の形式・配列で書くキーの検査（BL-069） | FORMAT.md の定義のうち配布元版が検査していなかったものを補うため。配布元版が同じ検査を持つようになったら配布元版へ寄せる |

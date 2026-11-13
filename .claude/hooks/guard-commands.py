@@ -11,7 +11,10 @@
 
 - git push（`--force` を含む全形）・send-pack、git rebase、git reset --hard、git commit --amend
 - `--no-verify`（git commit の `-n` を含む）、git の `--force` 系の長いオプション
-- git branch -d / -D / --delete / -f / -M / -C、git tag -d / --delete / -f（ブランチ・タグの削除と上書き）
+- git branch -f / -M / -C（ブランチの上書き）、規定ブランチ（main / master）を対象にした git branch -d / -D / --delete、
+  git tag -d / --delete / -f（タグの削除と上書き）。規定ブランチ以外のローカルブランチの削除は通す（BL-087。エージェントへ
+  許可済みで、Skill `prune-merged-branches` の手順で確認を取ってから消す。自律ループ実行モード中に実行しないことは
+  Skill `autonomous-loop` の手順で守る。hook はモードを判別できない）
 - 規定ブランチ（main / master）上での git commit・merge・cherry-pick・revert・am
 - 検証のバイパスとエイリアス経由の実行: `git -c core.hooksPath=...`、`git config` での core.hooksPath・alias.* の設定。
   `git -c alias.x=...` は展開して判定する
@@ -626,8 +629,14 @@ def check_git_sub(sub: str, rest: list[str], directory: str, state: dict, aliase
         return "--force 系のオプションは禁止（guardrails 12.2 の push・改変・削除の禁止を補う）"
     if sub == "commit" and any(abbrev_of(o, "--amend") for o in longs):
         return "git commit --amend は禁止（guardrails 12.2）。修正コミットを積むこと"
-    if sub == "branch" and (any(abbrev_of(o, "--delete") for o in longs) or shorts & set("dDfMC")):
-        return "ブランチの削除と上書き（-d・-D・-f・-M・-C）は禁止（guardrails 12.2）"
+    if sub == "branch" and shorts & set("fMC"):
+        return "ブランチの上書き（-f・-M・-C）は禁止（guardrails 12.2）"
+    if sub == "branch" and (any(abbrev_of(o, "--delete") for o in longs) or shorts & set("dD")):
+        # ローカルブランチの削除は対話実行で許可済み（BL-087）。規定ブランチの削除だけは止める
+        targets = [t.removeprefix("refs/heads/") for t in positional + (after or [])]
+        if any(t in DEFAULT_BRANCHES for t in targets):
+            return "規定ブランチ（main / master）の削除は禁止"
+        return None
     if sub == "tag" and (any(abbrev_of(o, "--delete") for o in longs) or shorts & set("df")):
         return "タグの削除と上書き（-d・-f）は禁止（guardrails 12.2）"
     if sub == "config":
