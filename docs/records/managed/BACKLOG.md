@@ -5,6 +5,34 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- id: BL-087
+  区分: 品質ゲート
+  タスク内容: >-
+    ローカルブランチの削除（整理）をエージェントへ許可する。現状は .claude/settings.json の permissions.deny に
+    git branch -D / -d / --delete（Bash・PowerShell）があり、.claude/hooks/guard-commands.py の branch の判定
+    （shorts に d・D・f・M・C、または --delete）が「ブランチの削除と上書きは禁止（guardrails 12.2）」で拒否するため、
+    2026-11-14 の整理で squash マージ済み・内容包含済みと確かめた docs/bl-024-play-submit-decision と
+    feature/loop-20261108-bl024-play-decision（10件とも feature/loop-20261113-brushup に包含）を消せなかった。
+    deny から git branch の -d・-D・--delete を外し、hook の判定から -d・-D・--delete を外す（-f・-M・-C の上書きと、
+    タグの削除、git push によるリモートブランチの削除は拒否のまま）。削除は Skill prune-merged-branches の手順
+    （マージ済みか内容が包含済みかを確かめ、消す一覧をユーザーへ示して確認を取る。規定ブランチと現在のブランチは消さない）に
+    従うことを CLAUDE.md の権限設定の節と CONTRIBUTING.local.md「禁止操作の hook」へ書き、hook のテストを通過側・拒否側へ直す。
+    BL-084（PR の作成）と同じく rules/ は変えない。
+  優先度: P2
+  状態: 未着手
+  担当: AIエージェント
+  完了条件: >-
+    エージェントの git branch -d / -D / --delete が deny と hook で止まらず、git branch -f・-M・-C、git tag -d、git push の削除形は
+    拒否のままであることを hook のテストで確かめ、全件成功している。CLAUDE.md・CONTRIBUTING.local.md・CHANGELOG.md が実態と一致している。
+    対話実行で、上記2ブランチを Skill prune-merged-branches の手順でユーザーの確認を取ったうえでエージェントが削除し、
+    git branch -vv に main と作業ブランチだけが残っている。
+  依存: []
+  根拠: >-
+    ユーザーの決定「ブランチの整理はエージェントで実施していい。自律ループの継続タスクとして整理して」（2026-11-14）。
+    既定値として、許可は対話実行に限り、自律ループ実行モード中は guardrails 12.2 の「ブランチ・タグの削除」の禁止に従って
+    削除しない（BL-084 と同じく deny と hook はモードを判別できないため、Skill autonomous-loop の手順で守る）。ループ中の削除まで
+    許可するには rules/guardrails-unified.v1.md 12.2 の変更が要り、10 章の重大変更の承認の扱いになるため本タスクに含めない。
+    ローカルブランチの削除は reflog から復元でき、リモートへ影響しないため、確認を挟めば対話実行での許可は許容できると判断した。
 - id: BL-085
   区分: 人手検証
   タスク内容: >-
