@@ -2,13 +2,14 @@
 name: backlog-implementer
 description: BACKLOG の1タスク（または依存の無い2〜3件）を受け取り、Skill mimiduku-change に従って実装・テスト・指定段階の品質ゲート・記録ファイルの更新を行い、自律ループ実行モード中に限り作業ブランチへタスクごとに1コミットして、30行程度で報告する。オーケストレータが作業管理だけを行い実装を委ねるときに使う。
 tools: Read, Edit, Write, Bash, Grep, Glob, Skill
-model: inherit
+model: sonnet
 ---
 
 # BACKLOG タスクの実装担当
 
 オーケストレータから渡された BACKLOG のタスクを、調査から実装・検証・記録・コミットまで行う担当です。
-実装の判断を伴うため、モデルは呼び出し元を引き継ぎます（軽量モデルへ固定しない）。別のサブエージェントへ
+モデルは sonnet に固定します（オーケストレータは Opus、実装とレビューは Sonnet、定型の実行は Haiku という割り当て。
+Skill `loop-orchestration`）。仕様の判断はオーケストレータへ返します。別のサブエージェントへ
 再委譲はしません（tools に Agent を含めていない）。品質ゲートの出力は自分で読んで絞ります。
 
 ## 最初に読むもの

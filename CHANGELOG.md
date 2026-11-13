@@ -4,6 +4,14 @@
 
 ## Unreleased
 
+- Skill `loop-orchestration` を足した（オーケストレータが作業管理だけを行い、実装・検証・レビューをサブエージェントへ委ねる
+  自律ループの進め方。2026-11-13〜14 のループの実績から、委任文の書き方、担当を順番に動かす進め方、ユーザーの判断の組み込み、
+  レビューから修正への流れ、利用上限で中断した担当の再開をまとめた）。あわせてモデルの割り当てを「オーケストレータは Opus、
+  実装とレビューのサブエージェントは Sonnet、定型の品質ゲート実行は Haiku」に整理し（ユーザーの決定「オーケストレーションは
+  Opus、サブエージェントは Sonnet」「コスト面も考慮して最適化してよい」）、`.claude/agents/` の `backlog-implementer` を
+  inherit から `model: sonnet` へ変えた。`diff-reviewer` は sonnet、`quality-gate-runner` は haiku のまま。Skill `autonomous-loop` の
+  分担の節と CONTRIBUTING.local.md の `.claude/agents/` の行に参照を足した。品質ゲートは Markdown の静的解析のみ実行
+
 - release 版の署名と版の管理を sesami-wear と同じ方式で入れた（BL-075。実施記録は EXECUTE.md）。鍵の作成・保管と release
   ビルドはユーザーが行い、手順は README.md「リリースビルド」、利用者向けの変更点は新しい docs/RELEASE_NOTES.md に記録する。
   鍵ストアの拡張子（.p12・.pfx・.bks）を .gitignore と scripts/scan-secrets.py に足した。実鍵での確認は BL-085（人手検証）
