@@ -26,17 +26,22 @@ Claude Code 固有の差分と追加規約です。全エージェント共通�
 - ローカル実行手順が未定義のゲートは「未定義（未確認）」と明記する。推測でコマンドを書かない。
 -->
 
-| ゲート | コマンド | 合否基準 |
-| --- | --- | --- |
-| コードスタイル（ktlint） | `./gradlew ktlintCheck` | 終了コード0 |
-| 静的解析（detekt） | `./gradlew detekt` | 終了コード0（`config/detekt/detekt.yml` の `maxIssues: 0`） |
-| Android Lint | `./gradlew lintGithubDebug lintPlayDebug` | 終了コード0（GitHub 版・Play 版の両方） |
-| 型検査・ビルド | `./gradlew assembleDebug` | 終了コード0（全ての版の debug をビルドする） |
-| 単体テスト | `./gradlew testGithubDebugUnitTest testPlayDebugUnitTest` | 全件成功（両方の版） |
-| 脆弱性チェック | （未導入。リポジトリの公開後に GitHub の Dependabot で依存の脆弱性を確認する想定） | 導入した場合は本行を実コマンドへ更新する |
-| Markdown の静的解析 | `npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml` | `Summary: 0 issues`、かつ出力の `Linting: N files` が `git ls-files --cached --others --exclude-standard "*.md"` の件数と一致（対象漏れの検出） |
-| 記録ファイルの検証 | `python scripts/validate-records.py`（PyYAMLが必要） | 終了コード0 |
-| 秘密情報スキャン | `git add` の後に `python scripts/scan-secrets.py`（ステージ済みの差分を検査） | 終了コード0 |
+| ゲート | 段階 | コマンド | 合否基準 |
+| --- | --- | --- | --- |
+| コードスタイル（ktlint） | 最後 | `./gradlew ktlintCheck` | 終了コード0 |
+| 静的解析（detekt） | 最後 | `./gradlew detekt` | 終了コード0（`config/detekt/detekt.yml` の `maxIssues: 0`） |
+| 軽い検証（Gradle） | コード | `./gradlew --continue ktlintCheck detekt testGithubDebugUnitTest --console=plain` | 終了コード0、かつ変更したコードのコンパイルとテストのタスクが実行されている（確かめ方は下記の参照先） |
+| Android Lint | 最後 | `./gradlew lintGithubDebug lintPlayDebug` | 終了コード0（GitHub 版・Play 版の両方） |
+| 型検査・ビルド | 最後 | `./gradlew assembleDebug` | 終了コード0（全ての版の debug をビルドする） |
+| 単体テスト | 最後 | `./gradlew testGithubDebugUnitTest testPlayDebugUnitTest` | 全件成功（両方の版） |
+| 脆弱性チェック | － | （未導入。リポジトリの公開後に GitHub の Dependabot で依存の脆弱性を確認する想定） | 導入した場合は本行を実コマンドへ更新する |
+| Markdown の静的解析 | 毎回 | `npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml` | `Summary: 0 issues`、かつ出力の `Linting: N files` が `git ls-files --cached --others --exclude-standard "*.md"` の件数と一致（対象漏れの検出） |
+| 記録ファイルの検証 | 毎回 | `python scripts/validate-records.py`（PyYAMLが必要） | 終了コード0 |
+| 秘密情報スキャン | 毎回 | `git add` の後に `python scripts/scan-secrets.py`（ステージ済みの差分を検査） | 終了コード0 |
+
+段階: `毎回` は全イテレーション、`コード` は Kotlin・Gradle（`mobile/`・`*.gradle.kts`・`gradle/`・`config/`）を
+変えたイテレーションで `毎回` に追加、`最後` は自律ループの最後と PR 作成前で、軽い検証を除く全行を実行する
+（対話実行での確認も全行が既定）。実測値・up-to-date の確かめ方・失う保証は `CONTRIBUTING.local.md`「品質ゲートの段階」。
 
 ## 記録ファイルの権限設定と禁止操作の強制（MUST）
 

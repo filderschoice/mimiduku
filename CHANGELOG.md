@@ -4,6 +4,19 @@
 
 ## Unreleased
 
+- 品質ゲートを段階に分けた（BL-079。ユーザーの提案「フル検証はループの最後に1回でよい」を受けて起票し、同じイテレーションで
+  完了）。CLAUDE.md の品質ゲート表へ「段階」列と軽い検証の行（`./gradlew --continue ktlintCheck detekt testGithubDebugUnitTest
+  --console=plain`）を加え、`毎回`（Markdown の静的解析・記録ファイルの検証・秘密情報スキャン）、`コード`（Kotlin・Gradle を変えた
+  イテレーションで軽い検証を追加）、`最後`（ループの最後と PR 作成前に全ゲート）とした。振り分けは実測で決めた。コード変更直後の
+  単独実行で ktlint 11.3秒・detekt 4.4秒・Android Lint 33.3秒・assembleDebug 12.9秒・両方の版の単体テスト 21.3秒・GitHub 版のみ
+  5.8秒、軽い検証の1回起動で 12.2〜20.6秒（フル検証は約83秒で Android Lint が支配的）。単体テストを GitHub 版にしたのは
+  `src/github` も含めてコンパイル対象が最も広いため。実測値・up-to-date で素通りしていないことの確かめ方・失う保証（途中の
+  コミットはフル検証済みでない、版の差と Android Lint の指摘が最後まで見つからない、amend・rebase 禁止のため修正コミットを積む）は
+  CONTRIBUTING.local.md「品質ゲートの段階」に置き、常時読み込みの CLAUDE.md は表の列と3行の説明だけ増やした。Skill
+  `autonomous-loop` の手順4・5と完了条件（段階の定めがあれば該当段階だけ、最後に全ゲート。定めが無ければ全ゲート）、
+  サブエージェント `quality-gate-runner`（段階の指定と、コンパイル・テストのタスクの UP-TO-DATE の報告）、`.claude/settings.json`
+  の allow（軽い検証のコマンド）を更新した。配布スキルへの固有の追記として CONTRIBUTING.local.md の表へ記載した。
+  guardrails 12.3 の停止条件は変えていない（最後の実行での失敗も同じ数え方）
 - `.claude/settings.json` の権限と hooks を見直した（BL-077）。ユーザーの決定は「deny と hooks を採用、allow は品質ゲートのみ」で、
   BL-077 の3提案はすべて採用した（不採用なし）。(1) `permissions.deny` に push・`commit --amend`・`commit --no-verify`・rebase・
   `reset --hard`・ブランチとタグの削除・gh の PR と Issue の作成と更新を Bash と PowerShell の両方で加えた。(2) PreToolUse の
