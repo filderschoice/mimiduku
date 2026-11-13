@@ -4,6 +4,14 @@
 
 ## Unreleased
 
+- `scripts/validate-records.py` の検査を FORMAT.md の定義へ近づけた（BL-069）。追加した検査は、(1) BACKLOG の `区分` が FORMAT.md の
+  6値（不具合・UX改善・機能追加・性能・品質ゲート・人手検証）のいずれか、(2) BACKLOG の `id` の重複、(3) EXECUTE.md の必須キー
+  （date・summary・details の変更内容・変更ファイル・検証コマンド・検証結果）と date の `YYYY-MM-DD HH:mm` 形式（秒つき・日付だけも
+  不合格）、(4) EXECUTE の `変更ファイル` と（ある場合の）`関連ID` が配列であること。既存の記録はすべて合格し、記録も検査も緩めずに
+  済んだ。記録ファイルの一時コピーへ違反を1つずつ入れて（区分・id 重複・date 欠落・date の形式3種・summary 欠落・検証コマンド欠落・
+  変更ファイルと関連ID が配列でない）終了コード1、元のコピーで0を確かめた。実行時間は約0.3秒で、記録ファイル編集後の hook への影響は
+  無視できる。本スクリプトは配布物（docs/guidelines/ADOPTION.md の表）のため、取り込みで上書きしないよう CONTRIBUTING.local.md
+  「配布物への固有の追記」へ行を足した
 - Skill `autonomous-loop` に節「オーケストレータとサブエージェントの分担」を追加した（BL-068）。役割の表（オーケストレータ・
   backlog-implementer・diff-reviewer・quality-gate-runner。名前は `.claude/agents/` の定義と一致）、渡し方（BACKLOG の id・ブランチ・
   ゲートの段階・報告の行数）、コミットは実装の担当が行うこと、サブエージェントは再委譲できないこと、管理できないバックグラウンド実行を

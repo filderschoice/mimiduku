@@ -86,7 +86,7 @@
 
 ### 配布物への固有の追記
 
-`docs/guidelines/ADOPTION.md`「3. 適用方式」で取り込む配布物（配布スキルと `.claude/settings.json`）のうち、次の箇所は本リポジトリ固有の追記です。
+`docs/guidelines/ADOPTION.md`「3. 適用方式」で取り込む配布物（配布スキル・`.claude/settings.json`・`scripts/`）のうち、次の箇所は本リポジトリ固有の追記です。
 配布元から取り込むときは配布元版で上書きせず、これらの追記を残すようにマージします。
 
 | ファイル | 固有の追記 | 理由 |
@@ -95,3 +95,4 @@
 | `.claude/skills/autonomous-loop/SKILL.md` | イテレーション手順4・5と完了条件の「段階」の扱い（BL-079）、節「オーケストレータとサブエージェントの分担」（BL-068） | 品質ゲートの段階を CLAUDE.md で定めているため。定めの無い配布先では全ゲートになる書き方にしてある |
 | `.claude/settings.json`（マージ対象） | 品質ゲートの `permissions.allow`、`permissions.deny`、`hooks` | ADOPTION.md は `permissions.allow` のマージだけを述べるため、deny と hooks も残すことを明記する（BL-077） |
 | `.claude/skills/pr-create/SKILL.md` | 手順1・4の「本リポジトリ固有」の箇条（`gh pr create` 等はユーザーが実行する） | `.claude/settings.json` の deny と hooks で拒否しているため（BL-077） |
+| `scripts/validate-records.py` | `区分` の許容値、BACKLOG の `id` の重複、EXECUTE.md の必須キー・`date` の形式・配列で書くキーの検査（BL-069） | FORMAT.md の定義のうち配布元版が検査していなかったものを補うため。配布元版が同じ検査を持つようになったら配布元版へ寄せる |
