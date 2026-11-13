@@ -4,6 +4,14 @@
 
 ## Unreleased
 
+- サブエージェント `.claude/agents/quality-gate-runner.md`（品質ゲートの実行と30行以内の合否表。haiku、tools は Bash・Read・
+  Grep・Glob）と `diff-reviewer.md`（本アプリ固有の観点での差分点検と重大度つきの指摘。sonnet、Bash は git の読み取りに限定）を
+  追加し、CONTRIBUTING.local.md「ドキュメント構成（追加分）」に置き場所と役割を書いた（BL-065）。どちらもコマンドや規範を複製せず
+  CLAUDE.md・DESIGN.md などの正本を参照する。定義はセッション開始時に読み込まれるため、追加した会話では起動できなかった
+  （Agent ツールに現れない）。代わりに haiku の汎用サブエージェントへ quality-gate-runner の定義を読ませて全ゲートを実行させ、
+  成否表（Gradle 系5件は成功（up-to-date）、脆弱性チェックは対象外、記録ファイル・秘密情報スキャンは成功）が返ることと、定義自身の
+  Markdown lint 違反（MD038、コード範囲の末尾空白）を検出できることを確かめ、その違反を直した。実際の定義での起動確認は BL-078 として
+  起票した。Kotlin・Gradle に触れないため、本イテレーションでの Gradle 系の再実行は上記以外に行っていない
 - コミット前の秘密情報スキャン `scripts/scan-secrets.py` を追加した（BL-064）。ステージ済みの差分（`--include-unstaged` で
   未ステージと未追跡も）の追加行から、秘密鍵の PEM ヘッダ・AWS／GitHub／Google のキーの形式・パスワードへのリテラル代入を、
   パスから `.jks`・`.keystore`・`local.properties`・`.env` を検出し、値を伏せてファイル名と行番号を出す（検出ありで終了コード1）。

@@ -5,6 +5,23 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- id: BL-078
+  区分: 品質ゲート
+  タスク内容: >-
+    BL-065 で追加したサブエージェント `.claude/agents/quality-gate-runner.md` と `diff-reviewer.md` を、定義を読み込んだ Claude Code の
+    セッションで実際に起動して確かめる。定義はセッションの開始時に読み込まれるため、追加した会話では Agent ツールに現れず
+    （`Agent type 'quality-gate-runner' not found`）、BL-065 では汎用のサブエージェントに定義ファイルを読ませて手順どおりに動くことだけを
+    確かめた。frontmatter の model・tools が効くこと（haiku・sonnet で動く、Edit・Write が使えない）は未確認。
+  優先度: P3
+  状態: 未着手
+  担当: AIエージェント
+  完了条件: >-
+    新しいセッションで quality-gate-runner を作業ブランチで1回起動して全ゲートの成否表が30行以内で返り、diff-reviewer を1回起動して
+    重大度つきの指摘（または指摘なし）が返ることを確かめ、結果を CHANGELOG.md に記録している。不具合があれば定義を直している。
+  依存: []
+  根拠: >-
+    BL-065 の完了条件のうち起動確認だけが追加した会話の中では満たせないため、定義の追加（BL-065）と分けた。分けたことで BL-067・
+    BL-068 が依存する定義ファイルの名前と置き場所は確定している。
 - id: BL-077
   区分: 品質ゲート
   タスク内容: >-
@@ -181,10 +198,9 @@
   状態: 未着手
   担当: AIエージェント
   完了条件: >-
-    節が追加され、記載したエージェント名が BL-065・BL-067 の定義ファイルと一致している。guardrails セクション12の規範を複製せず参照
+    節が追加され、記載したエージェント名が `.claude/agents/` の定義ファイル（BL-067 を含む）と一致している。guardrails セクション12の規範を複製せず参照
     している。Markdown lint が通り、CHANGELOG.md に記録されている。
   依存:
-    - BL-065
     - BL-067
 - id: BL-067
   区分: 品質ゲート
@@ -201,7 +217,6 @@
     定義ファイルが frontmatter（name・description・model・tools）つきで追加され、tools に Agent が含まれていない。
     CONTRIBUTING.local.md「ドキュメント構成（追加分）」の役割表に追記され、Markdown lint が通り、CHANGELOG.md に記録されている。
   依存:
-    - BL-065
     - BL-066
   根拠: >-
     model を inherit にしたのは、実装の判断を伴い軽量モデルへ固定すると品質が落ちるため。git 操作の可否は CLAUDE.md の差分表に従い、
@@ -225,28 +240,6 @@
     DESIGN.md「エージェント実装指示」から本スキルへの参照を足し、同じ規範が2か所に無いことを確かめている。Markdown lint が通り、
     CHANGELOG.md に記録されている。
   依存: []
-- id: BL-065
-  区分: 品質ゲート
-  タスク内容: >-
-    `.claude/agents/` を作り、読み取り中心のサブエージェントを2つ定義する。(1) quality-gate-runner。model は haiku、tools は Bash・Read・
-    Grep・Glob。CLAUDE.md「本リポジトリの品質ゲート定義」のコマンドを表の順に実行し、ゲートごとの成否と、失敗したものだけ先頭の
-    エラー（ファイル・行・ルール名）を30行以内で返す。ファイルを編集しない、失敗を直そうとしない、Gradle の出力全文を返さない。
-    コマンドは都度 CLAUDE.md から読み、定義へ複製しない。(2) diff-reviewer。model は sonnet、tools は Read・Grep・Glob・Bash
-    （git diff・git log・git show の読み取りに限ると本文で明記）。作業ブランチの差分を本アプリ固有の観点（判定は Android 非依存の
-    クラスと単体テスト、版の差は FeatureSet、rules.json と DetectionRules.DEFAULT の同時更新、文言は strings.xml のみ、開示文を
-    変えたら ConsentStore.CURRENT_VERSION、INTERNET 権限を足さない・画面の文字を保存しない、記録ファイルの FORMAT.md 準拠と
-    DESIGN.md の FR の更新）で点検し、指摘を重大度つきで返す。どちらも git add・git commit をしない。
-  優先度: P2
-  状態: 未着手
-  担当: AIエージェント
-  完了条件: >-
-    2つの定義ファイルが frontmatter（name・description・model・tools）つきで追加され、CONTRIBUTING.local.md「ドキュメント構成
-    （追加分）」に置き場所と役割が書かれている（CONTRIBUTING.md は配布元のファイルのため変えない）。quality-gate-runner を作業ブランチで
-    1回起動して全ゲートの成否表が返ることを確かめ、結果を CHANGELOG.md に記録している。Markdown lint が通る。
-  依存: []
-  根拠: >-
-    モデルの既定値は、定型の実行と要約は haiku（ユーザー共通スキル skill-model-pinning の「定型・判断材料が揃う」分類）、
-    レビューは判断を含むため sonnet とした。どちらも読み取り中心で、settings.json の権限は変えないため安全。
 - id: BL-057
   区分: 人手検証
   タスク内容: >-

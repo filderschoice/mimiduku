@@ -33,6 +33,7 @@
 | --- | --- | --- |
 | `docs/design/` | アプリの設計資料（MVP 設計・配布構成・UI デザイン設計書） | `MVP_DESIGN.md`、`DISTRIBUTION.md`、`UI_DESIGN.html` |
 | `docs/` 直下 | 利用者・検証・ストア掲載向けの文書 | `PRIVACY.md`、`TESTING.md`、`PLAY_LISTING.md` |
+| `.claude/agents/` | Claude Code のサブエージェント定義（読み取り中心。git の操作はしない） | `quality-gate-runner.md`（品質ゲートの実行と合否の要約。haiku）、`diff-reviewer.md`（本アプリ固有の観点での差分点検。sonnet） |
 
 ## その他の開発プロセス
 
