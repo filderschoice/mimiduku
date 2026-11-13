@@ -18,8 +18,11 @@ class ConsentStore(
     }
 
     companion object {
-        /** 開示文の版数。strings.xml の disclosure_* を変えたら上げる。 */
-        const val CURRENT_VERSION = 1
+        /**
+         * 開示文の版数。strings.xml の disclosure_* を変えたら上げる。
+         * 2 は BL-055 で足したサイト名のハッシュ・PIN で暗号化した控えの保存とアドレスバーの読み取りの開示（BL-074）。
+         */
+        const val CURRENT_VERSION = 2
         private const val KEY = "accessibility_consent_version"
     }
 }

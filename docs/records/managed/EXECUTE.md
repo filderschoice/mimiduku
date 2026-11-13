@@ -5,6 +5,35 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-11-13 18:09
+  summary: 開示文の版数 ConsentStore.CURRENT_VERSION を 1 から 2 へ上げ、旧版の同意で保護が動かないことを単体テストで確かめる（BL-074）
+  details:
+    変更内容: >-
+      ユーザーの決定「BL-074 は版数を上げる」に従い、ConsentStore.CURRENT_VERSION を 2 にした（BL-055 で開示文へ足したサイト名の
+      ハッシュ・PIN で暗号化した控えの保存とアドレスバーの読み取りに対する同意を取り直す。DESIGN.md の FR-20）。開示文の文面と
+      版数以外の挙動は変えていない。ConsentStoreTest を追加し、版 1 で同意済みの保存値では hasConsented が false（サービスの
+      protectionStopped が true になり、イベントを処理せずバッジも出さない）、accept の後は true で保存値が 2 になること、
+      版数が 2 であること、読めない保存値は同意とみなさないことを確かめた。既存の SettingsControllerTest
+      「a consent for an older disclosure version asks again」は CURRENT_VERSION - 1（今回から実際の旧版 1）で開示の再表示を
+      押さえている。再同意が要ることをリリースノートの原本（CHANGELOG.md の Unreleased）と DESIGN.md の FR-20 へ書き、
+      実機の再同意の流れを docs/TESTING.md 2.3 の T16 として BL-009 の確認範囲へ加えた。BL-057 の版数の記述を現状へ合わせた。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/mode/ConsentStore.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/mode/ConsentStoreTest.kt
+      - docs/TESTING.md
+      - CHANGELOG.md
+      - docs/records/managed/BACKLOG.md
+      - docs/records/managed/DESIGN.md
+      - docs/records/managed/EXECUTE.md
+    検証コマンド: >-
+      ./gradlew --continue ktlintCheck detekt testGithubDebugUnitTest --console=plain（軽い検証）、
+      npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml、python scripts/validate-records.py、python scripts/scan-secrets.py
+    検証結果: >-
+      成功 - 軽い検証は終了コード0で、compileGithubDebugKotlin・compileGithubDebugUnitTestKotlin・testGithubDebugUnitTest は
+      UP-TO-DATE でなく実行された。GitHub 版の単体テスト 225 件成功（ConsentStoreTest 4 件を含む）。Android Lint・assembleDebug・
+      Play 版の単体テストは段階「最後」のためこのイテレーションでは未実行。実機での再同意は未確認（BL-009 の T16）。
+    関連ID:
+      - BL-074
 - date: 2026-11-13 17:52
   summary: サイトの判定待ちの間に次の遷移が来ると前の検知がログに残らない不具合と、待機中の一時停止を見ていない点を直す（BL-071）
   details:
