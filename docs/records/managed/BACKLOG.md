@@ -145,26 +145,7 @@
   完了条件: >-
     節が追加され、記載したエージェント名が `.claude/agents/` の定義ファイル（BL-067 を含む）と一致している。guardrails セクション12の規範を複製せず参照
     している。Markdown lint が通り、CHANGELOG.md に記録されている。
-  依存:
-    - BL-067
-- id: BL-067
-  区分: 品質ゲート
-  タスク内容: >-
-    サブエージェント `.claude/agents/backlog-implementer.md` を定義する。BACKLOG の1タスクを受け取り、Skill `mimiduku-change` に従って実装・
-    テストの追加・品質ゲート・記録ファイルの更新までを行い、自律ループ実行モード中に限り作業ブランチへ1コミットして、変更ファイル・
-    ゲートの結果・コミットのハッシュ・残課題を40行以内で返す。tools は Read・Edit・Write・Bash・Grep・Glob・Skill（Agent は与えず
-    再委譲させない）、model は inherit。本文には、禁止操作（guardrails 12.2）、コミット前の秘密情報スキャン（`scripts/scan-secrets.py`）、`要確認` を
-    自己解決しないこと、同一原因の失敗が3回続いたら止めて報告することを、規範の参照先とともに書く（本文へ規範を複製しない）。
-  優先度: P2
-  状態: 未着手
-  担当: AIエージェント
-  完了条件: >-
-    定義ファイルが frontmatter（name・description・model・tools）つきで追加され、tools に Agent が含まれていない。
-    CONTRIBUTING.local.md「ドキュメント構成（追加分）」の役割表に追記され、Markdown lint が通り、CHANGELOG.md に記録されている。
   依存: []
-  根拠: >-
-    model を inherit にしたのは、実装の判断を伴い軽量モデルへ固定すると品質が落ちるため。git 操作の可否は CLAUDE.md の差分表に従い、
-    エージェント定義で権限を広げない。
 - id: BL-057
   区分: 人手検証
   タスク内容: >-
