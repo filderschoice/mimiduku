@@ -5,6 +5,44 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-11-13 18:19
+  summary: スケアウェア文言の実機確認用テストページ・TESTING.md の配信手順・実機確認スキルを追加し、ページの本文を単体テストで確かめる（BL-073）
+  details:
+    変更内容: >-
+      (1) tools/verification/scareware-page/ に index.html（読み込み直後に警告の文言）・scroll.html（下までスクロールすると template の中身を
+      差し込む）・safe.html（T11 のリンク先、文言なし）を追加した。文言は rules.json の照合語（your device is infected・ウイルスに感染・
+      virus detected・ウイルスを検出）だけを使った架空のもので、実在の名前・ロゴ・電話番号、外部の画像・スクリプト・リンクは無い。
+      mobile/ の外に置くため APK に入らない（置き場所は BACKLOG の既定値）。(2) ScarewarePageTest を追加し、index.html の表示文字が
+      DetectionRules.DEFAULT で一致すること、scroll.html は読み込み直後に一致せず template の中身は一致すること、safe.html は一致しない
+      ことを確かめる（コメント・head・script・template を除いてタグを外した文字で照合）。(3) docs/TESTING.md 2.2 に手順3として、
+      python -m http.server を 127.0.0.1 だけで待ち受けて adb reverse tcp:8000 tcp:8000 で端末の Chrome から開く手順と後片付けを足し、
+      T9 の手順をテストページへ向け、1章の一覧へ ScarewarePageTest を足した。(4) プロジェクト固有スキル mimiduku-device-verification を
+      作成した（BACKLOG の人手検証と TESTING.md の節の対応、入れる版、素材、検知ログをテキストで読む方法、元へ戻すこと、記録先）。
+      adb 接続と利用量の抑え方はユーザー共通スキル adb-device-connection・verification-cost-control を参照し、複製していない。
+      全体を通して実機で使っていないことをスキル内に明記した。mimiduku-change の3章から新しいスキルを参照した。DESIGN.md の FR-4 へ
+      テストページとテストを足した。
+    変更ファイル:
+      - tools/verification/scareware-page/index.html
+      - tools/verification/scareware-page/scroll.html
+      - tools/verification/scareware-page/safe.html
+      - mobile/src/test/kotlin/com/mimiduku/mobile/rules/ScarewarePageTest.kt
+      - docs/TESTING.md
+      - .claude/skills/mimiduku-device-verification/SKILL.md
+      - .claude/skills/mimiduku-change/SKILL.md
+      - docs/records/managed/BACKLOG.md
+      - docs/records/managed/DESIGN.md
+      - docs/records/managed/EXECUTE.md
+    検証コマンド: >-
+      ./gradlew --continue ktlintCheck detekt testGithubDebugUnitTest --console=plain（軽い検証）、
+      python -m http.server 8765 --bind 127.0.0.1 --directory tools/verification/scareware-page と curl での取得、
+      npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml、python scripts/validate-records.py、python scripts/scan-secrets.py
+    検証結果: >-
+      成功 - 軽い検証は compileGithubDebugUnitTestKotlin と testGithubDebugUnitTest が UP-TO-DATE ではなく実行され、GitHub 版 235件
+      （うち ScarewarePageTest 3件）成功・失敗0。PC 上の配信で3ページとも HTTP 200。端末の Chrome での表示と警告の確認、adb reverse
+      経由の配信は未確認（実機を操作しないため。BL-009 の T9〜T11 の実施時に確かめる）。Play 版の単体テストと Android Lint・
+      assembleDebug は段階「最後」のためループの最後の全ゲートで確かめる（本イテレーションでは未実行）。
+    関連ID:
+      - BL-073
 - date: 2026-11-13 18:16
   summary: ログ閲覧画面の行への変換 LogRows の単体テスト LogRowsTest を追加する（BL-072）
   details:

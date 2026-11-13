@@ -39,7 +39,7 @@ Skill `autonomous-loop` が正本です。
 単体テストで確かめられない挙動（AccessibilityService のイベント、オーバーレイの表示、他アプリへの遷移）は、
 `docs/TESTING.md` 2章へ確認項目（No・手順・期待値）を足し、BACKLOG へ `区分: 人手検証` で起票します（既存の人手検証項目へ
 足すなら、その項目の完了条件は変えずに TESTING.md の節を参照させる）。自律ループ実行モードでは実機確認を完了判定から除き、
-確認の実施は実装とセッションを分けます（Skill `autonomous-loop`「利用量を抑える」）。
+確認の実施は実装とセッションを分けます（Skill `autonomous-loop`「利用量を抑える」）。実施の手順は Skill `mimiduku-device-verification`。
 
 ## 4. 品質ゲートと記録
 
