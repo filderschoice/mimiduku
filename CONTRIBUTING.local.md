@@ -38,6 +38,20 @@
 
 ## その他の開発プロセス
 
+### CI を導入しない
+
+品質ゲートを自動実行する CI（GitHub Actions など）は導入しません（BL-076 のユーザーの決定。GitHub Actions のコストを
+かけず、ローカルでの品質ゲートの実行で対応する）。`.github/workflows/` は置きません。
+
+- そのため、PR 作成前のフル検証（`CLAUDE.md` の品質ゲート表の段階「最後」の全行）が、main へ入る前の唯一の関門です。
+  PR を作成・更新する前に必ず実行し、結果を PR 本文のチェックリストへ反映します（Skill `pr-create` 手順3）。
+  自律ループ実行モードでは、ループの最後のコミットの状態で全ゲートを実行します（Skill `autonomous-loop` の完了条件）
+- 人が手元でコミット・マージするときも、同じ段階「最後」のコマンドを実行します
+- 失う保証: 手元の環境（JDK・Android SDK・Gradle のキャッシュ）に依存した成功を検出できない。実行を忘れた変更を
+  機械的に止める仕組みは無い（PR のレビューで品質ゲートの結果を確かめる）
+- 依存の脆弱性の確認（`CLAUDE.md` の脆弱性チェック行）は、リポジトリの公開後に GitHub の Dependabot を使う想定のままで、
+  CI の導入とは別に判断する
+
 ### 禁止操作の hook
 
 `.claude/hooks/guard-commands.py` は、エージェントの**誤操作を止める安全網**です（BL-077・BL-082）。意図的な回避まで防ぐ
@@ -123,4 +137,5 @@ python scripts/test-guard-commands.py
 | `.claude/settings.json`（マージ対象） | 品質ゲートの `permissions.allow`、`permissions.deny`、`hooks` | ADOPTION.md は `permissions.allow` のマージだけを述べるため、deny と hooks も残すことを明記する（BL-077） |
 | `.claude/skills/autonomous-loop/SKILL.md` | 終了時の報告の「ループ中は PR を作成・更新しない」段落 | `.claude/settings.json` と hook が `gh pr create` / `gh pr edit` を通しており、モードを判別できないため手順で守る |
 | `.claude/skills/pr-create/SKILL.md` | 手順1の、settings.json と hook が `gh pr create` / `gh pr edit` を通しループ中は手順で止める旨の記述 | PR の作成・本文の編集をエージェントへ許可したため（それ以外の gh の書き込みは拒否のまま） |
+| `.claude/skills/pr-create/SKILL.md` | 手順3の「本リポジトリ固有」の段落（PR の作成・更新の前に段階「最後」の全行を実行する） | CI を導入しないため、PR 作成前のフル検証が唯一の関門になる（BL-076） |
 | `scripts/validate-records.py` | `区分` の許容値、BACKLOG の `id` の重複、EXECUTE.md の必須キー・`date` の形式・配列で書くキーの検査（BL-069） | FORMAT.md の定義のうち配布元版が検査していなかったものを補うため。配布元版が同じ検査を持つようになったら配布元版へ寄せる |

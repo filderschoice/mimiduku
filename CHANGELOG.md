@@ -4,6 +4,12 @@
 
 ## Unreleased
 
+- CI を導入しないと決めた（BL-076 を閉じた。ユーザーの決定「CI を導入しない、GitHub Actionのコストではなく、ローカルでの
+  品質ゲートチェックで対応する」）。`.github/workflows/` は作らない。決定と、CI が無い前提で失う保証（手元の環境に依存した成功を
+  検出できない、実行忘れを機械的に止められない）を CONTRIBUTING.local.md「CI を導入しない」へ書いた。PR 作成前のフル検証が
+  main へ入る前の唯一の関門になるため、Skill `pr-create` 手順3に「PR の作成・更新の前に、PR に含める最後のコミットの状態で
+  段階『最後』の全行を実行する」を足した（Skill `autonomous-loop` の完了条件は既に最後のコミットでの全ゲートを定めており変更なし）。
+  脆弱性チェック（Dependabot）は公開後の想定のままで、CI とは別に判断する
 - PR の作成と本文の編集をエージェントへ許可した（BL-084。ユーザーの決定「PRの作成はエージェントに実施させる」「gh pr edit も
   許可でOK」を起票し、同じイテレーションで完了）。`.claude/settings.json` の `permissions.deny` から `gh pr create *` と
   `gh pr edit *`（Bash・PowerShell）を外し、`.claude/hooks/guard-commands.py` の GH_WRITE の pr から `create`・`new`・`edit` を外した。
