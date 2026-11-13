@@ -5,7 +5,99 @@
       "Edit(docs/records/managed/BACKLOG.md)",
       "Edit(docs/records/managed/DESIGN.md)",
       "Edit(docs/records/managed/EXECUTE.md)",
-      "Read(docs/records/**)"
+      "Read(docs/records/**)",
+      "Bash(./gradlew ktlintCheck)",
+      "Bash(./gradlew detekt)",
+      "Bash(./gradlew lintGithubDebug lintPlayDebug)",
+      "Bash(./gradlew assembleDebug)",
+      "Bash(./gradlew testGithubDebugUnitTest testPlayDebugUnitTest)",
+      "Bash(npx markdownlint-cli2 \"**/*.md\" --config .markdownlint-cli2.yaml)",
+      "Bash(python scripts/validate-records.py)",
+      "Bash(python scripts/scan-secrets.py)",
+      "PowerShell(./gradlew ktlintCheck)",
+      "PowerShell(./gradlew detekt)",
+      "PowerShell(./gradlew lintGithubDebug lintPlayDebug)",
+      "PowerShell(./gradlew assembleDebug)",
+      "PowerShell(./gradlew testGithubDebugUnitTest testPlayDebugUnitTest)",
+      "PowerShell(npx markdownlint-cli2 \"**/*.md\" --config .markdownlint-cli2.yaml)",
+      "PowerShell(python scripts/validate-records.py)",
+      "PowerShell(python scripts/scan-secrets.py)"
+    ],
+    "deny": [
+      "Bash(git push *)",
+      "Bash(git commit --amend *)",
+      "Bash(git commit --no-verify *)",
+      "Bash(git rebase *)",
+      "Bash(git reset --hard *)",
+      "Bash(git branch -D *)",
+      "Bash(git branch -d *)",
+      "Bash(git branch --delete *)",
+      "Bash(git tag -d *)",
+      "Bash(git tag --delete *)",
+      "Bash(gh pr create *)",
+      "Bash(gh pr edit *)",
+      "Bash(gh pr merge *)",
+      "Bash(gh pr close *)",
+      "Bash(gh pr reopen *)",
+      "Bash(gh pr comment *)",
+      "Bash(gh pr review *)",
+      "Bash(gh pr ready *)",
+      "Bash(gh issue create *)",
+      "Bash(gh issue edit *)",
+      "Bash(gh issue close *)",
+      "Bash(gh issue reopen *)",
+      "Bash(gh issue comment *)",
+      "Bash(gh issue delete *)",
+      "PowerShell(git push *)",
+      "PowerShell(git commit --amend *)",
+      "PowerShell(git commit --no-verify *)",
+      "PowerShell(git rebase *)",
+      "PowerShell(git reset --hard *)",
+      "PowerShell(git branch -D *)",
+      "PowerShell(git branch -d *)",
+      "PowerShell(git branch --delete *)",
+      "PowerShell(git tag -d *)",
+      "PowerShell(git tag --delete *)",
+      "PowerShell(gh pr create *)",
+      "PowerShell(gh pr edit *)",
+      "PowerShell(gh pr merge *)",
+      "PowerShell(gh pr close *)",
+      "PowerShell(gh pr reopen *)",
+      "PowerShell(gh pr comment *)",
+      "PowerShell(gh pr review *)",
+      "PowerShell(gh pr ready *)",
+      "PowerShell(gh issue create *)",
+      "PowerShell(gh issue edit *)",
+      "PowerShell(gh issue close *)",
+      "PowerShell(gh issue reopen *)",
+      "PowerShell(gh issue comment *)",
+      "PowerShell(gh issue delete *)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"${CLAUDE_PROJECT_DIR}/.claude/hooks/guard-commands.py\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"${CLAUDE_PROJECT_DIR}/.claude/hooks/validate-records-after-edit.py\"",
+            "timeout": 60
+          }
+        ]
+      }
     ]
   }
 }

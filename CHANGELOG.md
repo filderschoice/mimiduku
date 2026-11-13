@@ -4,6 +4,22 @@
 
 ## Unreleased
 
+- `.claude/settings.json` の権限と hooks を見直した（BL-077）。ユーザーの決定は「deny と hooks を採用、allow は品質ゲートのみ」で、
+  BL-077 の3提案はすべて採用した（不採用なし）。(1) `permissions.deny` に push・`commit --amend`・`commit --no-verify`・rebase・
+  `reset --hard`・ブランチとタグの削除・gh の PR と Issue の作成と更新を Bash と PowerShell の両方で加えた。(2) PreToolUse の
+  `.claude/hooks/guard-commands.py` がコマンドをシェルの語に分解して判定し、deny の先頭一致で漏れる書き方（`git -C . push`、
+  `git commit -m x --amend`、`-nm` の束、`$(...)` の中、PowerShell の `& git.exe push`）、`--force` 系のオプション、規定ブランチ
+  （main・master）上での commit・merge・cherry-pick・revert・am を拒否する。コミットメッセージ・ヒアドキュメント・PowerShell の
+  ヒア文字列の本文は判定しない。PostToolUse の `.claude/hooks/validate-records-after-edit.py` は記録ファイル3つの Edit・Write の後だけ
+  `scripts/validate-records.py` を実行し、失敗を終了コード2と標準エラーで Claude へ返す。(3) `permissions.allow` に品質ゲート表の
+  コマンドを完全一致で加えた（秘密情報スキャンを含む）。gh の PR 作成・更新を拒否したため Skill `pr-create` を「本文の用意まで
+  エージェント、コマンドはユーザーが実行」へ改め、CLAUDE.md の節「記録ファイルの権限設定と禁止操作の強制」と
+  CONTRIBUTING.local.md（`.claude/hooks/` の行、配布物への固有の追記の表）を実態に合わせた。検証は、フックへ標準入力で JSON を渡す
+  55件（拒否28・通過27。通過側に「push」「rebase」「--no-verify」を本文に含むコミットメッセージとヒアドキュメントを含む）がすべて
+  期待どおりで、使い捨てリポジトリの main 上の commit・merge・`-C` 指定が拒否され、壊した記録ファイルの複製で検証フックが
+  終了コード2と理由を返すことを確かめた。実際の push 等は実行していない。`claude doctor` で問題の報告は無かった。対象外としたもの:
+  `gh api` による書き込みと `gh release`（BL-077 の範囲外）、`sh -c "git push"` のような別プロセス経由の実行（フックの判定外。
+  deny も同様で、公式ドキュメントのとおりセキュリティ境界ではない）
 - プロジェクト固有スキル `.claude/skills/mimiduku-change/SKILL.md` を追加した（BL-066）。本アプリへ機能追加・不具合修正・検知ルールや
   文言の変更を入れるときに、変更の種類ごと（判定・版の差・検知ルール・スケアウェア文言・アドレスバー・文言・開示文・保存する情報・UI）に
   守ることと正本（DESIGN.md の節と FR、README.md、strings.xml のコメント、テストの KDoc、docs/TESTING.md・PRIVACY.md・PLAY_LISTING.md）を

@@ -38,10 +38,17 @@ Claude Code 固有の差分と追加規約です。全エージェント共通�
 | 記録ファイルの検証 | `python scripts/validate-records.py`（PyYAMLが必要） | 終了コード0 |
 | 秘密情報スキャン | `git add` の後に `python scripts/scan-secrets.py`（ステージ済みの差分を検査） | 終了コード0 |
 
-## 記録ファイルの権限設定（MUST）
+## 記録ファイルの権限設定と禁止操作の強制（MUST）
 
-`docs/records/managed/` 配下の3ファイルは `.claude/settings.json` の `permissions.allow` により権限プロンプトなしで
-編集できます（妥当性はコミット前の差分確認と `FORMAT.md` 準拠で担保する）。それ以外の編集は確認を挟みます。
+`.claude/settings.json` の内容です（BL-077。変更は確認を挟む高リスク操作として扱う）。
+
+- `permissions.allow`: `docs/records/managed/` 配下の3ファイルの編集と、上表の品質ゲートのコマンド（表の文字列と完全一致の
+  ときだけ。オプションやパイプを足すと確認を挟む）。それ以外の編集・コマンドは確認を挟む
+- `permissions.deny`: guardrails 12.2 の禁止操作（push・amend・rebase・reset --hard・ブランチとタグの削除・`--no-verify`・
+  gh による PR と Issue の作成・更新）。Bash と PowerShell の両方。PR の作成・更新はユーザーが実行する（Skill `pr-create`）
+- hooks: PreToolUse の `.claude/hooks/guard-commands.py` が deny の先頭一致で漏れる書き方（`git -C . push` 等）と、
+  規定ブランチ上でのコミットを語として判定して拒否する。PostToolUse の `.claude/hooks/validate-records-after-edit.py` が
+  記録ファイルの編集後に `scripts/validate-records.py` を実行し、失敗を理由つきで返す
 
 <!-- 配布バンドルの .claude/settings.json は記録ファイル関連の許可のみを含む。本リポジトリ固有の許可を追加する
 場合は、確認を挟まずに編集させてよい範囲かを判断してから permissions.allow へ追記する。 -->

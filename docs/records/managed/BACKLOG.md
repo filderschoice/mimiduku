@@ -22,27 +22,6 @@
   根拠: >-
     BL-065 の完了条件のうち起動確認だけが追加した会話の中では満たせないため、定義の追加（BL-065）と分けた。分けたことで BL-067・
     BL-068 が依存する定義ファイルの名前と置き場所は確定している。
-- id: BL-077
-  区分: 品質ゲート
-  タスク内容: >-
-    `.claude/settings.json` の権限と hooks を見直す。現状は記録ファイル3つの Edit と docs/records の Read を許可するだけで、
-    guardrails 12.2 の禁止操作は指示文でしか担保されていない。提案は3つ。(1) permissions.deny に
-    `Bash(git push:*)`・`Bash(git commit --amend:*)`・`Bash(git rebase:*)`・`Bash(git reset --hard:*)`・`Bash(git branch -D:*)`・
-    `Bash(git tag -d:*)`・`Bash(gh pr create:*)` など PR・Issue の作成と更新を加える（PowerShell ツールにも同じ指定）。
-    (2) hooks の PreToolUse で、Bash・PowerShell のコマンドに `--no-verify`・`push`・`--force` が含まれたら拒否する
-    （deny のパターンで表せない引数の並びを補う）。PostToolUse で記録ファイルを編集したら `python scripts/validate-records.py` を実行する。
-    (3) permissions.allow に品質ゲートのコマンド（CLAUDE.md の品質ゲート表の各コマンドを完全一致で）を加え、確認の回数を減らす。
-  優先度: P2
-  状態: 要確認
-  担当: ユーザー
-  完了条件: >-
-    3つの提案それぞれの採否が決まり、採用分が settings.json に反映され、Claude Code の起動時に設定の読み込みエラーが出ないことを
-    確かめている。採用しなかった提案は理由が CHANGELOG.md に残っている。
-  依存: []
-  根拠: >-
-    権限の変更は共通規約で確認が必要な高リスク操作で、エージェントが自分の権限を変える判断はしないため要確認とした。
-    (1)(2) は既存の禁止を機械的に強制するだけで規範は変えない。(3) は許可を広げる変更で、Gradle の任意のタスクまで許可しないよう
-    コマンドを完全一致で書くのが既定案。
 - id: BL-076
   区分: 品質ゲート
   タスク内容: >-
