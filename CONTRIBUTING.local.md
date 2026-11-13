@@ -32,7 +32,8 @@
 | パス | 役割 | 詳細 |
 | --- | --- | --- |
 | `docs/design/` | アプリの設計資料（MVP 設計・配布構成・UI デザイン設計書） | `MVP_DESIGN.md`、`DISTRIBUTION.md`、`UI_DESIGN.html` |
-| `docs/` 直下 | 利用者・検証・ストア掲載向けの文書 | `PRIVACY.md`、`TESTING.md`、`PLAY_LISTING.md` |
+| `docs/` 直下 | 利用者・検証・ストア掲載向けの文書 | `PRIVACY.md`、`TESTING.md`、`PLAY_LISTING.md`、`RELEASE_NOTES.md`（利用者向けの版ごとの変更点。BL-075） |
+| `scripts/` の release 用 | release ビルドと版の管理（sesami-wear と同じ方式。実行はユーザー） | `release-build.bat`・`release-build.ps1`、`version.properties`（現在の versionCode・versionName）。手順は README.md「リリースビルド」 |
 | `.claude/agents/` | Claude Code のサブエージェント定義（コミットするのは backlog-implementer だけで、自律ループ実行モード中に限る） | `quality-gate-runner.md`（品質ゲートの実行と合否の要約。haiku）、`diff-reviewer.md`（本アプリ固有の観点での差分点検。sonnet）、`backlog-implementer.md`（BACKLOG のタスクの実装・記録・1タスク1コミット。inherit） |
 | `.claude/hooks/` | `.claude/settings.json` から呼ぶ Claude Code の hooks（Python・標準ライブラリのみ） | `guard-commands.py`（禁止操作の拒否。テストは `scripts/test-guard-commands.py`）、`validate-records-after-edit.py`（記録ファイル編集後の検証）。説明は `CLAUDE.md`「記録ファイルの権限設定と禁止操作の強制」と本ファイル「禁止操作の hook」 |
 

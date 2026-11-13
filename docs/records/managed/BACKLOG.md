@@ -5,25 +5,26 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
-- id: BL-075
-  区分: 品質ゲート
+- id: BL-085
+  区分: 人手検証
   タスク内容: >-
-    release 版の署名設定と版番号の運用を決める。現状は README.md「更新とロールバック」に「release 版の署名設定は未整備」とあり、
-    mobile/build.gradle.kts は versionCode = 1・versionName = "0.1.0" の固定で signingConfigs が無い。Play 版の申請（BL-031）には
-    アップロード鍵で署名した AAB が、GitHub 版の配布には自前の鍵で署名した APK が要る。既定案は、鍵ストアのパスとパスワードを
-    local.properties または環境変数から読み、無いときは release の署名を設定しない（ビルドは通る）形で、鍵ファイルが .gitignore の
-    `*.jks`・`*.keystore` で除外されていることを確かめる。versionCode の採番規則（例 リリースごとに1つ上げる）と、README の更新・
-    ロールバック手順への release 版の追記も含む。
+    BL-075 で入れた release 署名と版の管理を、ユーザーが作成した実際の鍵で確かめる。README.md「リリースビルド」の手順で鍵を作って
+    リポジトリの外へ保管し、local.properties へ RELEASE_STORE_FILE・RELEASE_STORE_PASSWORD・RELEASE_KEY_ALIAS・RELEASE_KEY_PASSWORD を書き、
+    scripts/release-build.bat を実行する。エージェントは鍵とパスワードを扱わず、release ビルドを実行しないため未確認。
   優先度: P2
-  状態: 要確認
+  状態: 未着手
   担当: ユーザー
   完了条件: >-
-    鍵の作成者・保管場所と versionCode の規則が決まり、エージェントが実装できる指示（読み込み元のキー名と既定の挙動）が本項目へ
-    書かれている。鍵とパスワードはリポジトリにもプロンプトにも含まれていない。
+    scripts/release-build.bat が成功し、GitHub 版の APK（mobile-github-release.apk）と Play 版の AAB（mobile-play-release.aab）が
+    作られ、keytool -printcert -jarfile で両方の証明書の SHA-256 が作った鍵のものと一致し、scripts/version.properties の VERSION_CODE が
+    1つ上がっている。GitHub 版の APK を端末へ入れて起動できる。鍵と local.properties が git status に現れない（追跡されない）。
   依存: []
   根拠: >-
-    鍵とパスワードは秘密情報で、guardrails 12.5 によりエージェントは取得・入力しない。鍵を失うと同じ applicationId で更新できなくなるため、
-    保管の方法は人が決める。
+    鍵とパスワードは秘密情報で、guardrails 12.5 によりエージェントは作成・入力しないため、実際の鍵での確認は人手検証とした。
+    既定値の根拠: 鍵は1つを GitHub 版の配布鍵と Play 版のアップロード鍵に兼用する（sesami-wear と同じ1組のキー名で、鍵の管理を
+    1つにするため。アップロード鍵は Play App Signing の配信鍵とは別で、失ってもリセットを依頼できる）。版は両方の版で共通の1系列
+    （applicationId が異なり衝突しないため）。scripts/version.properties は現在の値 VERSION_CODE=1 で始めるため、既定の実行では最初の
+    配布が versionCode 2 になる（1 にしたい場合は -VersionCode 1 を指定する。どちらも現在値より小さくならない）。
 - id: BL-057
   区分: 人手検証
   タスク内容: >-
@@ -151,12 +152,14 @@
   区分: 人手検証
   タスク内容: >-
     Play 版を Google Play Console へ登録・申請する（アクセシビリティの申告フォーム、開示を映した動画、データセーフティ、
-    対象年齢、プライバシーポリシーの URL、リスティング）。審査の結果を記録する
+    対象年齢、プライバシーポリシーの URL、リスティング）。審査の結果を記録する。申請する AAB は、BL-085 で確かめた手順
+    （README.md「リリースビルド」の scripts/release-build.bat）で作る Play 版の署名つき AAB（mobile-play-release.aab）を使う
   優先度: P3
   状態: 未着手
   担当: ユーザー
   完了条件: 審査の結果（承認・却下とその理由）が記録されている
-  依存: []
+  依存:
+    - BL-085
   根拠: >-
     Play Console への登録・申請は外部への発信で、Google アカウントと開発者登録が要るため人が行う。
     2026-11-08 に公開判断（BL-024）として、事前相談をせず先に申請し、審査で未確認点（`docs/design/DISTRIBUTION.md` 6章）を

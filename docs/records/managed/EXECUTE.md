@@ -5,6 +5,54 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-11-13 23:55
+  summary: release 署名と版の管理を sesami-wear と同じ方式で入れ、鍵ストアの追加を秘密情報スキャンで検出する（BL-075）
+  details:
+    変更内容: >-
+      ユーザーの決定「鍵をユーザーが作成・保管する」「versionCode は既存の規則を維持し sesami-wear を前提にする」により実装した。
+      sesami-wear はビルドスクリプト・.gitignore・README・scripts だけを読み取り（鍵や値の入ったファイルは開いていない）、同じ方式に
+      揃えた。(1) mobile/build.gradle.kts は local.properties（.gitignore の対象）の RELEASE_STORE_FILE・RELEASE_STORE_PASSWORD・
+      RELEASE_KEY_ALIAS・RELEASE_KEY_PASSWORD を読み、RELEASE_STORE_FILE があるときだけ signingConfigs の release を作って release
+      ビルドへ設定する（無ければ署名なし。debug と品質ゲートは影響なし）。GitHub 版・Play 版は同じ鍵で署名する。versionCode・versionName は
+      -PappVersionCode・-PappVersionName で上書きでき、既定は従来の 1・0.1.0。(2) scripts/version.properties（VERSION_CODE=1・
+      VERSION_NAME=0.1.0）と scripts/release-build.bat・release-build.ps1 を追加した。versionCode を1つ上げて（指定時はその値、
+      現在値より小さければ中止）assembleGithubRelease と bundlePlayRelease を実行し、成功したときだけ version.properties を LF で更新する。
+      sesami-wear との違いは、wear の別系列（1001始まり）が無く両方の版で共通の1系列であること、現在値より小さい指定を止める検査を
+      足したこと。(3) .gitignore に *.p12・*.pfx・*.bks を足し、scripts/scan-secrets.py の鍵ストアのファイル名の規則を
+      jks・keystore に p12・pfx・bks を加えた形にした。(4) README.md に「リリースビルド」（鍵の作成と保管、local.properties のキー、
+      版の上げ方、成果物、署名の確かめ方）を書き、更新とロールバックの release 版の記述を直した。sesami-wear と同じ構成で
+      docs/RELEASE_NOTES.md（位置づけと運用ルール。配布前のため記録なし）を追加した。CONTRIBUTING.local.md の文書構成と DESIGN.md の
+      FR-19・運用制約を更新した。実際の鍵での release ビルドの確認は BL-085（人手検証）として起票し、BL-031 の依存へ加えた。
+      Gradle プラグインと依存の追加は無い。鍵の作成・入力と release ビルドは行っていない。
+    変更ファイル:
+      - mobile/build.gradle.kts
+      - scripts/version.properties
+      - scripts/release-build.bat
+      - scripts/release-build.ps1
+      - scripts/scan-secrets.py
+      - .gitignore
+      - README.md
+      - docs/RELEASE_NOTES.md
+      - CONTRIBUTING.local.md
+      - CHANGELOG.md
+      - docs/records/managed/BACKLOG.md
+      - docs/records/managed/DESIGN.md
+      - docs/records/managed/EXECUTE.md
+    検証コマンド: >-
+      ./gradlew --continue ktlintCheck detekt testGithubDebugUnitTest --console=plain（軽い検証）、
+      ./gradlew --rerun-tasks --continue ktlintCheck detekt lintGithubDebug lintPlayDebug assembleDebug testGithubDebugUnitTest
+      testPlayDebugUnitTest --console=plain（フル検証。強制再実行）、一時リポジトリの空ファイルでの python scripts/scan-secrets.py、
+      git check-ignore -v、PowerShell の構文解析（release-build.ps1。実行はしない）、npx markdownlint-cli2 "**/*.md" --config
+      .markdownlint-cli2.yaml、python scripts/validate-records.py、python scripts/test-guard-commands.py、python scripts/scan-secrets.py、
+      python scripts/scan-secrets.py --range main...HEAD
+    検証結果: >-
+      成功 - フル検証は BUILD SUCCESSFUL（強制再実行。ktlint の main・test・スクリプトの検査が実行された）、単体テストは GitHub 版 238件・
+      Play 版 238件がすべて成功。一時リポジトリでは .jks・.KEYSTORE・.p12・.pfx・.bks の空ファイルの追加を5件とも検出して終了コード1、
+      p12.txt・jks.kt・keystore-guide.md などでは検出なしの0。local.properties と各鍵ストアの拡張子が .gitignore で除外されることを確認。
+      release-build.ps1 は構文エラー0。markdownlint 0件、記録ファイルの検証・hook のテスト 216件・秘密情報スキャンは成功。
+      実際の鍵での release ビルドと署名の確認は未確認（BL-085 の人手検証）。
+    関連ID:
+      - BL-075
 - date: 2026-11-13 18:52
   summary: サービスの終了時にサイトの判定待ちだった検知を、バナーを出さずに検知ログへ残す（BL-081）
   details:

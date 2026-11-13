@@ -12,7 +12,8 @@ guardrails 12.1 の「コミット前に秘密情報スキャンを実行し、�
 - Google の API キーの形式（`AIza` で始まる39文字）
 - storePassword・keyPassword・password への文字列リテラルの代入
   （設定ファイル形式の拡張子では、引用符の無い値の代入も対象）
-- ファイル名が `.jks`・`.keystore`・`local.properties`・`.env`・`.env.*` のファイル（`.gitignore` と同じ対象）
+- ファイル名が `.jks`・`.keystore`・`.p12`・`.pfx`・`.bks`（鍵ストア。大文字小文字を区別しない。BL-075 で release 署名の
+  鍵を扱うため PKCS#12 と BKS を足した）・`local.properties`・`.env`・`.env.*` のファイル（`.gitignore` と同じ対象）
 
 検出したらファイル名・行番号・規則名を出力し、値そのものは出力しない（ログへの再露出を防ぐ）。
 正規表現は文字クラスや連結で組み立てており、本スクリプト自身の追加行には一致しない。
@@ -59,7 +60,7 @@ UNQUOTED_PASSWORD = re.compile(r"""(?i)^\s*(store|key)?password\s*[:=]\s*[^\s"'$
 
 # ファイル名の規則。`.gitignore` の資格情報の節と揃える。
 FILE_NAME_RULES = [
-    ("鍵ストアのファイル", re.compile(r"\.(jks|keystore)$", re.I)),
+    ("鍵ストアのファイル", re.compile(r"\.(jks|keystore|p12|pfx|bks)$", re.I)),
     ("local.properties", re.compile(r"^local\.properties$")),
     ("環境変数ファイル", re.compile(r"^\.env(\..+)?$")),
 ]

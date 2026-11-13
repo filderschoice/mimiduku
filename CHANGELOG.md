@@ -4,6 +4,9 @@
 
 ## Unreleased
 
+- release 版の署名と版の管理を sesami-wear と同じ方式で入れた（BL-075。実施記録は EXECUTE.md）。鍵の作成・保管と release
+  ビルドはユーザーが行い、手順は README.md「リリースビルド」、利用者向けの変更点は新しい docs/RELEASE_NOTES.md に記録する。
+  鍵ストアの拡張子（.p12・.pfx・.bks）を .gitignore と scripts/scan-secrets.py に足した。実鍵での確認は BL-085（人手検証）
 - CI を導入しないと決めた（BL-076 を閉じた。ユーザーの決定「CI を導入しない、GitHub Actionのコストではなく、ローカルでの
   品質ゲートチェックで対応する」）。`.github/workflows/` は作らない。決定と、CI が無い前提で失う保証（手元の環境に依存した成功を
   検出できない、実行忘れを機械的に止められない）を CONTRIBUTING.local.md「CI を導入しない」へ書いた。PR 作成前のフル検証が
