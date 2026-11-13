@@ -23,6 +23,7 @@
 | `PinPolicyTest` | どの操作で PIN を求めるか、照合結果の文言 |
 | `PauseStoreTest` | 一時停止の期限・時刻の巻き戻し・再起動後の保持・破損した保存値 |
 | `SettingsControllerTest` | 設定画面の操作の流れ（画面間の移動、PIN の要求、モード切替、一時停止、ログの閲覧と消去、バッジ） |
+| `LogRowsTest` | ログ閲覧画面の行（新しい順、アプリ名が無いときのパッケージ名、スケアウェアの遷移先なし、検知の種類・介入の内容と文言の対応、時刻の書式とタイムゾーン） |
 | `AdScreenDetectorTest` | 広告 SDK の Activity 名と文言の重みによる広告画面の判定 |
 | `CountdownParserTest` | 残り秒数の読み取り、案内パネルの文言 |
 | `ShieldTimerTest` | タップシールドを張る条件と60秒の上限 |

@@ -5,6 +5,30 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-11-13 18:16
+  summary: ログ閲覧画面の行への変換 LogRows の単体テスト LogRowsTest を追加する（BL-072）
+  details:
+    変更内容: >-
+      LogRowsTest を追加した（本体は変えていない）。新しい順の並べ替え、アプリ名が取れないときのパッケージ名への代替（遷移元・遷移先の
+      両方）、遷移先の無いスケアウェアの行で targetApp が null、DetectionKind 2種と InterventionAction 4種（SKIPPED_EXCLUDED を含む）が
+      それぞれの文字列リソースへ対応すること（全値を列挙して期待値の表と突き合わせるため、WARN_ONLY と ASK_USER の入れ替えのような
+      取り違えも失敗になる）、UTC と Asia/Tokyo で同じ時刻が別の表示になる書式、空のログで行が無いことを確かめる7件。テストを書く中で
+      本体の不具合は見つからなかった。docs/TESTING.md 1章のテスト一覧と DESIGN.md の FR-13 へ LogRowsTest を足した。
+    変更ファイル:
+      - mobile/src/test/kotlin/com/mimiduku/mobile/settings/LogRowsTest.kt
+      - docs/TESTING.md
+      - docs/records/managed/BACKLOG.md
+      - docs/records/managed/DESIGN.md
+      - docs/records/managed/EXECUTE.md
+    検証コマンド: >-
+      ./gradlew --continue ktlintCheck detekt testGithubDebugUnitTest --console=plain（軽い検証）、
+      npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml、python scripts/validate-records.py、python scripts/scan-secrets.py
+    検証結果: >-
+      成功 - 軽い検証は1回目に ktlint・detekt の行長の指摘（LogRowsTest の2行）で失敗し、直して成功。compileGithubDebugUnitTestKotlin と
+      testGithubDebugUnitTest は UP-TO-DATE ではなく実行され、GitHub 版 232件（うち LogRowsTest 7件）成功・失敗0。Play 版の単体テストと
+      Android Lint・assembleDebug は段階「最後」のためループの最後の全ゲートで確かめる（本イテレーションでは未実行）。
+    関連ID:
+      - BL-072
 - date: 2026-11-13 18:09
   summary: 開示文の版数 ConsentStore.CURRENT_VERSION を 1 から 2 へ上げ、旧版の同意で保護が動かないことを単体テストで確かめる（BL-074）
   details:
