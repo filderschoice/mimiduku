@@ -192,7 +192,7 @@
     サブエージェント `.claude/agents/backlog-implementer.md` を定義する。BACKLOG の1タスクを受け取り、BL-066 のスキルに従って実装・
     テストの追加・品質ゲート・記録ファイルの更新までを行い、自律ループ実行モード中に限り作業ブランチへ1コミットして、変更ファイル・
     ゲートの結果・コミットのハッシュ・残課題を40行以内で返す。tools は Read・Edit・Write・Bash・Grep・Glob・Skill（Agent は与えず
-    再委譲させない）、model は inherit。本文には、禁止操作（guardrails 12.2）、コミット前の秘密情報スキャン（BL-064）、`要確認` を
+    再委譲させない）、model は inherit。本文には、禁止操作（guardrails 12.2）、コミット前の秘密情報スキャン（`scripts/scan-secrets.py`）、`要確認` を
     自己解決しないこと、同一原因の失敗が3回続いたら止めて報告することを、規範の参照先とともに書く（本文へ規範を複製しない）。
   優先度: P2
   状態: 未着手
@@ -201,7 +201,6 @@
     定義ファイルが frontmatter（name・description・model・tools）つきで追加され、tools に Agent が含まれていない。
     CONTRIBUTING.local.md「ドキュメント構成（追加分）」の役割表に追記され、Markdown lint が通り、CHANGELOG.md に記録されている。
   依存:
-    - BL-064
     - BL-065
     - BL-066
   根拠: >-
@@ -248,25 +247,6 @@
   根拠: >-
     モデルの既定値は、定型の実行と要約は haiku（ユーザー共通スキル skill-model-pinning の「定型・判断材料が揃う」分類）、
     レビューは判断を含むため sonnet とした。どちらも読み取り中心で、settings.json の権限は変えないため安全。
-- id: BL-064
-  区分: 品質ゲート
-  タスク内容: >-
-    コミット前の秘密情報スキャン（guardrails 12.1）を機械的に行う `scripts/scan-secrets.py` を追加する。現状は autonomous-loop の
-    手順7が「git status と git diff で検査する」とするだけで、目視と判断に依存している。ステージ済みの差分（`git diff --cached`。
-    オプションで未ステージも含める）の追加行から、秘密鍵のヘッダ、AWS・GitHub・Google の API キーの形式、storePassword・
-    keyPassword・password への代入、`.jks`・`.keystore`・`local.properties`・`.env` のファイル名を検出し、検出があれば終了コード1で
-    ファイル名と行番号を出す（値は伏せる）。標準ライブラリだけで書き、スクリプト自身の正規表現が自分に当たらないようにする。
-    CLAUDE.md の品質ゲート表へ1行足し、autonomous-loop の手順7から参照する。
-  優先度: P2
-  状態: 未着手
-  担当: AIエージェント
-  完了条件: >-
-    検出対象を含むダミーの差分（一時ディレクトリの使い捨てリポジトリで作り、コミットしない）で終了コード1、現在の差分で終了コード0に
-    なる。CLAUDE.md の品質ゲート表と autonomous-loop の手順7から参照され、Markdown lint が通り、CHANGELOG.md に記録されている。
-  依存: []
-  根拠: >-
-    gitleaks などの外部ツールは依存の追加で、利用者の環境へ入れる判断が要るため既定では使わない。validate-records.py と同じく
-    Python の標準ライブラリで足りる範囲に絞った。
 - id: BL-057
   区分: 人手検証
   タスク内容: >-
