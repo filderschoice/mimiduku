@@ -65,6 +65,7 @@ BL-025・BL-031・BL-038・BL-052・BL-057 は TESTING.md の節を持たない�
   ```
 
   `kind`（EXTERNAL_TRANSITION・SCAREWARE）と `action`（BACK_AND_WARN・WARN_ONLY・ASK_USER・SKIPPED_EXCLUDED）を期待値と照らす。
+  サービスの終了時に残した行（TESTING.md の X16）は `action` が ASK_USER のままで `"recordedAtServiceEnd":true` が付く（通常の行には付かない）。
   画面の文字や URL が含まれていないこと（TESTING.md 2.8）もこの出力で確かめる。
 - バナーの文言・ボタンの有無は、バナーが消える前に取る必要がある（2026-11-08 の T3 は消えた後で目視できず、ログで代替した）。
   画面の取得は `verification-cost-control` の方法で最小限にする。

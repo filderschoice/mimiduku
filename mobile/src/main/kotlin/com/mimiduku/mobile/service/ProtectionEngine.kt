@@ -70,6 +70,12 @@ data class Detection(
     /** 除外に当たるため確認を省いたものに変える（ログの介入は [InterventionAction.SKIPPED_EXCLUDED]）。 */
     fun asSkipped() =
         copy(skipConfirmation = true, logEntry = logEntry.copy(action = InterventionAction.SKIPPED_EXCLUDED))
+
+    /**
+     * サービスの終了時に記録したものに変える（ログの [DetectionLogEntry.recordedAtServiceEnd] を立てる。介入の種別は
+     * 変えない。BL-086）。
+     */
+    fun atServiceEnd() = copy(logEntry = logEntry.copy(recordedAtServiceEnd = true))
 }
 
 /**

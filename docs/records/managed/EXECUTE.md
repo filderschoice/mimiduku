@@ -5,6 +5,56 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-11-14 00:15
+  summary: サービスの終了時に残す検知ログの行を、種別は ASK_USER のまま印で見分けてログの画面に「保護の終了時のため確認なし」と出す（BL-086）。鍵の兼用をユーザーの決定として記録する（BL-085）
+  details:
+    変更内容: >-
+      (1) BL-086。ユーザーの決定「(b) 種別はそのまま、文言で分かるようにする」により実装した。既存の項目（日時・パッケージ名・種類・
+      ルール ID・介入・直前のクリック・利用モード）は確認バナーを出した通常の ASK_USER の行と同じ値になり区別できないため、
+      DetectionLogEntry へ省略可能な真偽値 recordedAtServiceEnd（既定 false）を1つだけ足した。中身は終了時に記録したという事実だけで、
+      個人情報やドメインなど新しい情報は持たない。InterventionAction の値は増やしていない。DomainWait.finish は Detection.atServiceEnd()
+      で印を立ててから記録し、LogRows は印があり種別が ASK_USER の行の介入を strings.xml の log_action_ask_user_at_service_end
+      「保護の終了時のため確認なし」にする（既存の「登録済みのため確認なし」に調子を合わせた。他の種別は印があっても文言を変えない）。
+      ログの書き出し・共有の機能は無いため対象外。版による違いは無い（FeatureSet を使わず両方の版で同じ）。開示文と settings_log_privacy の
+      文面は変えていない（新しい情報を保存しないため）。DESIGN.md の FR-8（保存形式と互換）・FR-25、TESTING.md の 1章と X16、
+      UI 設計書の検知ログ画面の対応表、Skill mimiduku-device-verification のログの読み方を更新した。BACKLOG の BL-056 に X16 の文言の確認を足した。
+      互換性。保存は kotlinx.serialization の既定（encodeDefaults=false）で既定値を書き出さないため、通常の行の保存形式は変わらない。
+      印の無い古い行は false として読む（アプリの更新）。読み込みの Json は初版（fc7e3a6）から ignoreUnknownKeys = true で、
+      git log -S で外した履歴が無いことを確かめた。このため印を知らない古い版は印を無視して全件を読み、その行は従来どおり
+      「利用者に確認」と出る（ダウングレード。ログ全体を失わない）。古い版が次に追記すると、書き直しで印が落ち、その後に新しい版へ戻しても
+      その行は「利用者に確認」と出る（表示の情報が戻るだけで、件数は失わない）。リリースのタグは無く versionCode は 1 のまま。
+      (2) BL-085。根拠の「鍵を GitHub 版の配布鍵と Play 版のアップロード鍵に兼用する」を、担当の既定値から 2026-11-14 のユーザーの決定へ
+      書き換え、DESIGN.md の FR-19 の該当箇所にも決定日を足した。README.md・build.gradle.kts は事実として書かれており仮の前提の書き方は
+      無いため変えていない。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/log/DetectionLog.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/ProtectionEngine.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/DomainWait.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/settings/LogRows.kt
+      - mobile/src/main/res/values/strings.xml
+      - mobile/src/test/kotlin/com/mimiduku/mobile/log/DetectionLogTest.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/service/DomainWaitTest.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/settings/LogRowsTest.kt
+      - docs/TESTING.md
+      - docs/design/UI_DESIGN.html
+      - .claude/skills/mimiduku-device-verification/SKILL.md
+      - docs/records/managed/BACKLOG.md
+      - docs/records/managed/DESIGN.md
+      - docs/records/managed/EXECUTE.md
+    検証コマンド: >-
+      ./gradlew --continue ktlintCheck detekt testGithubDebugUnitTest --console=plain（軽い検証）、フル検証として ./gradlew ktlintCheck、
+      ./gradlew detekt、./gradlew lintGithubDebug lintPlayDebug、./gradlew assembleDebug、./gradlew testGithubDebugUnitTest testPlayDebugUnitTest
+      （test-results を消してから実行）、npx markdownlint-cli2、python scripts/validate-records.py、python scripts/test-guard-commands.py、
+      python scripts/scan-secrets.py（ステージ済みの差分）、python scripts/scan-secrets.py --range main...HEAD。古い版の読み込みは
+      DetectionLogTest で印の無い型（BL-086 より前の DetectionLogEntry と同じ項目）と同じ Json の設定を使って再現した。
+    検証結果: >-
+      成功 - 軽い検証は1回目に detekt の LongParameterList（LogRowsTest の補助関数）で失敗し、直して成功。フル検証の ktlintCheck・
+      detekt・Lint（両版）・assembleDebug は成功（Lint・パッケージ・Play 版のコンパイルは実行され、GitHub 版の本体のコンパイルは同じ内容で
+      軽い検証の1回目に実行済み）。単体テストは実行され GitHub 版 244件・Play 版 244件で失敗0（前回 238件から DetectionLogTest 4件・
+      LogRowsTest 2件が増えた）。markdownlint は 36ファイルで0件、hook のテストは216件で失敗0件。実機での X16 の表示は未確認（BL-056）。
+    関連ID:
+      - BL-086
+      - BL-085
 - date: 2026-11-14 00:06
   summary: 差分レビューの指摘（release 署名のキーの不足、版の入力の検査、終了時の待ちの上限）を直し、終了時の検知ログの種別を要確認で起票する（BL-075・BL-081・BL-086）
   details:

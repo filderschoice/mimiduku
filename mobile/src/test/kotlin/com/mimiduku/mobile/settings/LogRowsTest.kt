@@ -82,6 +82,29 @@ class LogRowsTest {
     }
 
     @Test
+    fun `a confirmation recorded at the service end says no confirmation was shown`() {
+        val atEnd = entry(action = InterventionAction.ASK_USER).copy(recordedAtServiceEnd = true)
+        val shown = entry(action = InterventionAction.ASK_USER)
+
+        val rows = LogRows.from(listOf(atEnd, shown), ZONE) { null }
+
+        // 種別はどちらも「利用者に確認」だが、終了時に記録した行は確認が出ていないと分かる文言にする（BL-086）。
+        assertEquals(
+            listOf(R.string.log_action_ask_user_at_service_end, R.string.log_action_ask_user),
+            rows.map { it.actionRes },
+        )
+    }
+
+    @Test
+    fun `the service end mark changes no other action`() {
+        InterventionAction.entries.filter { it != InterventionAction.ASK_USER }.forEach { action ->
+            val marked = LogRows.from(listOf(entry(action = action).copy(recordedAtServiceEnd = true)), ZONE) { null }
+            val plain = LogRows.from(listOf(entry(action = action)), ZONE) { null }
+            assertEquals("action $action", plain.single().actionRes, marked.single().actionRes)
+        }
+    }
+
+    @Test
     fun `the time is formatted in the given zone`() {
         // 2026-11-13T00:30:05Z
         val atMillis = 1_794_529_805_000L

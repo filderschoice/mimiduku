@@ -34,7 +34,7 @@ enum class InterventionAction {
  * 検知ログ1件。
  *
  * プライバシーのため、画面の文字・URL は持たない。残すのは日時・パッケージ名・検知の種類・一致したルールの ID・
- * 介入の内容・直前のクリックの有無・利用モードだけ（MVP_DESIGN.md 10章）。
+ * 介入の内容・直前のクリックの有無・利用モード・サービスの終了時に記録したかだけ（MVP_DESIGN.md 10章）。
  */
 @Serializable
 data class DetectionLogEntry(
@@ -46,6 +46,13 @@ data class DetectionLogEntry(
     val action: InterventionAction,
     val clickedRecently: Boolean? = null,
     val usageMode: UsageMode? = null,
+    /**
+     * サービスの終了時に、サイトの判定待ちだった検知を記録した行か（BL-081・BL-086）。この行は [action] が
+     * [InterventionAction.ASK_USER] のままだが、確認のバナーは出ていない。既定値の false は保存時に書き出さない
+     * （kotlinx.serialization の既定）ため、通常の行の保存形式は変わらず、この項目の無い古い行は false として読む。
+     * 項目を知らない古い版は、読み込みの ignoreUnknownKeys で無視して通常の「利用者に確認」の行として読む。
+     */
+    val recordedAtServiceEnd: Boolean = false,
 )
 
 /**

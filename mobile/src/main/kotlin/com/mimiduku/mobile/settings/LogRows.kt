@@ -37,7 +37,7 @@ object LogRows {
                     sourceApp = appLabel(entry.sourcePackage) ?: entry.sourcePackage,
                     targetApp = entry.targetPackage?.let { appLabel(it) ?: it },
                     kindRes = kindRes(entry.kind),
-                    actionRes = actionRes(entry.action),
+                    actionRes = actionRes(entry),
                 )
             }
 
@@ -46,6 +46,18 @@ object LogRows {
         when (kind) {
             DetectionKind.EXTERNAL_TRANSITION -> R.string.log_kind_external_transition
             DetectionKind.SCAREWARE -> R.string.log_kind_scareware
+        }
+
+    /**
+     * サービスの終了時に記録した行（[DetectionLogEntry.recordedAtServiceEnd]）は、種別が「利用者に確認」でも確認は
+     * 出ていないため、そうと分かる文言にする（BL-086）。
+     */
+    @StringRes
+    private fun actionRes(entry: DetectionLogEntry) =
+        if (entry.recordedAtServiceEnd && entry.action == InterventionAction.ASK_USER) {
+            R.string.log_action_ask_user_at_service_end
+        } else {
+            actionRes(entry.action)
         }
 
     @StringRes

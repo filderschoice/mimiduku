@@ -7,7 +7,7 @@ package com.mimiduku.mobile.service
  * [readDomain] で読み、[InterventionPlanner.afterDomain] で決めた介入を [carryOut] へ渡す。
  * - 待っている間に次の待ちが来たら、前の待ちはドメインを読まずにその場で確認を出す（確認を省かない側。検知ログを欠かさない。BL-071）。
  * - 待っている間に保護が止まったら（一時停止・同意の取り消し）、待ち終えても確認もログも出さない（FR-12。BL-071）。
- * - 待っている間にサービスが終わったら（[finish]）、ドメインを読まずにログだけ残す（バナーは出さない。BL-081）。
+ * - 待っている間にサービスが終わったら（[finish]）、ドメインを読まずにログだけ残す（バナーは出さない。BL-081。終了時の印を付ける。BL-086）。
  */
 class DomainWait(
     private val planner: InterventionPlanner,
@@ -36,14 +36,16 @@ class DomainWait(
     /**
      * サービスの終了時に呼ぶ。待ちの予約を取り消し、待ち中の検知があればドメインを読まずに確認を省かない側の扱い
      * （[InterventionPlanner.afterDomain] にドメイン未取得を渡した結果）でログだけ残す（[record]）。バナーはオーバーレイを
-     * 閉じるため出さない。保護が止まっていれば何も残さない（BL-081）。
+     * 閉じるため出さない。保護が止まっていれば何も残さない（BL-081）。ログの行には終了時に記録した印
+     * （[com.mimiduku.mobile.log.DetectionLogEntry.recordedAtServiceEnd]）を付け、ログの画面で確認が出ていないと
+     * 分かるようにする（介入の種別は変えない。BL-086）。
      */
     fun finish() {
         timer.cancel()
         val plan = waiting ?: return
         waiting = null
         if (!protectionStopped()) {
-            record(planner.afterDomain(plan.detection, domain = null).detection)
+            record(planner.afterDomain(plan.detection, domain = null).detection.atServiceEnd())
         }
     }
 

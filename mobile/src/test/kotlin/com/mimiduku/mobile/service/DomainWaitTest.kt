@@ -77,6 +77,8 @@ class DomainWaitTest {
 
         assertEquals(listOf(present(first, null), present(second, "other.example")), carried)
         assertEquals(listOf(SOURCE_A, SOURCE_B), carried.map { it.detection.logEntry.sourcePackage })
+        // 確認を出したものには、終了時に記録した印を付けない（BL-086）。
+        assertTrue(carried.none { it.detection.logEntry.recordedAtServiceEnd })
     }
 
     @Test
@@ -113,8 +115,10 @@ class DomainWaitTest {
 
         // バナーは出さず（サービスの終了でオーバーレイを閉じるため）、ドメインを読まずに確認を省かない側でログだけ残す（BL-081）。
         assertEquals(emptyList<InterventionPlan>(), carried)
-        assertEquals(listOf(present(plan, null).detection), recorded)
+        assertEquals(listOf(present(plan, null).detection.atServiceEnd()), recorded)
+        // 種別は「利用者に確認」のままで、終了時に記録した印でログの画面の文言を分ける（BL-086）。
         assertEquals(InterventionAction.ASK_USER, recorded.single().logEntry.action)
+        assertTrue(recorded.single().logEntry.recordedAtServiceEnd)
         assertEquals(0, domainReads)
         // 予約は取り消されており、後から重ねて記録しない。
         timer.fire()

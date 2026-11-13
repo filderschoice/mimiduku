@@ -266,7 +266,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 24px 40px;color:var(--sub);font-
 <figure><div class="phone" style=""><div class="sb"><span>9:41</span><span>▂▄▆ 100%</span></div><div class="abar"><span class="ic">←</span><span class="ttl">検知ログ</span></div><div class="scr" style="gap:12px;padding-top:8px;min-height:300px"><div class="t-bs">ログに残すのは日時・アプリ名・検知の種類だけです。画面の文字や URL は保存せず、外部へも送信しません。</div><div class="t-b">まだ検知はありません。</div></div></div><figcaption><b>ログなし</b><br>「まだ検知はありません。」のみ。消去ボタンは出ない。</figcaption></figure>
 </div>
 <table><tr><th>種類（kind）</th><th>表示</th></tr><tr><td>EXTERNAL_TRANSITION</td><td>外部への移動</td></tr><tr><td>SCAREWARE</td><td>偽の警告</td></tr>
-<tr><th>対応（action）</th><th>表示</th></tr><tr><td>BACK_AND_WARN</td><td>自動で戻した</td></tr><tr><td>WARN_ONLY</td><td>警告のみ</td></tr><tr><td>ASK_USER</td><td>利用者に確認</td></tr></table>
+<tr><th>対応（action）</th><th>表示</th></tr><tr><td>BACK_AND_WARN</td><td>自動で戻した</td></tr><tr><td>WARN_ONLY</td><td>警告のみ</td></tr><tr><td>ASK_USER</td><td>利用者に確認</td></tr><tr><td>ASK_USER（<code>recordedAtServiceEnd</code> が true。サイトの判定待ちの間にサービスが終わり、確認を出さずにログだけ残した行。2026-11-14 追記・BL-086）</td><td>保護の終了時のため確認なし</td></tr></table>
 </section>
 
 <section id="pin">
