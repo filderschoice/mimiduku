@@ -116,7 +116,9 @@
 - 追加実装時の出力要件: 変更が判定に関わる場合は Android 非依存のクラスへ置いて単体テストを足す。
   版によって有無を変える機能は、`BuildConfig` を直接見ずに `FeatureSet` へ項目を足して切り替える。
   検知ルールを変えたら `rules.json` と `DetectionRules.DEFAULT` を同時に更新する（一致は `RulesLoaderTest` で検査）。
-  文言を変えたら `strings.xml` だけを更新する。
+  文言を変えたら `strings.xml` だけを更新する。変更の種類ごとに見るべき正本の索引（開示文の版数・UrlBarIds・実機確認の起票・
+  UI 設計書の追従・記録の更新先を含む）は Skill `mimiduku-change`（`.claude/skills/mimiduku-change/SKILL.md`）にまとめており、
+  規範の本文は本節と各正本だけに置く。
 - 要件トレーサビリティ要件: 未対応の事項は BACKLOG で扱う。アプリ内バナー広告の部分シールドは BL-025（人手検証）、
   Google Play での配布は事前相談なしで先に申請する方針（2026-11-08 決定。申請は BL-031。構成案と機能ごとのポリシー上の評価は `docs/design/DISTRIBUTION.md`）。
   目的は悪質な広告への対応で、通常の広告には介入しない。ただし全画面広告は、正常に見えても悪質な場合がありうるため、

@@ -4,6 +4,11 @@
 
 ## Unreleased
 
+- プロジェクト固有スキル `.claude/skills/mimiduku-change/SKILL.md` を追加した（BL-066）。本アプリへ機能追加・不具合修正・検知ルールや
+  文言の変更を入れるときに、変更の種類ごと（判定・版の差・検知ルール・スケアウェア文言・アドレスバー・文言・開示文・保存する情報・UI）に
+  守ることと正本（DESIGN.md の節と FR、README.md、strings.xml のコメント、テストの KDoc、docs/TESTING.md・PRIVACY.md・PLAY_LISTING.md）を
+  表にした索引で、規範の本文は複製していない。DESIGN.md「エージェント実装指示」から本スキルを参照した（記録ファイルの更新のみで
+  コード修正ではないため EXECUTE.md は更新していない）。description は常時読み込みのため256字に収めた。Gradle 系の品質ゲートは省略した
 - サブエージェント `.claude/agents/quality-gate-runner.md`（品質ゲートの実行と30行以内の合否表。haiku、tools は Bash・Read・
   Grep・Glob）と `diff-reviewer.md`（本アプリ固有の観点での差分点検と重大度つきの指摘。sonnet、Bash は git の読み取りに限定）を
   追加し、CONTRIBUTING.local.md「ドキュメント構成（追加分）」に置き場所と役割を書いた（BL-065）。どちらもコマンドや規範を複製せず

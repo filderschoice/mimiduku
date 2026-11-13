@@ -205,7 +205,7 @@
 - id: BL-067
   区分: 品質ゲート
   タスク内容: >-
-    サブエージェント `.claude/agents/backlog-implementer.md` を定義する。BACKLOG の1タスクを受け取り、BL-066 のスキルに従って実装・
+    サブエージェント `.claude/agents/backlog-implementer.md` を定義する。BACKLOG の1タスクを受け取り、Skill `mimiduku-change` に従って実装・
     テストの追加・品質ゲート・記録ファイルの更新までを行い、自律ループ実行モード中に限り作業ブランチへ1コミットして、変更ファイル・
     ゲートの結果・コミットのハッシュ・残課題を40行以内で返す。tools は Read・Edit・Write・Bash・Grep・Glob・Skill（Agent は与えず
     再委譲させない）、model は inherit。本文には、禁止操作（guardrails 12.2）、コミット前の秘密情報スキャン（`scripts/scan-secrets.py`）、`要確認` を
@@ -216,30 +216,10 @@
   完了条件: >-
     定義ファイルが frontmatter（name・description・model・tools）つきで追加され、tools に Agent が含まれていない。
     CONTRIBUTING.local.md「ドキュメント構成（追加分）」の役割表に追記され、Markdown lint が通り、CHANGELOG.md に記録されている。
-  依存:
-    - BL-066
+  依存: []
   根拠: >-
     model を inherit にしたのは、実装の判断を伴い軽量モデルへ固定すると品質が落ちるため。git 操作の可否は CLAUDE.md の差分表に従い、
     エージェント定義で権限を広げない。
-- id: BL-066
-  区分: 品質ゲート
-  タスク内容: >-
-    プロジェクト固有スキル `.claude/skills/mimiduku-change/SKILL.md`（名前は既定値）を作り、本アプリへ機能追加・不具合修正・検知
-    ルールの更新を入れるときの手順と点検表をまとめる。現状は DESIGN.md「エージェント実装指示」・README.md「検知ルールの更新」・
-    strings.xml のコメント・docs/TESTING.md に分散し、毎回の再調査が要る。含める内容は、判定ロジックの置き場所（Android 非依存の
-    クラスと JVM の単体テスト、MemoryStringStore）、版による差は FeatureSet に項目を足すこと、rules.json と DetectionRules.DEFAULT の
-    同時更新と RulesLoaderTest、スケアウェア文言を足したら OwnTextScarewareTest、UrlBarIds の追加、文言は strings.xml のみ、
-    開示文を変えたら ConsentStore.CURRENT_VERSION と docs/PRIVACY.md・docs/PLAY_LISTING.md、実機確認が要るものは TESTING.md へ
-    項目を足して人手検証を起票すること、UI を変えたら docs/design/UI_DESIGN.html の追従の要否（ユーザー共通スキル ui-design-doc-html）、
-    記録ファイルの更新（DESIGN.md の FR の行と EXECUTE.md）。規範は既存ファイルを正本として参照し、本文へ複製しない。
-  優先度: P2
-  状態: 未着手
-  担当: AIエージェント
-  完了条件: >-
-    スキルが追加され、上記の各項目が参照先（ファイルと節）つきで載っている。description は常時読み込みのため300字程度に収める。
-    DESIGN.md「エージェント実装指示」から本スキルへの参照を足し、同じ規範が2か所に無いことを確かめている。Markdown lint が通り、
-    CHANGELOG.md に記録されている。
-  依存: []
 - id: BL-057
   区分: 人手検証
   タスク内容: >-
