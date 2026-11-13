@@ -51,8 +51,10 @@ Claude Code 固有の差分と追加規約です。全エージェント共通�
   ときだけ。オプションやパイプを足すと確認を挟む）。それ以外の編集・コマンドは確認を挟む
 - `permissions.deny`: guardrails 12.2 の禁止操作（push・amend・rebase・reset --hard・ブランチとタグの削除・`--no-verify`・
   gh による PR と Issue の作成・更新）。Bash と PowerShell の両方。PR の作成・更新はユーザーが実行する（Skill `pr-create`）
-- hooks: PreToolUse の `.claude/hooks/guard-commands.py` が deny の先頭一致で漏れる書き方（`git -C . push` 等）と、
-  規定ブランチ上でのコミットを語として判定して拒否する。PostToolUse の `.claude/hooks/validate-records-after-edit.py` が
+- hooks: PreToolUse の `.claude/hooks/guard-commands.py` が deny の先頭一致で漏れる書き方（`git -C . push` 等）、
+  規定ブランチ上でのコミット、gh の書き込み（`gh api` の POST 等）を語として判定して拒否する。誤操作の安全網であり
+  サンドボックスではない（限界とテストは `CONTRIBUTING.local.md`「禁止操作の hook」）。
+  PostToolUse の `.claude/hooks/validate-records-after-edit.py` が
   記録ファイルの編集後に `scripts/validate-records.py` を実行し、失敗を理由つきで返す
 
 <!-- 配布バンドルの .claude/settings.json は記録ファイル関連の許可のみを含む。本リポジトリ固有の許可を追加する

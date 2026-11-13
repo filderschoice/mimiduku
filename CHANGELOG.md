@@ -4,6 +4,31 @@
 
 ## Unreleased
 
+- `.claude/hooks/guard-commands.py` のすり抜けと誤止めを直した（BL-082。ループの最後の差分レビューの指摘を起票し、同じ
+  イテレーションで完了）。位置づけは誤操作を止める安全網で、サンドボックスではないことを hook の冒頭コメントと
+  CONTRIBUTING.local.md「禁止操作の hook」に明記し、判定しきれない形（変数経由、`xargs` へ標準入力で渡す引数、`bash script.sh`、
+  gitconfig に定義済みのエイリアス、`Start-Process` など）を限界として書いた。直したもの: (1) ヒアドキュメントを行単位で
+  読み捨てていたため、開始行の `<<EOF` より後ろ（`cat <<EOF && git push`）が判定から消え、引用符の中の `<<`・here-string の
+  `<<<`・算術の `1<<n` を開始と誤認して以降の全行を読み捨てていた。字句解析の中でヒアドキュメントを扱う方式に改め、本文は
+  開始行の改行の後で読む。(2) 先頭語が git でないと判定されなかった。制御構文（`if`・`then`・`do`・`!` 等）、オプション付きの
+  ラッパー（`env -i`・`env -u X`・`env -S`・`command -p`・`sudo -u`・`time -p`・`timeout`・`nice`・`xargs` の引数に書いた
+  コマンド）、リダイレクト、ダブルクォートの中と引用符なしのヒアドキュメント本文の中のコマンド置換、`bash -c`・`sh -c`・`eval`・
+  `powershell -Command`（`-EncodedCommand` を含む）・`Invoke-Expression`・`cmd /c` の引数と `bash <<EOF` の本文を同じ判定へ
+  再帰的に通す。(3) git の長いオプションの短縮形（`--am`・`--no-ver`・`--har`・`--del`・`--forc`）を拒否する。(4) `--gpg-sign` が
+  次の語を値として飲み込んでいた（`git commit --gpg-sign --amend` が通った）。(5) `git -c core.hooksPath=…` を拒否し、`git -c alias.*`
+  は展開して判定する。`git config` での core.hooksPath・alias.* の設定も拒否に足した（レビューの指摘外。定義した後のエイリアスは
+  判定できないため）。(6) `git checkout main -- <path>` をブランチの切り替えと誤認し、その後のコミットを拒否していた。(7) gh は
+  `gh api` の書き込み（`-X`/`--method` が GET 以外、または `-f`・`-F`・`--input` で本文を送る形）、release の作成・編集・削除、
+  `workflow run`、`pr update-branch` を拒否に足した。同じ趣旨で run の rerun・cancel、repo・secret・variable・label・gist の
+  作成・変更・削除、`gh alias set`、作成の別名 `new` も足した。`gh api graphql` は読み取りでも POST で本文を送るため止まる（承知の
+  誤止めとして記載）。(8) 判定中の例外では、コマンドに禁止操作の語（push・amend・commit・gh など）が含まれるときだけ「hook の判定に
+  失敗したので安全側で止めた」と返して拒否し、それ以外は通す（標準入力の JSON が読めない場合は従来どおり通す）。(9) `--force` は
+  全サブコマンドで拒否のまま、`git branch -f`（と同じ上書きの `-M`・`-C`、`git tag -f`）を拒否に足した。テストを
+  `scripts/test-guard-commands.py` として残し（JSON を標準入力で渡すだけで、禁止コマンドは実行しない）、実行方法を
+  CONTRIBUTING.local.md に書いた。205件（拒否を期待128件・通過を期待77件。通過側に Skill dependabot-alert-triage・pr-create が使う
+  `gh api` の GET・`gh pr view`・`gh --version` と、本文に push・rebase・`--amend`・`--no-verify` を含むコミットメッセージと
+  ヒアドキュメントを含む）がすべて期待どおり。同じテストを修正前の hook に通すと79件が失敗する。`.claude/settings.json` は
+  変えていない（gh の書き込みは hook で止まるため deny へ足す必要が無い）。あわせて BL-083（文書の食い違いと小さな指摘）を起票した
 - `scripts/validate-records.py` の検査を FORMAT.md の定義へ近づけた（BL-069）。追加した検査は、(1) BACKLOG の `区分` が FORMAT.md の
   6値（不具合・UX改善・機能追加・性能・品質ゲート・人手検証）のいずれか、(2) BACKLOG の `id` の重複、(3) EXECUTE.md の必須キー
   （date・summary・details の変更内容・変更ファイル・検証コマンド・検証結果）と date の `YYYY-MM-DD HH:mm` 形式（秒つき・日付だけも

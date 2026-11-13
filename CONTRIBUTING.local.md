@@ -34,9 +34,33 @@
 | `docs/design/` | アプリの設計資料（MVP 設計・配布構成・UI デザイン設計書） | `MVP_DESIGN.md`、`DISTRIBUTION.md`、`UI_DESIGN.html` |
 | `docs/` 直下 | 利用者・検証・ストア掲載向けの文書 | `PRIVACY.md`、`TESTING.md`、`PLAY_LISTING.md` |
 | `.claude/agents/` | Claude Code のサブエージェント定義（コミットするのは backlog-implementer だけで、自律ループ実行モード中に限る） | `quality-gate-runner.md`（品質ゲートの実行と合否の要約。haiku）、`diff-reviewer.md`（本アプリ固有の観点での差分点検。sonnet）、`backlog-implementer.md`（BACKLOG のタスクの実装・記録・1タスク1コミット。inherit） |
-| `.claude/hooks/` | `.claude/settings.json` から呼ぶ Claude Code の hooks（Python・標準ライブラリのみ） | `guard-commands.py`（禁止操作の拒否）、`validate-records-after-edit.py`（記録ファイル編集後の検証）。説明は `CLAUDE.md`「記録ファイルの権限設定と禁止操作の強制」 |
+| `.claude/hooks/` | `.claude/settings.json` から呼ぶ Claude Code の hooks（Python・標準ライブラリのみ） | `guard-commands.py`（禁止操作の拒否。テストは `scripts/test-guard-commands.py`）、`validate-records-after-edit.py`（記録ファイル編集後の検証）。説明は `CLAUDE.md`「記録ファイルの権限設定と禁止操作の強制」と本ファイル「禁止操作の hook」 |
 
 ## その他の開発プロセス
+
+### 禁止操作の hook
+
+`.claude/hooks/guard-commands.py` は、エージェントの**誤操作を止める安全網**です（BL-077・BL-082）。意図的な回避まで防ぐ
+サンドボックスではありません（`permissions.deny` も同じ）。普通に書かれ得る形は確実に判定し、判定しきれない形は次の
+「限界」として扱います。拒否するものと判定する書き方の一覧は hook の冒頭コメントが正本です。
+
+- 判定する書き方: git の長いオプションの短縮形（`--am`・`--no-ver` 等）、制御構文（`if`・`do`・`!` の後）、オプション付きの
+  ラッパー（`env -i`・`sudo -u x`・`time -p`・`timeout` 等）、リダイレクト、`$(...)`・バッククォート（ダブルクォートと引用符なしの
+  ヒアドキュメント本文の中を含む）、`bash -c`・`sh -c`・`eval`・`powershell -Command`・`Invoke-Expression`・`cmd /c` の引数と
+  `bash <<EOF` の本文（同じ判定へ再帰的に通す）、`git -c core.hooksPath=…`・`git -c alias.*`（展開して判定）
+- 限界（判定しない）: 変数・展開を経由する名前（`$GIT push`、`git $(echo push)`）、標準入力やファイルから読まれる引数と
+  スクリプト（`echo push | xargs git`、`echo "git push" | bash`、`bash script.sh`）、gitconfig に定義済みのエイリアスと
+  gh のエイリアス・拡張、`Start-Process`・`find -exec` など別プログラム経由の起動
+- 承知している誤止め: `gh api graphql` は読み取りでも POST で本文を送るため拒否する（読み取りは REST の GET で行う）
+- 判定中に例外が起きた場合は、コマンドに禁止操作の語（push・amend・commit・gh など）が含まれるときだけ「hook の判定に失敗
+  したので安全側で止めた」と返して拒否し、それ以外は通す（hook の不具合で全コマンドが止まらないため）
+
+テストは、hook へ JSON を標準入力で渡して終了コードを確かめます。禁止コマンドそのものは実行しません（一時ディレクトリに
+空のリポジトリを2つ作るだけ）。hook を変えたら実行し、見つかった書き方はケースとして足します。
+
+```bash
+python scripts/test-guard-commands.py
+```
 
 ### 品質ゲートの段階
 

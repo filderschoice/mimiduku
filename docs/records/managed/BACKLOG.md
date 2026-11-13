@@ -5,6 +5,24 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- id: BL-083
+  区分: 品質ゲート
+  タスク内容: >-
+    ループ（feature/loop-20261113-brushup）の最後の差分レビューで出た文書の食い違いと小さな指摘をまとめて直す。
+    (1) `.claude/skills/mimiduku-change/SKILL.md` 4章の「全コマンドを実行する」が CLAUDE.md の品質ゲートの段階と食い違う。
+    (2) `.claude/agents/backlog-implementer.md` に、1回で完了するタスクでは「進行中へ更新」を省いてよいこと（autonomous-loop の手順と
+    矛盾しない書き方）と、単体テストの件数を build/test-results の XML から集計することが無い。
+    (3) `ConsentStoreTest` に版数が 2 であることだけを確かめるテストがあり、次に版数を上げると必ず壊れる（再同意のテストで足りる）。
+    (4) quality-gate-runner は git add できないため、フル検証のとき `scripts/scan-secrets.py`（ステージ済みの差分を検査）の対象が空になる。
+    コミット範囲（例 main..HEAD）を検査する指定を足し、フル検証ではブランチ全体を検査するよう CLAUDE.md の表と quality-gate-runner を直す。
+    (5) BL-078 のサブエージェントの起動確認を、このセッションの結果で閉じるか更新する。
+  優先度: P3
+  状態: 未着手
+  担当: AIエージェント
+  完了条件: >-
+    (1)〜(5) を反映し、(4) の指定を明らかなダミー値の一時リポジトリで検出する例・しない例の両方で確かめ、フル検証（段階「最後」の
+    全ゲート）が成功している。Kotlin のテストを変えるため EXECUTE.md に記録している。
+  依存: []
 - id: BL-081
   区分: 不具合
   タスク内容: >-
