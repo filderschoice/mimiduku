@@ -160,8 +160,10 @@ RELEASE_KEY_ALIAS=<鍵の別名>
 RELEASE_KEY_PASSWORD=<鍵のパスワード>
 ```
 
-`mobile/build.gradle.kts` は `RELEASE_STORE_FILE` があるときだけ release の署名を設定します。無い場合、release の成果物は
-署名なしのままで、`assembleDebug` などの通常のビルドには影響しません。
+`mobile/build.gradle.kts` は4つのキーがすべてあるときだけ release の署名を設定します。すべて無い場合、release の成果物は
+署名なしのままで、`assembleDebug` などの通常のビルドには影響しません。一部だけある場合は、release のビルドを実行したときに
+足りないキーの名前を示して失敗します（debug のビルドと品質ゲートは通る）。`RELEASE_STORE_FILE` を相対パスで書いた場合は、
+リポジトリの直下（`local.properties` と同じフォルダ）を基準に解決します。
 
 ### 3. 版を上げてビルドする（`scripts/release-build.bat`）
 
@@ -178,6 +180,10 @@ scripts\release-build.bat -VersionCode 2 -VersionName 0.2.0
 
 - versionCode は、配布するたびに前の版より大きい整数にします（既定は1つ上げる）。versionName は利用者に見える版で、
   両方の版で共通です（現在 `0.1.0`）
+- `scripts/version.properties` の記録は `VERSION_CODE=1` から始まるため、引数なしで実行すると**最初の配布の versionCode は 2**
+  になります。最初の配布を 1 にしたい場合は、初回だけ `scripts\release-build.bat -VersionCode 1` と指定します
+- `-VersionCode` に 0 以下・整数でない値を指定した場合と、`scripts/version.properties` に読めない行がある場合は、
+  ビルドに進まずに中止します（読めない行は行番号で示す）
 - スクリプトは Gradle へ `-PappVersionCode`・`-PappVersionName` を渡して上書きします。指定しない通常のビルドは
   `mobile/build.gradle.kts` の既定値（versionCode 1・versionName `0.1.0`）のままです
 - ビルドには数分かかります。失敗した場合は `scripts/version.properties` は更新されないため、そのまま再実行できます

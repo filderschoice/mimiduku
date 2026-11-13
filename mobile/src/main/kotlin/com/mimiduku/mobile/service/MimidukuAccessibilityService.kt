@@ -304,8 +304,13 @@ class MimidukuAccessibilityService : AccessibilityService() {
     companion object {
         private const val RULES_ASSET = "rules.json"
 
-        /** サービスの終了時に、依頼済みの検知ログの書き込みを待つ上限。 */
-        private const val LOG_FLUSH_MILLIS = 1_000L
+        /**
+         * サービスの終了時に、依頼済みの検知ログの書き込みを待つ上限。
+         *
+         * `onDestroy` はメインスレッドで呼ばれるため、メインスレッドを最大でこの時間待たせる。通常は待ち行列が空で
+         * すぐに戻る。待つ対象は数件のファイルへの追記なので、止める上限は短くしておく。
+         */
+        private const val LOG_FLUSH_MILLIS = 500L
 
         fun detectionLog(context: Context) = DetectionLog(File(context.filesDir, DetectionLog.FILE_NAME))
 

@@ -19,6 +19,9 @@
 - GitHub 版と Play 版で違う点は、どちらの版の話かを書き分けます。
 - バージョン番号は `scripts/version.properties` の `VERSION_NAME` と一致させます。リリースビルドの手順は
   [README.md](../README.md)「リリースビルド」を参照してください。
+- `scripts/version.properties` の記録は `VERSION_CODE=1` から始まるため、`scripts\release-build.bat` を引数なしで実行すると
+  最初の配布の versionCode は 2 になります。1 にしたい場合は、初回だけ `-VersionCode 1` を指定します。
+- 署名の鍵の場所（`local.properties` の `RELEASE_STORE_FILE`）を相対パスで書いた場合は、リポジトリの直下を基準に解決します。
 - Google Play Console の「このリリースの新機能」欄は500文字以内です。Play 版を配布するバージョンには、そのまま転記できる
   「ストア掲載用の要約」を用意します。
 - GitHub Releases を作成する場合も、本ファイルの該当バージョンの内容を本文へ転記します。

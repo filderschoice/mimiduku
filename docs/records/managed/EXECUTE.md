@@ -5,6 +5,52 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-11-14 00:06
+  summary: 差分レビューの指摘（release 署名のキーの不足、版の入力の検査、終了時の待ちの上限）を直し、終了時の検知ログの種別を要確認で起票する（BL-075・BL-081・BL-086）
+  details:
+    変更内容: >-
+      (1) BL-075 の続き。mobile/build.gradle.kts は RELEASE_STORE_FILE だけでなく4つのキー（RELEASE_STORE_PASSWORD・
+      RELEASE_KEY_ALIAS・RELEASE_KEY_PASSWORD を含む。空の値は無いものとみなす）がすべてあるときだけ署名の設定を作る。一部だけある場合は
+      署名の設定を作らず、pre〜ReleaseBuild のタスクの実行時に、欠けているキーの名前だけ（値は出さない）を示して GradleException で
+      失敗させる。debug のビルドと品質ゲートは通す。sesami-wear の方式（local.properties の同じキー名、rootProject.file で解決）は維持した。
+      (2) scripts/release-build.ps1 は -VersionCode を文字列で受け、1 以上 2100000000（Google Play の上限）以下の整数でなければビルドに
+      進まずに中止する（[int] で受けると 1.5 が丸められるため）。scripts/version.properties の空行・# の行以外で読めない行や、
+      VERSION_CODE が整数でない行は、行番号と行を示して中止する。release-build.bat はコメントだけ足した。
+      (3) README.md と docs/RELEASE_NOTES.md に、引数なしの実行では最初の配布の versionCode が 2 になること・1 にするなら初回に
+      -VersionCode 1 を指定すること、RELEASE_STORE_FILE の相対パスはリポジトリの直下を基準に解決することを書いた。
+      (4) BL-081 の続き。MimidukuAccessibilityService の LOG_FLUSH_MILLIS を 1000ms から 500ms に下げ、onDestroy がメインスレッドで
+      呼ばれ最大でこの時間止めること（通常は待ち行列が空ですぐ戻る）を KDoc に書いた。DESIGN.md の FR-25 も合わせた（TESTING.md の
+      「1秒」はサイトの判定待ち DomainWait.SETTLE_MILLIS の記述で、この待ちとは別のため変えていない）。
+      (5) BL-086 を起票した（終了時の検知ログの介入の種別が ASK_USER になる件。要確認）。
+    変更ファイル:
+      - mobile/build.gradle.kts
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/MimidukuAccessibilityService.kt
+      - scripts/release-build.ps1
+      - scripts/release-build.bat
+      - README.md
+      - docs/RELEASE_NOTES.md
+      - docs/records/managed/BACKLOG.md
+      - docs/records/managed/DESIGN.md
+      - docs/records/managed/EXECUTE.md
+    検証コマンド: >-
+      署名の設定は、リポジトリを作業用フォルダへ git clone して変更後の build.gradle.kts を写し、その複製の中だけに仮の値の local.properties
+      を作って確かめた（リポジトリの local.properties は開かず変更していない）。一部のキーで ./gradlew :mobile:assembleGithubDebug と
+      ktlintCheck detekt lintPlayDebug、:mobile:assembleGithubRelease、キー無しと仮の4キーで :mobile:assembleGithubRelease。
+      スクリプトは作業用フォルダへ写した release-build.ps1 を、壊した version.properties と不正な -VersionCode で pwsh と
+      Windows PowerShell 5.1 から実行した（gradlew.bat の無い場所のためビルドには進まない）。リポジトリではフル検証の全ゲート。
+    検証結果: >-
+      成功 - 一部のキー（RELEASE_STORE_FILE・RELEASE_KEY_ALIAS だけ）では debug のビルドと ktlint・detekt・Lint は成功し、release は
+      preGithubReleaseBuild で「足りないキー RELEASE_STORE_PASSWORD、RELEASE_KEY_PASSWORD」を示して失敗した。キー無しでは署名なしの
+      APK ができた。仮の4キーでは署名の設定が作られ、鍵ストアが複製の直下を基準に解決されて見つからないことで失敗した（想定どおり）。
+      スクリプトは 0・-5・abc・1.5・99999999999 の -VersionCode、読めない行・VERSION_CODE=x・VERSION_CODE=0・空の VERSION_NAME で
+      いずれも中止し、正しい入力はビルドの手前（gradlew.bat が無い）まで進んだ。実際の鍵での release ビルドは未確認（BL-085）。
+      リポジトリのフル検証は ktlintCheck・detekt・lintGithubDebug lintPlayDebug・assembleDebug が成功（コンパイルと Lint、パッケージの
+      タスクは実行された）、単体テストは GitHub 版 238件・Play 版 238件ですべて成功、markdownlint は 36ファイルで0件、記録ファイルの
+      検証は成功、hook のテストは216件で失敗0件、秘密情報スキャン（ステージ済みの差分とブランチ全体）は成功。
+    関連ID:
+      - BL-075
+      - BL-081
+      - BL-086
 - date: 2026-11-13 23:55
   summary: release 署名と版の管理を sesami-wear と同じ方式で入れ、鍵ストアの追加を秘密情報スキャンで検出する（BL-075）
   details:

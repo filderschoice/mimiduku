@@ -11,6 +11,7 @@ plugins {
 // release 版の署名情報は local.properties（.gitignore の対象。鍵と値はユーザーが作成・保管する。BL-075）から読む。
 // sesami-wear と同じキー名（RELEASE_STORE_FILE・RELEASE_STORE_PASSWORD・RELEASE_KEY_ALIAS・RELEASE_KEY_PASSWORD）。
 // 未設定でも assembleDebug などの通常のビルドと品質ゲートには影響しない（release 版は署名なしのまま）。
+// RELEASE_STORE_FILE の相対パスはリポジトリの直下（local.properties と同じフォルダ）を基準に解決する。
 val releaseKeystoreProperties =
     Properties().apply {
         val propertiesFile = rootProject.file("local.properties")
@@ -18,7 +19,22 @@ val releaseKeystoreProperties =
             FileInputStream(propertiesFile).use { load(it) }
         }
     }
-val hasReleaseSigningConfig = releaseKeystoreProperties.containsKey("RELEASE_STORE_FILE")
+val releaseSigningKeys =
+    listOf("RELEASE_STORE_FILE", "RELEASE_STORE_PASSWORD", "RELEASE_KEY_ALIAS", "RELEASE_KEY_PASSWORD")
+val missingReleaseSigningKeys = releaseSigningKeys.filter { releaseKeystoreProperties.getProperty(it).isNullOrBlank() }
+val hasReleaseSigningConfig = missingReleaseSigningKeys.isEmpty()
+
+// 4つのキーの一部だけがある場合は、署名の設定を作らず、release のビルドを実行したときだけ欠けているキーの名前を示して
+// 失敗させる（値は出さない）。null のまま署名させると分かりにくいエラーになるため。debug のビルドと品質ゲートは通す。
+if (missingReleaseSigningKeys.size in 1 until releaseSigningKeys.size) {
+    val message =
+        "local.properties の release 署名の設定が不足しています。足りないキー: " +
+            missingReleaseSigningKeys.joinToString("、") +
+            "（4つのキーをすべて書くか、すべて消してください。README.md「リリースビルド」）"
+    tasks.matching { it.name.startsWith("pre") && it.name.endsWith("ReleaseBuild") }.configureEach {
+        doFirst { throw GradleException(message) }
+    }
+}
 
 android {
     namespace = "com.mimiduku.mobile"
