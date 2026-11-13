@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+- 規定ブランチ上の `git merge --ff-only` を hook が誤って止める不具合を起票した（BL-088。PR #10 のマージ後の整理で発生）
+
 - ローカルブランチの削除をエージェントへ許可した（BL-087。対話実行に限る）。`.claude/settings.json` の `permissions.deny` から
   `git branch -D` / `-d` / `--delete`（Bash・PowerShell）を外し、`.claude/hooks/guard-commands.py` は規定ブランチ（main / master）を
   対象にした削除だけを拒否するようにした（上書きの `-f`・`-M`・`-C`、`--force` 付きの削除、タグの削除は拒否のまま）。自律ループ実行
