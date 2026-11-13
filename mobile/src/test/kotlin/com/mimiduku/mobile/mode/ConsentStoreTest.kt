@@ -33,8 +33,11 @@ class ConsentStoreTest {
     }
 
     @Test
-    fun `the disclosure version was raised for the site exclusion disclosure`() {
-        assertEquals(2, ConsentStore.CURRENT_VERSION)
+    fun `a consent given to the version just before the current one must be given again`() {
+        // 版数の値は固定しない（版数を上げるたびに書き換えるテストにしないため。BL-083）。
+        store.values[KEY] = (ConsentStore.CURRENT_VERSION - 1).toString()
+
+        assertFalse(consent.hasConsented())
     }
 
     @Test

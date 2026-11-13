@@ -5,6 +5,48 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-11-13 18:44
+  summary: 差分レビューの小さな指摘と文書の食い違いを直し、BL-078 を閉じる（BL-083・BL-078）
+  details:
+    変更内容: >-
+      BL-083 は (1) mimiduku-change 4章を「自律ループでは autonomous-loop と CLAUDE.md の段階、対話実行は軽い検証を除く全ゲート」に直した。
+      (2) backlog-implementer に、同じコミットで BACKLOG から削除するタスクは進行中への更新を省いてよいことと、単体テストの件数を
+      mobile/build/test-results の TEST-*.xml の testsuite 属性から版ごとに集計することを足し、autonomous-loop の手順2にも同じ例外を
+      書いた（配布スキルへの固有の追記として CONTRIBUTING.local.md の表を更新）。(3) ConsentStoreTest の版数が 2 であることだけを
+      確かめるテストを、現在の1つ前の版（CURRENT_VERSION - 1）の同意が無効になることを確かめるテストへ置き換えた（値を固定しない）。
+      (4) scripts/scan-secrets.py に --range（git diff へ渡すコミット範囲。--include-unstaged と併用不可、- で始まる値は拒否）を足し、
+      CLAUDE.md の品質ゲート表へ段階「最後」の行（python scripts/scan-secrets.py --range main...HEAD）を加え、quality-gate-runner に
+      フル検証ではブランチ全体の行で判定することを書いた。BL-078 は、このセッションで diff-reviewer・quality-gate-runner・
+      backlog-implementer の3つが実際に起動して定義どおりの報告を返したため閉じた（確かめた範囲は CHANGELOG.md）。
+      DESIGN.md の FR-20 にテストの確かめ方を足した。
+    変更ファイル:
+      - mobile/src/test/kotlin/com/mimiduku/mobile/mode/ConsentStoreTest.kt
+      - scripts/scan-secrets.py
+      - CLAUDE.md
+      - .claude/agents/quality-gate-runner.md
+      - .claude/agents/backlog-implementer.md
+      - .claude/skills/autonomous-loop/SKILL.md
+      - .claude/skills/mimiduku-change/SKILL.md
+      - CONTRIBUTING.local.md
+      - CHANGELOG.md
+      - docs/records/managed/BACKLOG.md
+      - docs/records/managed/DESIGN.md
+      - docs/records/managed/EXECUTE.md
+    検証コマンド: >-
+      ./gradlew --rerun-tasks --continue ktlintCheck detekt lintGithubDebug lintPlayDebug assembleDebug testGithubDebugUnitTest
+      testPlayDebugUnitTest --console=plain（フル検証。UP-TO-DATE の素通りを避けるため強制再実行）、表のとおりの各 Gradle コマンド、
+      一時リポジトリでの python scripts/scan-secrets.py --range base...HEAD、npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml、
+      python scripts/validate-records.py、python scripts/scan-secrets.py、python scripts/scan-secrets.py --range main...HEAD、
+      python scripts/test-guard-commands.py
+    検証結果: >-
+      成功 - フル検証は全タスクが実行され（UP-TO-DATE は動作を持たないライフサイクルのタスクだけ）BUILD SUCCESSFUL、単体テストは
+      GitHub 版 235件・Play 版 235件がすべて成功（置き換えたテストが両方の版で実行されたことを XML で確認）。--range は、明らかな
+      ダミー値（password へのリテラル代入）を含むコミットの範囲で終了コード1と該当行、含まない範囲で0、--include-unstaged との併用と
+      - で始まる値で2を返した。markdownlint 0件、記録ファイルの検証・秘密情報スキャン（ステージ済み・ブランチ全体）・hook のテスト
+      205件はすべて成功。
+    関連ID:
+      - BL-083
+      - BL-078
 - date: 2026-11-13 18:19
   summary: スケアウェア文言の実機確認用テストページ・TESTING.md の配信手順・実機確認スキルを追加し、ページの本文を単体テストで確かめる（BL-073）
   details:

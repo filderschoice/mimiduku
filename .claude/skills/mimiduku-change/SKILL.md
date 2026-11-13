@@ -43,7 +43,8 @@ Skill `autonomous-loop` が正本です。
 
 ## 4. 品質ゲートと記録
 
-1. `CLAUDE.md`「本リポジトリの品質ゲート定義」の全コマンドを実行する（Kotlin・Gradle に触れた変更では Gradle 系を省略しない）。
+1. `CLAUDE.md`「本リポジトリの品質ゲート定義」に従う。自律ループ実行モードでは Skill `autonomous-loop` と同表の「段階」に従い
+   （Kotlin・Gradle に触れたイテレーションは軽い検証まで、全ゲートはループの最後）、対話実行では軽い検証の行を除く全ゲートを実行する。
    出力を会話へ載せたくない場合はサブエージェント `quality-gate-runner`、差分の点検は `diff-reviewer` を使う。
 2. 記録ファイルを `docs/records/spec/FORMAT.md` に従って更新する。コード修正を伴う完了では、`DESIGN.md` の該当 FR の行
    （新しい要件なら FR を追加し、「エージェント実装指示」の FR の範囲も直す）と `EXECUTE.md` の両方を更新する。

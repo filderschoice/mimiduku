@@ -38,6 +38,7 @@ Claude Code 固有の差分と追加規約です。全エージェント共通�
 | Markdown の静的解析 | 毎回 | `npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml` | `Summary: 0 issues`、かつ出力の `Linting: N files` が `git ls-files --cached --others --exclude-standard "*.md"` の件数と一致（対象漏れの検出） |
 | 記録ファイルの検証 | 毎回 | `python scripts/validate-records.py`（PyYAMLが必要） | 終了コード0 |
 | 秘密情報スキャン | 毎回 | `git add` の後に `python scripts/scan-secrets.py`（ステージ済みの差分を検査） | 終了コード0 |
+| 秘密情報スキャン（ブランチ全体） | 最後 | `python scripts/scan-secrets.py --range main...HEAD`（`git add` しないフル検証でコミット済みの差分を検査） | 終了コード0 |
 
 段階: `毎回` は全イテレーション、`コード` は Kotlin・Gradle（`mobile/`・`*.gradle.kts`・`gradle/`・`config/`）を
 変えたイテレーションで `毎回` に追加、`最後` は自律ループの最後と PR 作成前で、軽い検証を除く全行を実行する

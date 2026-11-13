@@ -22,6 +22,10 @@ guardrails 12.1 の「コミット前に秘密情報スキャンを実行し、�
     git add <ファイル>
     python scripts/scan-secrets.py                      # ステージ済みの差分を検査する
     python scripts/scan-secrets.py --include-unstaged   # 未ステージの変更と未追跡ファイルも含める
+    python scripts/scan-secrets.py --range main...HEAD  # コミット範囲（ブランチ全体）を検査する
+
+`--range` は `git diff <範囲>` に渡す（`main...HEAD` は main との分岐点から HEAD までの差分）。`git add` できない
+品質ゲートの実行担当（quality-gate-runner）がフル検証でブランチ全体を確かめるときに使う（BL-083）。
 
 終了コードは、検出なしで0、検出ありで1、git の実行に失敗したら2。標準ライブラリのみで動作する。
 誤検出した場合は、値を環境変数や `local.properties` から読む形へ書き換えるのが原則（本スクリプトに除外指定の仕組みは無い）。
@@ -140,14 +144,25 @@ def main() -> int:
         action="store_true",
         help="未ステージの変更（HEAD との差分）と未追跡ファイルも検査する",
     )
+    parser.add_argument(
+        "--range",
+        metavar="範囲",
+        help="ステージ済みの差分の代わりに、コミット範囲（例 main...HEAD）の差分を検査する",
+    )
     options = parser.parse_args()
+    if options.range is not None and (options.include_unstaged or not options.range or options.range.startswith("-")):
+        print("--range にはコミット範囲（例 main...HEAD）を指定し、--include-unstaged とは併用しない", file=sys.stderr)
+        return 2
 
     findings: list[str] = []
     diff_base = ["diff", "--no-color", "--no-ext-diff", "--diff-filter=ACMR"]
-    diff_base += ["HEAD"] if options.include_unstaged else ["--cached"]
+    if options.range is not None:
+        diff_base += [options.range]
+    else:
+        diff_base += ["HEAD"] if options.include_unstaged else ["--cached"]
     try:
-        scan_diff(run_git([*diff_base, "-U0"]), findings)
-        changed = run_git([*diff_base, "--name-only"]).splitlines()
+        scan_diff(run_git([*diff_base, "-U0", "--"]), findings)
+        changed = run_git([*diff_base, "--name-only", "--"]).splitlines()
         if options.include_unstaged:
             untracked = run_git(["ls-files", "--others", "--exclude-standard"]).splitlines()
             for path in untracked:
@@ -163,7 +178,10 @@ def main() -> int:
         for finding in findings:
             print(f"  {finding}")
         return 1
-    scope = "ステージ済み・未ステージ・未追跡" if options.include_unstaged else "ステージ済み"
+    if options.range is not None:
+        scope = f"コミット範囲 {options.range} "
+    else:
+        scope = "ステージ済み・未ステージ・未追跡" if options.include_unstaged else "ステージ済み"
     print(f"秘密情報スキャン: 検出なし（対象: {scope}の変更）")
     return 0
 

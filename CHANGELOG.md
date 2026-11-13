@@ -4,6 +4,15 @@
 
 ## Unreleased
 
+- サブエージェントの起動確認を終えた（BL-078）。2026-11-13 のセッション（feature/loop-20261113-brushup）で、diff-reviewer・
+  quality-gate-runner・backlog-implementer の3つとも Agent ツールから定義名で起動し、定義どおりの報告（重大度つきの指摘、
+  ゲートごとの成否表、30行程度の実装報告）を返した（オーケストレータの確認）。frontmatter が効いていることは backlog-implementer
+  自身について確かめた。使えるツールは Read・Edit・Write・Bash・Grep・Glob・Skill（と報告の受け渡し）で、Agent ツールは無く
+  再委譲できない。model は inherit で、Opus で動いていた（軽量モデルへ固定されていない。呼び出し元のモデルとの一致は内側からは未確認）。quality-gate-runner（haiku）と diff-reviewer（sonnet）の
+  実行モデルと、両者で Edit・Write が使えないことは、担当の内側から確かめられないため未確認のまま残した（定義の不具合は見つからず、
+  定義は変えていない）。あわせて差分レビューの小さな指摘を直した（BL-083。品質ゲートの段階と mimiduku-change の食い違い、
+  backlog-implementer の進行中の省略とテスト件数の集計、ConsentStoreTest の版数の固定、`scripts/scan-secrets.py --range` による
+  フル検証でのブランチ全体の検査。実施記録は EXECUTE.md）
 - `.claude/hooks/guard-commands.py` のすり抜けと誤止めを直した（BL-082。ループの最後の差分レビューの指摘を起票し、同じ
   イテレーションで完了）。位置づけは誤操作を止める安全網で、サンドボックスではないことを hook の冒頭コメントと
   CONTRIBUTING.local.md「禁止操作の hook」に明記し、判定しきれない形（変数経由、`xargs` へ標準入力で渡す引数、`bash script.sh`、

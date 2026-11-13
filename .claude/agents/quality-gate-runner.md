@@ -24,11 +24,13 @@ model: haiku
 3. 軽い検証の行は、出力から `> Task :mobile:compileGithubDebugKotlin`・`compileGithubDebugUnitTestKotlin`・
    `testGithubDebugUnitTest` の行を拾い、それぞれ `UP-TO-DATE` が付いていたかを備考へ書く（素通りの判断は
    呼び出し元が `CONTRIBUTING.local.md`「品質ゲートの段階」で行う）。
-4. 合否は表の「合否基準」列で判定する。Markdown の静的解析は `Summary: 0 issues` に加えて、
+4. 秘密情報スキャンは `git add` できないため、ステージ済みの差分を検査する行（`毎回`）は対象が空になる。フル検証では
+   ブランチ全体の行（`--range main...HEAD`）で判定し、ステージ済みの行は実行したうえで備考に「ステージなし」と書く。
+5. 合否は表の「合否基準」列で判定する。Markdown の静的解析は `Summary: 0 issues` に加えて、
    `Linting: N files` の N と `git ls-files --cached --others --exclude-standard "*.md"` の件数の一致も確かめる。
-5. 出力が長いコマンドは、末尾や `FAILED`・`error:` を含む行や `e:` で始まる行（Kotlin のコンパイルエラー）に絞って読む（全文を読まない）。
+6. 出力が長いコマンドは、末尾や `FAILED`・`error:` を含む行や `e:` で始まる行（Kotlin のコンパイルエラー）に絞って読む（全文を読まない）。
    Gradle の失敗は、レポートの場所（`build/reports/...`）が出ていればそこから先頭のエラーを拾う。
-6. 秘密情報スキャン（`scripts/scan-secrets.py`）が値を出さないのと同様に、出力に資格情報らしい値が見えても
+7. 秘密情報スキャン（`scripts/scan-secrets.py`）が値を出さないのと同様に、出力に資格情報らしい値が見えても
    報告へ写さない。
 
 ## 返す内容（30行以内）
