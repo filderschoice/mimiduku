@@ -5,6 +5,35 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-11-13 17:47
+  summary: サービスに残る介入の分岐を Android 非依存の InterventionPlanner へ移し、単体テストを足す（BL-070）
+  details:
+    変更内容: >-
+      MimidukuAccessibilityService の intervene・present・deferForDomain にあった分岐（アプリの除外ならログのみ、サイトの除外の登録が
+      あるブラウザへの確認ならドメイン待ち、BACK_AND_WARN なら戻る、ASK_USER なら「今後は確認しない」を付ける、待機後に登録済みの
+      ドメインなら SKIPPED_EXCLUDED でログのみ）を、結果を表す値 `InterventionPlan`（LogOnly／AwaitDomain／Present）を返す
+      `InterventionPlanner`（service パッケージ）の `plan` と `afterDomain` へ移した。サービスは返った計画をそのまま Android の操作として行う。
+      イベントの処理後と照合の settle 後に同じ形で書いていたシールド・案内パネル・バッジの同期を `syncAdScreen` 1つにまとめ、
+      一時停止・未同意の判定も1か所（`protectionStopped`）にした。挙動は変えていない（判定の順序・条件・ログの内容・ShieldTimer の
+      呼び出し時機は移す前と同じ。判定に使わないイベントと一時停止中は従来どおりバッジだけ合わせる）。detekt の関数数の上限（11 未満）に
+      収めるため、ドメイン待ちの予約は介入を行う関数の分岐の中に置いた。InterventionPlannerTest（11件）で各分岐と版（FeatureSet）に
+      よる違いを確かめ、既存のテストは変更していない。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/InterventionPlanner.kt
+      - mobile/src/main/kotlin/com/mimiduku/mobile/service/MimidukuAccessibilityService.kt
+      - mobile/src/test/kotlin/com/mimiduku/mobile/service/InterventionPlannerTest.kt
+      - docs/TESTING.md
+      - docs/records/managed/BACKLOG.md
+      - docs/records/managed/DESIGN.md
+      - docs/records/managed/EXECUTE.md
+    検証コマンド: >-
+      ./gradlew ktlintCheck detekt lintGithubDebug lintPlayDebug assembleDebug --rerun-tasks、
+      ./gradlew testGithubDebugUnitTest testPlayDebugUnitTest、npx markdownlint-cli2、python scripts/validate-records.py
+    検証結果: >-
+      成功 - Gradle の品質ゲートはすべて終了コード0。単体テストは両版とも216件成功（新規 InterventionPlannerTest 11件を含み、
+      既存の ProtectionEngineTest は変更なしで成功）。リファクタリングのため実機確認は行っていない（未確認）。
+    関連ID:
+      - BL-070
 - date: 2026-11-09 00:14
   summary: ページの読み込み直後に操作しなくてもスケアウェアの警告が出るようにする（BL-063）
   details:
