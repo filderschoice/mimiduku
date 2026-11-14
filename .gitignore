@@ -32,3 +32,7 @@ node_modules/
 # JVMクラッシュダンプ（起動コマンドラインや環境変数を含むため誤コミットを防ぐ）
 hs_err_pid*.log
 replay_pid*.log
+
+# Python のキャッシュ（検査スクリプトの実行で生成される）
+__pycache__/
+*.pyc

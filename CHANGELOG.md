@@ -25,6 +25,8 @@
   `mimiduku-change`・`mimiduku-device-verification` が同じ役割を担っているため取り込まない。`.github/CODEOWNERS` は配布元の
   プレースホルダのため取り込まない。常時読み込みは `CLAUDE.md` 8,340→8,977 バイト、`rules/guardrails-unified.v1.md`
   7,702→9,162 バイト（12.7 の追加で増加）、`.github/copilot-instructions.md` は変更なし（11,909 バイト）
+- 取り込み時の検証（Python の構文チェック）で生成された `__pycache__/` の `.pyc` 3件が誤ってコミットされたため、
+  Git の管理から外し、配布元の案内（0.30.0 配布先での対応の2）どおり `.gitignore` へ `__pycache__/` と `*.pyc` を足した
 
 - 規定ブランチ上の `git merge --ff-only` を hook が誤って止める不具合を直した（BL-088。PR #10 のマージ後の整理で発生し、
   起票して同じループで完了）。`.claude/hooks/guard-commands.py` は merge の ff 系オプション（`--ff`・`--no-ff`・`--ff-only`）の
