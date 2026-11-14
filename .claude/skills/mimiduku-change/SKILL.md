@@ -49,4 +49,4 @@ Skill `autonomous-loop` が正本です。
 2. 記録ファイルを `docs/records/spec/FORMAT.md` に従って更新する。コード修正を伴う完了では、`DESIGN.md` の該当 FR の行
    （新しい要件なら FR を追加し、「エージェント実装指示」の FR の範囲も直す）と `EXECUTE.md` の両方を更新する。
    実機確認が残る場合は BACKLOG から削除せず `進行中` で残す（ユーザー共通スキル `guardrail-records-update` 2.3）。
-3. `git add` の後に `python scripts/scan-secrets.py` を実行してからコミットする。
+3. `git add` の後に `python scripts/scan-secrets.py --require-changes` を実行してからコミットする。
