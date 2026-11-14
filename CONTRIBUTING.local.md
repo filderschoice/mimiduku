@@ -34,7 +34,7 @@
 | `docs/design/` | アプリの設計資料（MVP 設計・配布構成・UI デザイン設計書） | `MVP_DESIGN.md`、`DISTRIBUTION.md`、`UI_DESIGN.html` |
 | `docs/` 直下 | 利用者・検証・ストア掲載向けの文書 | `PRIVACY.md`、`TESTING.md`、`PLAY_LISTING.md`、`RELEASE_NOTES.md`（利用者向けの版ごとの変更点。BL-075） |
 | `scripts/` の release 用 | release ビルドと版の管理（sesami-wear と同じ方式。実行はユーザー） | `release-build.bat`・`release-build.ps1`、`version.properties`（現在の versionCode・versionName）。手順は README.md「リリースビルド」 |
-| `.claude/agents/` | Claude Code のサブエージェント定義（コミットするのは backlog-implementer だけで、自律ループ実行モード中に限る） | `quality-gate-runner.md`（品質ゲートの実行と合否の要約）、`diff-reviewer.md`（本アプリ固有の観点での差分点検）、`backlog-implementer.md`（BACKLOG のタスクの実装・記録・1タスク1コミット）。モデルは quality-gate-runner が haiku、他の2つが sonnet（オーケストレータは Opus。Skill `loop-orchestration`） |
+| `.claude/agents/` | Claude Code のサブエージェント定義（コミットするのは backlog-planner と backlog-implementer だけで、自律ループ実行モード中に限る） | `quality-gate-runner.md`（品質ゲートの実行と合否の要約）、`diff-reviewer.md`（本アプリ固有の観点での差分点検）、`backlog-implementer.md`（BACKLOG のタスクの実装・記録・1タスク1コミット）、`backlog-planner.md`（第1イテレーションの調査・タスク分解・BACKLOG への起票。実装しない。配布元版のまま）。モデルは quality-gate-runner が haiku、backlog-planner が opus、他の2つが sonnet（オーケストレータは Opus。Skill `loop-orchestration`） |
 | `.claude/hooks/` | `.claude/settings.json` から呼ぶ Claude Code の hooks（Python・標準ライブラリのみ） | `guard-commands.py`（禁止操作の拒否。テストは `scripts/test-guard-commands.py`）、`validate-records-after-edit.py`（記録ファイル編集後の検証）。説明は `CLAUDE.md`「記録ファイルの権限設定と禁止操作の強制」と本ファイル「禁止操作の hook」 |
 
 ## その他の開発プロセス
@@ -141,10 +141,8 @@ python scripts/test-guard-commands.py
 
 | ファイル | 固有の追記 | 理由 |
 | --- | --- | --- |
-| `.claude/skills/autonomous-loop/SKILL.md` | イテレーション手順7の `scripts/scan-secrets.py` の実行（BL-064） | 秘密情報スキャンの手段がリポジトリ固有のため |
-| `.claude/skills/autonomous-loop/SKILL.md` | イテレーション手順4・5と完了条件の「段階」の扱い（BL-079）、節「オーケストレータとサブエージェントの分担」（BL-068）、手順2の「同じコミットで削除するタスクは `進行中` への更新を省いてよい」（BL-083） | 品質ゲートの段階を CLAUDE.md で定めているため。定めの無い配布先では全ゲートになる書き方にしてある |
 | `.claude/settings.json`（マージ対象） | 品質ゲートの `permissions.allow`、`permissions.deny`、`hooks` | ADOPTION.md は `permissions.allow` のマージだけを述べるため、deny と hooks も残すことを明記する（BL-077） |
 | `.claude/skills/autonomous-loop/SKILL.md` | 終了時の報告の「ループ中は PR を作成・更新しない」段落と「ループ中はブランチを削除しない」の一文（BL-087） | `.claude/settings.json` と hook が `gh pr create` / `gh pr edit` とローカルブランチの削除を通しており、モードを判別できないため手順で守る |
 | `.claude/skills/pr-create/SKILL.md` | 手順1の、settings.json と hook が `gh pr create` / `gh pr edit` を通しループ中は手順で止める旨の記述 | PR の作成・本文の編集をエージェントへ許可したため（それ以外の gh の書き込みは拒否のまま） |
-| `.claude/skills/pr-create/SKILL.md` | 手順3の「本リポジトリ固有」の段落（PR の作成・更新の前に段階「最後」の全行を実行する） | CI を導入しないため、PR 作成前のフル検証が唯一の関門になる（BL-076） |
-| `scripts/validate-records.py` | `区分` の許容値、BACKLOG の `id` の重複、EXECUTE.md の必須キー・`date` の形式・配列で書くキーの検査（BL-069） | FORMAT.md の定義のうち配布元版が検査していなかったものを補うため。配布元版が同じ検査を持つようになったら配布元版へ寄せる |
+| `.claude/skills/pr-create/SKILL.md` | 手順3の「本リポジトリ固有」の段落（PR の作成・更新の前の全ゲートが唯一の関門である旨） | CI を導入しないため、PR 作成前のフル検証が唯一の関門になる（BL-076） |
+| `.claude/agents/` の `backlog-implementer.md`・`diff-reviewer.md`・`quality-gate-runner.md` | Skill `mimiduku-change` の参照、本アプリ固有の点検観点、品質ゲートの段階と Gradle の UP-TO-DATE・テスト件数の確かめ方 | 配布元版はこれらを汎用化したもので、固有の記述を残すため。統制や秘密情報スキャンなど汎用の改善は配布元版から取り込む |

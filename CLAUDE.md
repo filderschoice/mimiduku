@@ -37,8 +37,8 @@ Claude Code 固有の差分と追加規約です。全エージェント共通�
 | 脆弱性チェック | － | （未導入。リポジトリの公開後に GitHub の Dependabot で依存の脆弱性を確認する想定） | 導入した場合は本行を実コマンドへ更新する |
 | Markdown の静的解析 | 毎回 | `npx markdownlint-cli2 "**/*.md" --config .markdownlint-cli2.yaml` | `Summary: 0 issues`、かつ出力の `Linting: N files` が `git ls-files --cached --others --exclude-standard "*.md"` の件数と一致（対象漏れの検出） |
 | 記録ファイルの検証 | 毎回 | `python scripts/validate-records.py`（PyYAMLが必要） | 終了コード0 |
-| 秘密情報スキャン | 毎回 | `git add` の後に `python scripts/scan-secrets.py`（ステージ済みの差分を検査） | 終了コード0 |
-| 秘密情報スキャン（ブランチ全体） | 最後 | `python scripts/scan-secrets.py --range main...HEAD`（`git add` しないフル検証でコミット済みの差分を検査） | 終了コード0 |
+| 秘密情報スキャン | 毎回 | `git add` の後に `python scripts/scan-secrets.py --require-changes`（ステージ済みの差分を検査）。ステージしない場面（対話実行での確認など）は `python scripts/scan-secrets.py --include-unstaged`。ファイルの削除だけをコミットする場面は検査対象が空になるため `--require-changes` を外す | 終了コード0（検出時は値を出さずにファイル・行・規則名を表示し1。`--require-changes` 付きで検査対象が空のとき、git の実行に失敗したときは2） |
+| 秘密情報スキャン（ブランチ全体） | 最後 | `python scripts/scan-secrets.py --range main...HEAD --require-changes`（`git add` しないフル検証でコミット済みの差分を検査。未コミットの変更が残っていれば上の `--include-unstaged` も別に実行する） | 終了コード0（検査対象が空なら2） |
 
 段階: `毎回` は全イテレーション、`コード` は Kotlin・Gradle（`mobile/`・`*.gradle.kts`・`gradle/`・`config/`）を
 変えたイテレーションで `毎回` に追加、`最後` は自律ループの最後と PR 作成前で、軽い検証を除く全行を実行する
@@ -75,8 +75,8 @@ Claude Code 固有の差分と追加規約です。全エージェント共通�
 - **適用条件（MUST）**: ユーザーが開始を明示的に指示していること。指示されたスコープ内でのみ有効で、
   ループ終了と同時に通常の対話モードへ戻る。満たさない場合は `git add` / `git commit` を実行してはならない
 - **起動方法（MUST）**: Skill `autonomous-loop` を起動し、その手順に従う。手順を記憶や推測で代用しない
-- 統制要件（禁止操作・停止条件・秘密情報の取り扱い）は常時読み込みの `rules/guardrails-unified.v1.md`
-  セクション12、ブランチ・コミット規約は `CONTRIBUTING.md`「自律ループ実行モードのブランチ・コミット規約」が正本
+- 統制要件（禁止操作・停止条件・秘密情報の取り扱い。サブエージェントへの委任時は 12.7）は常時読み込みの
+  `rules/guardrails-unified.v1.md` セクション12、ブランチ・コミット規約は `CONTRIBUTING.md`「自律ループ実行モードのブランチ・コミット規約」が正本
 
 ## 保守
 

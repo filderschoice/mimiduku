@@ -4,6 +4,30 @@
 
 ## Unreleased
 
+- ガードレール配布元 copilot-rules を 0.30.0 へ追従した。配布元版で置き換えたのは `rules/guardrails-unified.v1.md`
+  （セクション12.7「サブエージェントへの委任」の追加。規範本文は配布元の正本で、本リポジトリでの書き換えは無い）、`CONTRIBUTING.md`、
+  `docs/guidelines/ADOPTION.md`、`scripts/scan-secrets.py`（検出規則の拡充・`--require-changes`・UTF-8 出力。本リポジトリ由来の
+  規則はすべて配布元版に含まれる）、`scripts/validate-records.py`（本リポジトリで足していた検査が配布元版へ入ったため固有の追記を
+  解消。`区分` の許容値は FORMAT.md の表から読む）、`.claude/hooks/validate-records-after-edit.py`、Skill `docs-consistency-review`・
+  `loop-orchestration`。サブエージェント定義 `.claude/agents/backlog-planner.md`（計画担当、opus）を新たに配置した
+- 固有改変をマージしたもの: Skill `autonomous-loop`・`pr-create` は配布元版を土台に、本リポジトリ固有の段落（ループ中は PR の
+  作成・ブランチの削除をしない、CI を導入しないため PR 作成前の全ゲートが唯一の関門）を戻した。サブエージェント定義3件は、
+  本アプリ固有の記述（Skill `mimiduku-change` の参照・点検観点・段階と UP-TO-DATE・テスト件数の確かめ方）を残し、12.7 の参照、
+  開始指示の原文が無ければコミットしない、`--require-changes`、統制の緩和・守る側の変更・文書の整合の観点を取り込んだ
+  （ユーザーの決定「固有の記述を残してマージ」）。`CLAUDE.md` は品質ゲート表の秘密情報スキャンの行を `--require-changes` 付きへ
+  改め、ステージしない場面の `--include-unstaged` を足し、自律ループ実行モードの統制要件の行に 12.7 を書き足した
+- `.claude/settings.json` を変更した（ユーザーの決定「両方反映」）。`permissions.allow` の秘密情報スキャンを品質ゲート表の新しい
+  文字列（`--require-changes`・`--include-unstaged`・`--range main...HEAD --require-changes`。Bash・PowerShell）へ置き換え、
+  `hooks.PostToolUse` の記録ファイル検証フックの要素を配布元版（MultiEdit も対象、スクリプトが無いときにエラーを出す起動
+  コマンド、timeout 90）にした。`permissions.deny` と PreToolUse の `guard-commands.py` は変えていない
+- `CONTRIBUTING.local.md` の構成表と「配布物への固有の追記」を実態へ合わせ、Skill `mimiduku-change` のスキャンの実行例を
+  `--require-changes` 付きにした。プロファイルスキルの雛形 `templates/project-profile-SKILL-template.md` は、Skill
+  `mimiduku-change`・`mimiduku-device-verification` が同じ役割を担っているため取り込まない。`.github/CODEOWNERS` は配布元の
+  プレースホルダのため取り込まない。常時読み込みは `CLAUDE.md` 8,340→8,977 バイト、`rules/guardrails-unified.v1.md`
+  7,702→9,162 バイト（12.7 の追加で増加）、`.github/copilot-instructions.md` は変更なし（11,909 バイト）
+- 取り込み時の検証（Python の構文チェック）で生成された `__pycache__/` の `.pyc` 3件が誤ってコミットされたため、
+  Git の管理から外し、配布元の案内（0.30.0 配布先での対応の2）どおり `.gitignore` へ `__pycache__/` と `*.pyc` を足した
+
 - 規定ブランチ上の `git merge --ff-only` を hook が誤って止める不具合を直した（BL-088。PR #10 のマージ後の整理で発生し、
   起票して同じループで完了）。`.claude/hooks/guard-commands.py` は merge の ff 系オプション（`--ff`・`--no-ff`・`--ff-only`）の
   最後の指定が `--ff-only` のときだけ規定ブランチ上でも通す。オプション無しの merge と、`--ff-only` を後の指定で打ち消す形は

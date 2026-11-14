@@ -14,8 +14,9 @@
       "Bash(./gradlew testGithubDebugUnitTest testPlayDebugUnitTest)",
       "Bash(npx markdownlint-cli2 \"**/*.md\" --config .markdownlint-cli2.yaml)",
       "Bash(python scripts/validate-records.py)",
-      "Bash(python scripts/scan-secrets.py)",
-      "Bash(python scripts/scan-secrets.py --range main...HEAD)",
+      "Bash(python scripts/scan-secrets.py --require-changes)",
+      "Bash(python scripts/scan-secrets.py --include-unstaged)",
+      "Bash(python scripts/scan-secrets.py --range main...HEAD --require-changes)",
       "PowerShell(./gradlew ktlintCheck)",
       "PowerShell(./gradlew detekt)",
       "PowerShell(./gradlew --continue ktlintCheck detekt testGithubDebugUnitTest --console=plain)",
@@ -24,8 +25,9 @@
       "PowerShell(./gradlew testGithubDebugUnitTest testPlayDebugUnitTest)",
       "PowerShell(npx markdownlint-cli2 \"**/*.md\" --config .markdownlint-cli2.yaml)",
       "PowerShell(python scripts/validate-records.py)",
-      "PowerShell(python scripts/scan-secrets.py)",
-      "PowerShell(python scripts/scan-secrets.py --range main...HEAD)"
+      "PowerShell(python scripts/scan-secrets.py --require-changes)",
+      "PowerShell(python scripts/scan-secrets.py --include-unstaged)",
+      "PowerShell(python scripts/scan-secrets.py --range main...HEAD --require-changes)"
     ],
     "deny": [
       "Bash(git push *)",
@@ -83,12 +85,12 @@
     ],
     "PostToolUse": [
       {
-        "matcher": "Edit|Write",
+        "matcher": "Edit|Write|MultiEdit",
         "hooks": [
           {
             "type": "command",
-            "command": "python \"${CLAUDE_PROJECT_DIR}/.claude/hooks/validate-records-after-edit.py\"",
-            "timeout": 60
+            "command": "f=\"${CLAUDE_PROJECT_DIR:-.}/.claude/hooks/validate-records-after-edit.py\"; if [ ! -f \"$f\" ]; then echo \"[validate-records-after-edit] hook script not found: $f\" >&2; exit 1; fi; if command -v python >/dev/null 2>&1; then exec python \"$f\"; else exec python3 \"$f\"; fi",
+            "timeout": 90
           }
         ]
       }

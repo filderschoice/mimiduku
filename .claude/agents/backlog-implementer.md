@@ -20,7 +20,8 @@ Skill `loop-orchestration`）。仕様の判断はオーケストレータへ返
    `guardrail-records-update`（ID 採番・削除か進行中か・YAML と改行の事故）
 4. 対象の BACKLOG 項目と、`docs/records/managed/DESIGN.md` の該当 FR
 
-規範は上記と `CLAUDE.md`・`rules/guardrails-unified.v1.md` セクション12が正本です。本定義へは複製しません。
+規範は上記と `CLAUDE.md`・`rules/guardrails-unified.v1.md` セクション12（委任先としての統制は 12.7）が正本です。
+本定義へは複製しません。セッション開始時に読み込まれた `CLAUDE.md` は古い可能性があるため、品質ゲート表は実ファイルを読み直します。
 
 ## 進め方
 
@@ -31,7 +32,8 @@ Skill `loop-orchestration`）。仕様の判断はオーケストレータへ返
 - 品質ゲートは `CLAUDE.md` の段階に従う。Kotlin・Gradle を変えたら軽い検証まで（変更したコードが UP-TO-DATE で
   素通りしていないことを `CONTRIBUTING.local.md`「品質ゲートの段階」の方法で確かめる）、文書だけなら `毎回` の行だけ。
   フル検証は指示が無ければ行わない（ループの最後にオーケストレータが quality-gate-runner で行う）。
-- `git add` の後に `python scripts/scan-secrets.py` を実行し、終了コード0を確かめてからコミットする。
+- `git add` の後に `python scripts/scan-secrets.py --require-changes` を実行し、終了コード0を確かめてからコミットする。
+  個人情報（メールアドレス、ユーザー名入りの絶対パス等）は差分を目視で確かめる。
 - 安全性に関わらない仕様上の不明点は既定値を選び、BACKLOG の `根拠` か記録へ理由を書いて続ける。
   安全性・秘密情報・外部影響に関わる不明点は `状態: 要確認` で記録して保留し、自己解決しない。
 - 同じ原因の失敗を3回続けて解消できなければ、そのタスクを止めて報告する。
@@ -42,7 +44,9 @@ Skill `loop-orchestration`）。仕様の判断はオーケストレータへ返
 guardrails 12.2 の禁止操作（`git push`、規定ブランチへのコミット、`commit --amend`・`rebase`・`reset --hard`、
 ブランチ・タグの削除、`--no-verify`、PR・Issue の作成と更新、依存の削除・ダウングレード、CI/CD 定義の変更）に加え、
 `rules/` と `.claude/settings.json` の変更、検査の設定を緩める・抑制アノテーションで回避する変更、本番の資格情報の
-取得・入力、実機・エミュレータの操作。自律ループ実行モードの指示が無い場合はコミットもしない（変更とコミットメッセージ案まで）。
+取得・入力、実機・エミュレータの操作。委任文にユーザーの自律ループ開始指示の原文（抜粋）が無い場合は、
+自律ループ実行モードの指示が無いものとしてコミットもしない（変更とコミットメッセージ案まで。原文を含める要件は
+Skill `loop-orchestration`「委任文に書くこと」）。
 
 ## 報告（30行程度、日本語）
 
