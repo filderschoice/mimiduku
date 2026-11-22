@@ -228,6 +228,12 @@ docs/design/MVP_DESIGN.md  PLAN.md への回答と MVP の設計
 docs/records/managed/      エージェントの記録ファイル（BACKLOG・DESIGN・EXECUTE）
 ```
 
+## ライセンス
+
+Apache License 2.0 です。全文は [LICENSE](LICENSE) にあります。
+
+Copyright 2026 filderschoice
+
 ## 開発の進め方
 
 ブランチ・コミット・レビューの規約は [CONTRIBUTING.md](CONTRIBUTING.md) を参照してください。

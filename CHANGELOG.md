@@ -4,6 +4,13 @@
 
 ## Unreleased
 
+- BL-089: リポジトリのルートに Apache-2.0 の `LICENSE` を追加し、README にライセンスの節（Apache License 2.0・Copyright 2026
+  filderschoice）を設けた（ユーザーの決定による。著作権者は公開済みの GitHub アカウント名で、実名・メールは載せない）。`LICENSE` の本文は
+  記憶から書かず、ローカルの Gradle キャッシュにある AGP 8.13.0 の aapt2 同梱の `NOTICE`（`transforms/.../aapt2-8.13.0-13719691-windows/NOTICE`）の
+  7〜208行目（Apache License 2.0 の本文と末尾の APPENDIX）を改変せずに写した。条項の本文は、同キャッシュの AndroidX の `LICENSE.txt` と
+  Python の pip 同梱の `LICENSE.APACHE`（どちらも APPENDIX なし）の本文と差分なしで一致することも確かめた。apache.org の原文との照合は
+  BL-096 で人が行う。本アプリ自身の NOTICE ファイルは作らない
+
 - リポジトリの Public 化と Play 公開に向けた対応を BACKLOG へ起票した（自律ループの第1イテレーション）。自動で進めるものは
   BL-089（Apache-2.0 の LICENSE と README のライセンス節）、BL-090（docs/PRIVACY.md の制定日・問い合わせ先と docs/PLAY_LISTING.md の
   ポリシー URL）、BL-091（SECURITY.md と Issue テンプレート）、BL-092（README の Play 配布の記述と外部向けの「開発の進め方」）、
