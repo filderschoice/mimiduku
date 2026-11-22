@@ -11,7 +11,7 @@
 - BL-093: 同梱する OSS のライセンス一覧 `docs/THIRD_PARTY_LICENSES.md` を追加し、README のライセンス節からリンクした。release ビルドの
   依存（88件。GitHub 版・Play 版で同一）を AGP の依存レポート（`dependencies.pb`）から取り、ローカルの Gradle キャッシュの POM で確かめた。
   確かめられたものはすべて Apache-2.0、NOTICE ファイルを持つ依存は無く（`core`・`core-ktx` が LICENSE.txt を含むのみ）、追加で載せる
-  NOTICE は無い。マルチプラットフォームの統括モジュール34件は POM がキャッシュに無く「未確認」とし、確かめる作業を BL-097 に起票した
+  NOTICE は無い。統括モジュール34件（直接の依存の material3 を含む）は POM がキャッシュに無く「未確認」とし、確かめる作業を BL-097 に起票した
   （依存の解決の Gradle タスクは品質ゲートの表に無いため実行していない）。アプリ内の表示は出さない（BL-094 の A）。依存の追加・変更は無い
 
 - BL-092: README を外部の読者向けに直した。前提条件の「Google Play では配布しません」を「現在は GitHub からの配布が前提で、Google Play 版は
