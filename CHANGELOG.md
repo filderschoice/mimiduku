@@ -4,6 +4,9 @@
 
 ## Unreleased
 
+- BL-099: debug ビルドのアプリ名とアクセシビリティサービス名の末尾に「 (debug)」を付けた（`mobile/src/debug/res/values/strings.xml`）。
+  リリース版と同じ端末で見分けるため。release の名前は変えていない
+
 - BL-097: `docs/THIRD_PARTY_LICENSES.md` で「未確認」だった34件（統括モジュール。直接の依存の material3 を含む）の
   ライセンスを、ユーザーの許可を得てネットワーク上の POM（androidx は Google Maven、kotlin・kotlinx は Maven Central）で
   確かめた。34件すべて Apache-2.0 で、一覧の「未確認」の行は無くなった（NOTICE・LICENSE の同梱は、AAR・JAR が

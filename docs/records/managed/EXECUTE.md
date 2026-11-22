@@ -5,6 +5,26 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-11-23 12:00
+  summary: debug ビルドのアプリ名とアクセシビリティサービス名の末尾に「 (debug)」を付ける（BL-099）
+  details:
+    変更内容: >-
+      実機検証でリリース版と debug 版を端末上で見分けられるよう、debug ソースセット（mobile/src/debug/res/values/strings.xml）で
+      app_name と accessibility_service_label を上書きした。マニフェストの android:label は両方とも文字列リソース参照のため、
+      ランチャー名・アクセシビリティ設定画面のサービス名・ホーム画面の見出し（HomeScreen の app_name）の全てに効く。
+      GitHub 版・Play 版の debug の両方に効き、release は変わらない（main の値のまま）。コードの変更は無い。
+    変更ファイル:
+      - mobile/src/debug/res/values/strings.xml
+      - docs/records/managed/DESIGN.md
+      - docs/records/managed/EXECUTE.md
+      - CHANGELOG.md
+    検証コマンド: >-
+      ./gradlew --continue ktlintCheck detekt testGithubDebugUnitTest --console=plain（軽い検証）、npx markdownlint-cli2、
+      python scripts/validate-records.py、python scripts/scan-secrets.py --require-changes
+    検証結果: >-
+      成功（詳細は下記の報告のとおり。実機での表示確認は未実施）
+    関連ID:
+      - BL-099
 - date: 2026-11-14 00:15
   summary: サービスの終了時に残す検知ログの行を、種別は ASK_USER のまま印で見分けてログの画面に「保護の終了時のため確認なし」と出す（BL-086）。鍵の兼用をユーザーの決定として記録する（BL-085）
   details:

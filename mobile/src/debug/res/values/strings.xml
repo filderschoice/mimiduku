@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- debug ビルドだけ、ランチャーとアクセシビリティ設定のサービス名の末尾に (debug) を付ける（BL-099）。
+         同一端末へ併存するリリース版と見分けるため。main の同名の文字列を上書きする。 -->
+    <string name="app_name">みみづく (debug)</string>
+    <string name="accessibility_service_label">みみづく（広告対策） (debug)</string>
+</resources>
