@@ -4,6 +4,13 @@
 
 ## Unreleased
 
+- BL-098: Public 化後のリポジトリ設定をユーザーの指示でエージェントが行えるよう、`.claude/hooks/guard-commands.py` が通す `gh api` の書き込みを
+  セキュリティ機能を有効にする4形（PUT の private-vulnerability-reporting・vulnerability-alerts・automated-security-fixes と、PATCH の
+  `security_and_analysis[...][status]=enabled`）に限って足した。無効化・`--input`・他のフィールドやエンドポイントは拒否のまま。
+  テスト13件を足し（全249件成功）、`CLAUDE.md` と `CONTRIBUTING.local.md` の説明を直した。guardrails 12.2 は変えていない
+  （自律ループ実行モード中の禁止は Skill `autonomous-loop` の手順で守る）。`.claude/settings.json` の deny は変えていない
+  （`gh api` はもともと deny に無く、hook だけが止めていた）
+
 - Android Lint が追跡対象外の `local.properties`（端末ごとの SDK パスと release 署名の設定）まで検査し、`c\:/…` と書いても `PropertyEscape` の
   エラーで `lintGithubDebug`・`lintPlayDebug` が失敗する問題を直した。`mobile/lint.xml` を追加し、`local.properties` を `PropertyEscape` の
   検査から外した（品質ゲートが端末ごとの書き方に左右されないようにする）。アプリのコード・依存・CI/CD 定義は変えていない

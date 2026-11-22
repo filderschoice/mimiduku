@@ -57,7 +57,7 @@ Claude Code 固有の差分と追加規約です。全エージェント共通�
   消す一覧を示して確認を取る。BL-087）。どちらも自律ループ実行モード中は 12.2 で禁止のままで、deny と hook はモードを
   判別できないため Skill `autonomous-loop` の手順で守る
 - hooks: PreToolUse の `.claude/hooks/guard-commands.py` が deny の先頭一致で漏れる書き方（`git -C . push` 等）、
-  規定ブランチ上でのコミット、gh の書き込み（`gh api` の POST 等。PR の作成・編集を除く）を語として判定して拒否する。誤操作の安全網であり
+  規定ブランチ上でのコミット、gh の書き込み（`gh api` の POST 等。PR の作成・編集と、リポジトリのセキュリティ機能を有効にする `gh api` の4形を除く）を語として判定して拒否する。誤操作の安全網であり
   サンドボックスではない（限界とテストは `CONTRIBUTING.local.md`「禁止操作の hook」）。
   PostToolUse の `.claude/hooks/validate-records-after-edit.py` が
   記録ファイルの編集後に `scripts/validate-records.py` を実行し、失敗を理由つきで返す
