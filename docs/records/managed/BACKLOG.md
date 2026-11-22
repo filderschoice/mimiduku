@@ -5,32 +5,6 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
-- id: BL-096
-  区分: 人手検証
-  タスク内容: >-
-    リポジトリの Public 化を人が行う。順に、(1) 作業ブランチを push して PR をマージする、(2) LICENSE（BL-089）の本文を
-    https://www.apache.org/licenses/LICENSE-2.0.txt と照合し、GitHub がライセンスを Apache-2.0 と認識することを確かめる、
-    (3) リポジトリを Public に切り替える、(4) Private vulnerability reporting と Dependabot alerts・security updates を有効にする、
-    (5) 公開後に README・SECURITY.md・docs/PRIVACY.md の URL と、アプリの「困ったとき・ご意見」のリンク先
-    （MainActivity の SUPPORT_URL）が開けることを確かめる
-  優先度: P1
-  状態: 進行中
-  担当: ユーザー
-  完了条件: >-
-    (1)〜(5) の結果が記録され、開けないリンクや認識されないライセンスがあれば BACKLOG に起票されている。BL-052 は本項目の完了で
-    「公開状態が決まった」ことになるため、あわせて閉じるか判断されている
-  依存: []
-  根拠: >-
-    push・リポジトリの公開設定・GitHub のセキュリティ機能の有効化は外部への発信と権限の変更で、guardrails 12.2 によりエージェントは
-    行わないため人手検証とした。履歴に残る author のメールはユーザーの決定で「そのまま公開」とし、履歴は書き換えない。GitHub のメール非公開設定の確認は、ユーザーの判断で不要とした。
-    BL-052（要確認）はユーザーの「Public 切り替えを進めたい」で方向は示されたが、要確認の解消は人が行うため本項目では書き換えない。
-    2026-11-22 に (2) のうち LICENSE の本文照合を済ませた（公式の LICENSE-2.0.txt と LICENSE が 11358 バイト・SHA-256 とも一致、行末の CR を除いた diff も差分なし）。
-    2026-11-22 に公開後の確認を済ませた。(1) #14〜#16 をマージ済み、(2) GitHub が Apache-2.0 と認識（licenseInfo.key=apache-2.0）、(3) リポジトリは PUBLIC、(4) Private vulnerability reporting・Dependabot alerts・Dependabot security updates・Secret scanning・Push protection を有効化して読み取りで確認した（BL-098 の hook 許可でエージェントが実行）、(5) 未認証の curl で次の URL がすべて HTTP 200 だった。リポジトリのトップ（アプリの SUPPORT_URL と同じ）・Issues・issues/new/choose・docs/PRIVACY.md（Play のポリシー URL）・SECURITY.md・LICENSE・docs/THIRD_PARTY_LICENSES.md。security/advisories/new も 200 だったが、未認証ではログイン画面への転送を含むため、報告の動作はログインした状態で人が確かめる。README・SECURITY.md・docs/PRIVACY.md の URL は Issues のみで、開けないリンクは無かった。
-    2026-11-22 に (a) リポジトリの description と topics（android・kotlin・jetpack-compose・accessibility-service・parental-control・scareware）を
-    `gh repo edit` で設定し、読み取りで反映を確認した（ユーザーの指示でエージェントが実行。この時点の settings.json は deny 末尾の余分なカンマで不正だったため hook は効いておらず、PR #19 で直した）。
-    (d) の作業ブランチは PR #14〜#19 としてすべてマージ済み。
-    残り（人が行う）。(b) Private vulnerability reporting の報告画面の確認（ログインした状態でないと確かめられない）、
-    (c) BL-052 の判断（公開状態は決まった。要確認の解消は人が行う）。完了したら BL-096 を削除する。
 - id: BL-097
   区分: 品質ゲート
   タスク内容: >-
@@ -61,8 +35,7 @@
   完了条件: >-
     Play 版を公開する場合（BL-024）、データセーフティの申告内容と公開版のプライバシーポリシーが docs/PRIVACY.md と
     一致していることを確認し、結果を記録している。
-  依存:
-    - BL-096
+  依存: []
   根拠: >-
     申告はストア側の操作で、エージェントは外部サービスへ発信できないため人手検証とした。サイト名のハッシュは端末内に
     とどまり送信しないが、申告の文言が「収集なし」のままでよいかは申告フォームの定義に照らして判断が要る。
@@ -110,19 +83,6 @@
   根拠: >-
     ウィンドウのタッチと配置は端末依存で、単体テストでは確かめられないため人手検証とした。2026-10-24 に Pixel 8 Pro（Android 17・ダーク）で
     「×」の表示・自動消去・閉じる、ドラッグ、最小化（32dp）、復帰を確認済み。残りは通知の「バッジを出す」、横向き、再起動後、TalkBack。
-- id: BL-052
-  区分: 人手検証
-  タスク内容: >-
-    サポートのリンク先（https://github.com/filderschoice/mimiduku）が公開されているかを確認する。非公開のままだと
-    利用者がリンクを開いても 404 になる。公開の時期とリポジトリの公開設定を決める
-  優先度: P2
-  状態: 要確認
-  担当: ユーザー
-  完了条件: リポジトリの公開状態が決まり、公開前なら「このアプリについて」のリンクを出す時期が決まっている
-  依存: []
-  根拠: >-
-    リポジトリの公開は外部への発信にあたり、エージェントは判断しない。リンクはコードに入れてあるが、公開前の配布では
-    リンク先が開けない。
 - id: BL-045
   区分: 人手検証
   タスク内容: >-
@@ -183,8 +143,7 @@
   状態: 未着手
   担当: ユーザー
   完了条件: 審査の結果（承認・却下とその理由）が記録されている
-  依存:
-    - BL-096
+  依存: []
   根拠: >-
     Play Console への登録・申請は外部への発信で、Google アカウントと開発者登録が要るため人が行う。
     2026-11-08 に公開判断（BL-024）として、事前相談をせず先に申請し、審査で未確認点（`docs/design/DISTRIBUTION.md` 6章）を

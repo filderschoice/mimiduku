@@ -4,6 +4,11 @@
 
 ## Unreleased
 
+- BL-096・BL-052 を完了として BACKLOG から削除した。ユーザーが BL-096 の残り（Private vulnerability reporting の
+  報告画面の確認、BL-052 の判断）を確認済みと報告し、BL-052 も完了とした。BL-096 に依存していた BL-057・BL-031 の
+  依存を解除した（Public 化が済んだため）。`docs/TESTING.md` U7 と Skill `mimiduku-device-verification` の
+  BL-052 への言及も直した。アプリのコード・文字列・Play 申告は変えていない
+
 - BL-096（確認の途中）: リポジトリの description と topics（6件）を `gh repo edit` で設定し、読み取りで反映を確認した。作業ブランチの PR（#14〜#19）は
   すべてマージ済み。BL-096 の残りは、Private vulnerability reporting の報告画面の確認と BL-052 の判断（人が行う）に絞った。
   アプリのコード・文字列・Play 申告は変えていない
