@@ -153,6 +153,21 @@ CASES_WORK: list[tuple[str, str, int]] = [
     ("Bash", "gh api -XDELETE repos/o/r/git/refs/heads/x", DENY),
     ("Bash", "gh api repos/o/r/contents/x --input body.json", DENY),
     ("Bash", "gh api graphql -f query='query{viewer{login}}'", DENY),  # 承知している誤止め（POST で送るため）
+    # セキュリティ設定の有効化は通し、無効化・他の設定・本文ファイルは拒否する（BL-098）
+    ("Bash", "gh api -X PUT repos/o/r/private-vulnerability-reporting", ALLOW),
+    ("Bash", "gh api --method PUT repos/o/r/vulnerability-alerts", ALLOW),
+    ("Bash", "gh api -X PUT repos/o/r/automated-security-fixes", ALLOW),
+    ("Bash", "gh api -X PATCH repos/o/r -F security_and_analysis[secret_scanning][status]=enabled "
+             "-F security_and_analysis[secret_scanning_push_protection][status]=enabled", ALLOW),
+    ("Bash", "gh api -X DELETE repos/o/r/private-vulnerability-reporting", DENY),
+    ("Bash", "gh api -X DELETE repos/o/r/vulnerability-alerts", DENY),
+    ("Bash", "gh api -X PUT repos/o/r/collaborators/x", DENY),
+    ("Bash", "gh api -X PUT repos/o/r/vulnerability-alerts -f x=1", DENY),
+    ("Bash", "gh api -X PATCH repos/o/r -F security_and_analysis[secret_scanning][status]=disabled", DENY),
+    ("Bash", "gh api -X PATCH repos/o/r -F private=false", DENY),
+    ("Bash", "gh api -X PATCH repos/o/r -F security_and_analysis[secret_scanning][status]=enabled -F private=false", DENY),
+    ("Bash", "gh api -X PATCH repos/o/r --input body.json", DENY),
+    ("Bash", "gh api -X PUT repos/o/r/private-vulnerability-reporting/../collaborators/x", DENY),
     # --- PowerShell ---
     ("PowerShell", "git push", DENY),
     ("PowerShell", "& git.exe push", DENY),

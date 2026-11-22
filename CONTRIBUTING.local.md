@@ -69,6 +69,12 @@
 - 通すもの: `gh pr create`（別名 `new`）と `gh pr edit`。PR の作成と本文の編集はエージェントへ許可している（ユーザーの決定）。
   自律ループ実行モード中は guardrails 12.2 で禁止のままで、hook はモードを判別できないため Skill `autonomous-loop`・
   `pr-create` の手順で守る。PR のマージ・クローズ・再開・コメント・レビュー・ready・update-branch と Issue の書き込みは拒否する
+- 通すもの: リポジトリのセキュリティ機能を**有効にする** `gh api` の4形（BL-098。ユーザーの決定。Public 化後の設定を、ユーザーが
+  対話実行で明示的に指示したときにエージェントが行うため）。`PUT repos/<o>/<r>/private-vulnerability-reporting`・
+  `vulnerability-alerts`・`automated-security-fixes`（本文なし）と、`PATCH repos/<o>/<r>` で `-F`/`-f` が
+  `security_and_analysis[secret_scanning|secret_scanning_push_protection|dependabot_security_updates][status]=enabled` だけの形。
+  無効化（DELETE・`disabled`）、`--input`、他のフィールドや他のエンドポイント（collaborators・可視性の変更など）は拒否する。
+  自律ループ実行モード中は guardrails 12.2 で禁止のままで、hook はモードを判別できないため Skill `autonomous-loop` の手順で守る
 - 通すもの: 規定ブランチ（main / master）以外のローカルブランチの削除（`git branch -d` / `-D` / `--delete`）。ブランチの整理は
   エージェントへ許可している（ユーザーの決定。BL-087）。消す前に Skill `prune-merged-branches` の手順でマージ済みか内容が
   包含済みかを確かめ、消す一覧を示して確認を取る。自律ループ実行モード中は guardrails 12.2 で禁止のままで、Skill
