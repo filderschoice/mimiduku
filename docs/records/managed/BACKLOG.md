@@ -5,6 +5,155 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- id: BL-096
+  区分: 人手検証
+  タスク内容: >-
+    リポジトリの Public 化を人が行う。順に、(1) GitHub のメール非公開設定（Keep my email addresses private と、公開メールを
+    含む push の拒否）を確かめる、(2) 作業ブランチを push して PR をマージする、(3) LICENSE（BL-089）の本文を
+    https://www.apache.org/licenses/LICENSE-2.0.txt と照合し、GitHub がライセンスを Apache-2.0 と認識することを確かめる、
+    (4) リポジトリを Public に切り替える、(5) Private vulnerability reporting と Dependabot alerts・security updates を有効にする、
+    (6) 公開後に README・SECURITY.md・docs/PRIVACY.md の URL と、アプリの「困ったとき・ご意見」のリンク先
+    （MainActivity の SUPPORT_URL）が開けることを確かめる
+  優先度: P1
+  状態: 未着手
+  担当: ユーザー
+  完了条件: >-
+    (1)〜(6) の結果が記録され、開けないリンクや認識されないライセンスがあれば BACKLOG に起票されている。BL-052 は本項目の完了で
+    「公開状態が決まった」ことになるため、あわせて閉じるか判断されている
+  依存:
+    - BL-089
+    - BL-090
+    - BL-091
+    - BL-092
+    - BL-093
+  根拠: >-
+    push・リポジトリの公開設定・GitHub のセキュリティ機能の有効化は外部への発信と権限の変更で、guardrails 12.2 によりエージェントは
+    行わないため人手検証とした。履歴に残る author のメールはユーザーの決定で「そのまま公開」とし、履歴は書き換えない。
+    BL-052（要確認）はユーザーの「Public 切り替えを進めたい」で方向は示されたが、要確認の解消は人が行うため本項目では書き換えない。
+- id: BL-095
+  区分: 品質ゲート
+  タスク内容: >-
+    公開範囲の判断。エージェント運用向けの内部文書（rules/・.claude/・docs/guidelines/・docs/records/・templates/・PLAN.md・
+    CONTRIBUTING.md・CONTRIBUTING.local.md）を公開するリポジトリに残すか、外部の読者向けにどう位置づけるかを決める。
+    選択肢は、A そのまま公開して README で「開発に使う AI エージェント向けの規約」と説明する（BL-092 の既定）、
+    B 一部を公開範囲から外す（追跡から外す・別リポジトリへ移す）
+  優先度: P2
+  状態: 要確認
+  担当: ユーザー
+  完了条件: A・B のどちらにするかが決まり、B の場合は外す対象と方法が BACKLOG に起票されている
+  依存: []
+  根拠: >-
+    公開範囲は外部への発信にあたり、B は guardrails・CLAUDE.md・.claude/ などレビュー要件のあるファイルと、配布元との同期
+    （CONTRIBUTING.md は取り込みで上書きされる）に影響するため、エージェントは決めない。内部文書に秘密情報が無いことは
+    公開前点検で確かめ済みで、A でも安全上の支障は見つかっていない。
+- id: BL-094
+  区分: 機能追加
+  タスク内容: >-
+    アプリ内のライセンス表示の要否と方式を決める。本アプリのライセンス（Apache-2.0）と、APK・AAB に同梱する OSS（AndroidX・
+    Compose・Material3・kotlinx-serialization など。一覧は BL-093）のライセンスを「このアプリについて」に出すか。選択肢は、
+    A 出さない（リポジトリの LICENSE と docs の一覧だけ）、B 文字列で要約とリポジトリへのリンクを出す、C ライセンス一覧の
+    画面を作る（Google の oss-licenses-plugin など依存の追加を伴う）
+  優先度: P2
+  状態: 要確認
+  担当: ユーザー
+  完了条件: A・B・C のどれにするかが決まり、B・C の場合は実装のタスクが起票されている
+  依存:
+    - BL-093
+  根拠: >-
+    画面の文言と構成の追加は仕様の判断で、C は依存の追加と Play 版の申告にも関わる。Apache-2.0 の依存は再配布時に
+    NOTICE の扱いが要る場合があり、BL-093 で各依存の NOTICE の有無が分かってから判断する。
+- id: BL-093
+  区分: 品質ゲート
+  タスク内容: >-
+    同梱する OSS のライセンスを確かめて一覧にする。mobile の GitHub 版・Play 版の releaseRuntimeClasspath に入る依存
+    （gradle/libs.versions.toml の AndroidX core-ktx・lifecycle-runtime-compose・activity-compose・Compose BOM 配下・Material3・
+    kotlinx-serialization-json と推移的な依存）について、ローカルの Gradle キャッシュにある POM の licenses 要素で実際の
+    ライセンスを確かめ、docs/THIRD_PARTY_LICENSES.md に依存名・版・ライセンス・確かめた根拠（POM）を載せる。AAR・JAR に
+    NOTICE が含まれるかも確かめて記す。テスト・ビルド専用の依存（junit・ktlint・detekt・AGP）は対象外と明記する
+  優先度: P2
+  状態: 未着手
+  担当: AIエージェント
+  完了条件: >-
+    docs/THIRD_PARTY_LICENSES.md があり、同梱する依存がすべてライセンスと根拠つきで載っている。POM で確かめられなかった依存は
+    「未確認」と明記されている。README のライセンス節（BL-089）から一覧へリンクしている。
+  依存:
+    - BL-089
+  根拠: >-
+    既定値として、一覧はリポジトリの文書に置き、アプリ内の表示は BL-094（要確認）で決める。依存の解決には
+    ./gradlew の依存一覧のタスクが要り、品質ゲート表に無いコマンドのため実行時に確認を挟む。外部への問い合わせはせず、
+    ローカルのキャッシュだけで確かめる。
+- id: BL-092
+  区分: 品質ゲート
+  タスク内容: >-
+    README.md を外部の読者向けに直す。前提条件の「Google Play では配布しません」を、Play 版を申請する方針（BL-031）と
+    矛盾しない記述へ改める。末尾「開発の進め方」を、不具合・要望は GitHub の Issues へ、脆弱性は SECURITY.md の手順へ、
+    という外部向けの案内にし、CONTRIBUTING.md・rules/・.claude/・docs/records/ は開発に使う AI エージェント向けの規約と記録で
+    あることを一言で説明する
+  優先度: P2
+  状態: 未着手
+  担当: AIエージェント
+  完了条件: >-
+    README から「Google Play では配布しません」の矛盾が無くなり、Issues・SECURITY.md・LICENSE への案内がある。README の
+    相対リンクがすべて実在するファイルを指している。CONTRIBUTING.md・guardrails・CLAUDE.md・.claude/ は変更していない。
+  依存:
+    - BL-089
+    - BL-091
+  根拠: >-
+    既定値として内部文書はそのまま残して説明だけを足す（BL-095 の A）。B に決まった場合は記述を追従させる。CONTRIBUTING.md は
+    配布元からの取り込みで上書きされるため、外部向けの案内は README に書く。Play 版は未申請のため「申請を予定」の書き方にとどめ、
+    公開済みとは書かない。
+- id: BL-091
+  区分: 品質ゲート
+  タスク内容: >-
+    SECURITY.md と Issue テンプレートを追加する。SECURITY.md には対象の版、脆弱性は公開の Issue に書かず GitHub の
+    Private vulnerability reporting（Security タブの Report a vulnerability）で知らせること、応答は個人の開発のため期限を
+    約束しないことを書く。.github/ISSUE_TEMPLATE/ に不具合報告（端末名・Android の版・アプリの版と配布の版・再現手順。
+    検知ログや画面の文字に個人情報を含めないよう注意書き）と要望のテンプレート、config.yml（脆弱性は SECURITY.md へ案内）を置く
+  優先度: P2
+  状態: 未着手
+  担当: AIエージェント
+  完了条件: >-
+    SECURITY.md と .github/ISSUE_TEMPLATE/ の3ファイルがあり、Markdown の静的解析と秘密情報スキャンに合格している。
+    メールアドレスなどの個人の連絡先を書いていない。
+  依存: []
+  根拠: >-
+    既定値として窓口は GitHub の機能だけにし、個人のメールアドレスは載せない（個人情報を増やさない側）。Private vulnerability
+    reporting の有効化は GitHub の設定で人が行う（BL-096）。Issue テンプレートは CI/CD 定義ではなく、.github/ の既存ファイルも変えない。
+- id: BL-090
+  区分: 品質ゲート
+  タスク内容: >-
+    docs/PRIVACY.md の空欄を埋める。制定日を記入し、8章「問い合わせ先」に https://github.com/filderschoice/mimiduku/issues を
+    書き、Issues は公開されるため個人情報を書かないよう添える。docs/PLAY_LISTING.md の「（公開した docs/PRIVACY.md の URL を記入）」を
+    https://github.com/filderschoice/mimiduku/blob/main/docs/PRIVACY.md に置き換える。読み取る情報・使い道・保存・送信の記述は変えない
+  優先度: P1
+  状態: 未着手
+  担当: AIエージェント
+  完了条件: >-
+    docs/PRIVACY.md と docs/PLAY_LISTING.md に「記入」の空欄が残っていない。開示文（strings.xml の disclosure_body）と
+    ConsentStore.CURRENT_VERSION を変更していない。
+  依存: []
+  根拠: >-
+    既定値の1つめ、制定日は記入したイテレーションの日付とする。公開日は未定だが、方針の内容は既に確定しており、公開時に内容を
+    変えるなら7章のとおり改定として扱えるため、利用者に不利な食い違いは生じない。2つめ、窓口は公開の Issues とし個人の
+    メールアドレスは載せない。3つめ、URL は main の GitHub 上のページとし、Public 化（BL-096）まで開けない。Play のポリシー URL として
+    受け付けられるかは未確認で、BL-031 の申請時に確かめる。収集・利用の内容は変えないため再同意（開示文の版数）は不要。
+- id: BL-089
+  区分: 品質ゲート
+  タスク内容: >-
+    リポジトリのルートに Apache-2.0 の LICENSE を追加し、README.md にライセンスの節を設ける。LICENSE の本文は記憶から書かず、
+    ローカルにある Apache-2.0 の原文（Gradle キャッシュ内の依存に同梱された LICENSE など）を改変せずに写し、写した元を
+    CHANGELOG.md に記録する。README には「Apache License 2.0」と著作権表示（Copyright 2026 filderschoice）を書く
+  優先度: P1
+  状態: 未着手
+  担当: AIエージェント
+  完了条件: >-
+    ルートに LICENSE があり、本文が Apache-2.0 の原文と一致する（末尾の APPENDIX も原文のまま）。README にライセンスの節がある。
+    Markdown の静的解析・記録ファイルの検証・秘密情報スキャンに合格している。
+  依存: []
+  根拠: >-
+    ライセンスはユーザーの決定（Apache-2.0）による。既定値として、著作権者は既に公開される GitHub のアカウント名とし、実名は
+    載せない（個人情報を増やさない側）。本アプリ自身の NOTICE ファイルは Apache-2.0 で必須ではないため作らない。原文との一致の
+    最終確認は BL-096 で人が行う。
 - id: BL-057
   区分: 人手検証
   タスク内容: >-
@@ -17,7 +166,8 @@
   完了条件: >-
     Play 版を公開する場合（BL-024）、データセーフティの申告内容と公開版のプライバシーポリシーが docs/PRIVACY.md と
     一致していることを確認し、結果を記録している。
-  依存: []
+  依存:
+    - BL-096
   根拠: >-
     申告はストア側の操作で、エージェントは外部サービスへ発信できないため人手検証とした。サイト名のハッシュは端末内に
     とどまり送信しないが、申告の文言が「収集なし」のままでよいかは申告フォームの定義に照らして判断が要る。
@@ -138,7 +288,8 @@
   状態: 未着手
   担当: ユーザー
   完了条件: 審査の結果（承認・却下とその理由）が記録されている
-  依存: []
+  依存:
+    - BL-096
   根拠: >-
     Play Console への登録・申請は外部への発信で、Google アカウントと開発者登録が要るため人が行う。
     2026-11-08 に公開判断（BL-024）として、事前相談をせず先に申請し、審査で未確認点（`docs/design/DISTRIBUTION.md` 6章）を

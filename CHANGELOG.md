@@ -4,6 +4,14 @@
 
 ## Unreleased
 
+- リポジトリの Public 化と Play 公開に向けた対応を BACKLOG へ起票した（自律ループの第1イテレーション）。自動で進めるものは
+  BL-089（Apache-2.0 の LICENSE と README のライセンス節）、BL-090（docs/PRIVACY.md の制定日・問い合わせ先と docs/PLAY_LISTING.md の
+  ポリシー URL）、BL-091（SECURITY.md と Issue テンプレート）、BL-092（README の Play 配布の記述と外部向けの「開発の進め方」）、
+  BL-093（同梱する OSS のライセンス一覧）。要確認は BL-094（アプリ内のライセンス表示）と BL-095（内部文書の公開範囲）、人手検証は
+  BL-096（push・メール非公開設定・Public 化・GitHub のセキュリティ機能の有効化・公開後のリンク確認）。BL-031 と BL-057 は公開した
+  ポリシーの URL が前提のため、依存に BL-096 を足した。`.claude/hooks/__pycache__/` は既に `.gitignore` の対象で追跡されていないため
+  起票しなかった
+
 - BL-085（release 署名と版管理の実鍵での確認）が完了した。ユーザーが作った鍵（PKCS12・別名 `mimiduku-release`・リポジトリの外に保管）で
   `scripts/release-build.bat` を実行し、GitHub 版の APK と Play 版の AAB が成功した。両方の証明書 SHA-256 は一致し、ユーザーが鍵ストアの
   指紋と照合して一致を確かめた。GitHub 版の APK を Pixel 8 Pro へ入れて起動を確認した（クラッシュなし）。`scripts/version.properties` の
