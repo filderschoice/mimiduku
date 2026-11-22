@@ -4,6 +4,10 @@
 
 ## Unreleased
 
+- BL-096（確認の途中）: リポジトリの description と topics（6件）を `gh repo edit` で設定し、読み取りで反映を確認した。作業ブランチの PR（#14〜#19）は
+  すべてマージ済み。BL-096 の残りは、Private vulnerability reporting の報告画面の確認と BL-052 の判断（人が行う）に絞った。
+  アプリのコード・文字列・Play 申告は変えていない
+
 - ユーザーが `.claude/settings.json` の `permissions.deny` から gh を外したのに合わせ、`.claude/hooks/guard-commands.py` の gh の判定
   （GH_WRITE・`gh api` の書き込みと BL-098 の例外）を削除し、gh を止めないようにした（今後も gh での GitHub 連携を行うため）。
   `settings.json` の `deny` 末尾に残っていた余分なカンマ（JSON として不正で、設定全体が読まれなくなる）も直した。
