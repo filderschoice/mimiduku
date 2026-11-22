@@ -50,14 +50,13 @@ Claude Code 固有の差分と追加規約です。全エージェント共通�
 
 - `permissions.allow`: `docs/records/managed/` 配下の3ファイルの編集と、上表の品質ゲートのコマンド（表の文字列と完全一致の
   ときだけ。オプションやパイプを足すと確認を挟む）。それ以外の編集・コマンドは確認を挟む
-- `permissions.deny`: guardrails 12.2 の禁止操作（push・amend・rebase・reset --hard・タグの削除・`--no-verify`・
-  gh による PR のマージ・クローズ・コメント・レビュー等と Issue の作成・更新）。Bash と PowerShell の両方。
-  `gh pr create` / `gh pr edit` は対話実行でエージェントが実行してよい（Skill `pr-create`）。ローカルブランチの削除
-  （`git branch -d` / `-D`。規定ブランチを除く）も対話実行でエージェントが実行してよい（Skill `prune-merged-branches` の手順で
-  消す一覧を示して確認を取る。BL-087）。どちらも自律ループ実行モード中は 12.2 で禁止のままで、deny と hook はモードを
-  判別できないため Skill `autonomous-loop` の手順で守る
+- `permissions.deny`: guardrails 12.2 の git の禁止操作（push・amend・rebase・reset --hard・タグの削除・`--no-verify`）。
+  Bash と PowerShell の両方。gh は deny にも hook にも置かない（ユーザーの決定。PR・Issue・リポジトリ設定などの GitHub 連携を
+  対話実行でエージェントが実行してよい。PR は Skill `pr-create`）。ローカルブランチの削除（`git branch -d` / `-D`。規定ブランチを除く）も
+  対話実行でエージェントが実行してよい（Skill `prune-merged-branches` の手順で消す一覧を示して確認を取る。BL-087）。
+  どれも自律ループ実行モード中は 12.2 で禁止のままで、deny と hook はモードを判別できないため Skill `autonomous-loop` の手順で守る
 - hooks: PreToolUse の `.claude/hooks/guard-commands.py` が deny の先頭一致で漏れる書き方（`git -C . push` 等）、
-  規定ブランチ上でのコミット、gh の書き込み（`gh api` の POST 等。PR の作成・編集と、リポジトリのセキュリティ機能を有効にする `gh api` の4形を除く）を語として判定して拒否する。誤操作の安全網であり
+  規定ブランチ上でのコミットを語として判定して拒否する（gh は判定しない）。誤操作の安全網であり
   サンドボックスではない（限界とテストは `CONTRIBUTING.local.md`「禁止操作の hook」）。
   PostToolUse の `.claude/hooks/validate-records-after-edit.py` が
   記録ファイルの編集後に `scripts/validate-records.py` を実行し、失敗を理由つきで返す

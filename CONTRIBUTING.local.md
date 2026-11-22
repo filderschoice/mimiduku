@@ -64,17 +64,12 @@
   ヒアドキュメント本文の中を含む）、`bash -c`・`sh -c`・`eval`・`powershell -Command`・`Invoke-Expression`・`cmd /c` の引数と
   `bash <<EOF` の本文（同じ判定へ再帰的に通す）、`git -c core.hooksPath=…`・`git -c alias.*`（展開して判定）
 - 限界（判定しない）: 変数・展開を経由する名前（`$GIT push`、`git $(echo push)`）、標準入力やファイルから読まれる引数と
-  スクリプト（`echo push | xargs git`、`echo "git push" | bash`、`bash script.sh`）、gitconfig に定義済みのエイリアスと
-  gh のエイリアス・拡張、`Start-Process`・`find -exec` など別プログラム経由の起動
-- 通すもの: `gh pr create`（別名 `new`）と `gh pr edit`。PR の作成と本文の編集はエージェントへ許可している（ユーザーの決定）。
-  自律ループ実行モード中は guardrails 12.2 で禁止のままで、hook はモードを判別できないため Skill `autonomous-loop`・
-  `pr-create` の手順で守る。PR のマージ・クローズ・再開・コメント・レビュー・ready・update-branch と Issue の書き込みは拒否する
-- 通すもの: リポジトリのセキュリティ機能を**有効にする** `gh api` の4形（BL-098。ユーザーの決定。Public 化後の設定を、ユーザーが
-  対話実行で明示的に指示したときにエージェントが行うため）。`PUT repos/<o>/<r>/private-vulnerability-reporting`・
-  `vulnerability-alerts`・`automated-security-fixes`（本文なし）と、`PATCH repos/<o>/<r>` で `-F`/`-f` が
-  `security_and_analysis[secret_scanning|secret_scanning_push_protection|dependabot_security_updates][status]=enabled` だけの形。
-  無効化（DELETE・`disabled`）、`--input`、他のフィールドや他のエンドポイント（collaborators・可視性の変更など）は拒否する。
-  自律ループ実行モード中は guardrails 12.2 で禁止のままで、hook はモードを判別できないため Skill `autonomous-loop` の手順で守る
+  スクリプト（`echo push | xargs git`、`echo "git push" | bash`、`bash script.sh`）、gitconfig に定義済みのエイリアス、
+  `Start-Process`・`find -exec` など別プログラム経由の起動
+- 通すもの: gh のすべて。`permissions.deny` から gh を外したユーザーの決定に合わせ、hook も gh を判定しない（PR の作成・編集・マージ、
+  Issue、リポジトリ設定、`gh api` の書き込みなど GitHub 連携をエージェントへ許可している）。自律ループ実行モード中は
+  guardrails 12.2 で禁止のままで、hook はモードを判別できないため Skill `autonomous-loop`・`pr-create` の手順で守る。
+  対話実行でも、マージ・クローズ・リポジトリの可視性の変更のような後戻りしにくい操作は、ユーザーが明示的に指示したときだけ行う
 - 通すもの: 規定ブランチ（main / master）以外のローカルブランチの削除（`git branch -d` / `-D` / `--delete`）。ブランチの整理は
   エージェントへ許可している（ユーザーの決定。BL-087）。消す前に Skill `prune-merged-branches` の手順でマージ済みか内容が
   包含済みかを確かめ、消す一覧を示して確認を取る。自律ループ実行モード中は guardrails 12.2 で禁止のままで、Skill
@@ -83,7 +78,6 @@
 - 通すもの: 規定ブランチ上の `git merge --ff-only`（PR のマージ後に main を origin/main へ追従させる早送り。新しいコミットを
   作らないため。BL-088）。ff 系のオプションは最後の指定で判定し、`--ff-only` の後に `--ff`・`--no-ff` が来る形と、
   オプション無しの merge は規定ブランチへのコミットとして拒否する
-- 承知している誤止め: `gh api graphql` は読み取りでも POST で本文を送るため拒否する（読み取りは REST の GET で行う）
 - 判定中に例外が起きた場合は、コマンドに禁止操作の語（push・amend・commit・gh など）が含まれるときだけ「hook の判定に失敗
   したので安全側で止めた」と返して拒否し、それ以外は通す（hook の不具合で全コマンドが止まらないため）
 
@@ -148,7 +142,7 @@ python scripts/test-guard-commands.py
 | ファイル | 固有の追記 | 理由 |
 | --- | --- | --- |
 | `.claude/settings.json`（マージ対象） | 品質ゲートの `permissions.allow`、`permissions.deny`、`hooks` | ADOPTION.md は `permissions.allow` のマージだけを述べるため、deny と hooks も残すことを明記する（BL-077） |
-| `.claude/skills/autonomous-loop/SKILL.md` | 終了時の報告の「ループ中は PR を作成・更新しない」段落と「ループ中はブランチを削除しない」の一文（BL-087） | `.claude/settings.json` と hook が `gh pr create` / `gh pr edit` とローカルブランチの削除を通しており、モードを判別できないため手順で守る |
-| `.claude/skills/pr-create/SKILL.md` | 手順1の、settings.json と hook が `gh pr create` / `gh pr edit` を通しループ中は手順で止める旨の記述 | PR の作成・本文の編集をエージェントへ許可したため（それ以外の gh の書き込みは拒否のまま） |
+| `.claude/skills/autonomous-loop/SKILL.md` | 終了時の報告の「ループ中は PR を作成・更新しない」段落と「ループ中はブランチを削除しない」の一文（BL-087） | `.claude/settings.json` と hook が gh とローカルブランチの削除を止めておらず、モードを判別できないため手順で守る |
+| `.claude/skills/pr-create/SKILL.md` | 手順1の、settings.json と hook が `gh pr create` / `gh pr edit` を通しループ中は手順で止める旨の記述 | gh による GitHub 連携をエージェントへ許可したため（deny・hook に gh は置かない） |
 | `.claude/skills/pr-create/SKILL.md` | 手順3の「本リポジトリ固有」の段落（PR の作成・更新の前の全ゲートが唯一の関門である旨） | CI を導入しないため、PR 作成前のフル検証が唯一の関門になる（BL-076） |
 | `.claude/agents/` の `backlog-implementer.md`・`diff-reviewer.md`・`quality-gate-runner.md` | Skill `mimiduku-change` の参照、本アプリ固有の点検観点、品質ゲートの段階と Gradle の UP-TO-DATE・テスト件数の確かめ方 | 配布元版はこれらを汎用化したもので、固有の記述を残すため。統制や秘密情報スキャンなど汎用の改善は配布元版から取り込む |
