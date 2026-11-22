@@ -4,6 +4,12 @@
 
 ## Unreleased
 
+- BL-092: README を外部の読者向けに直した。前提条件の「Google Play では配布しません」を「現在は GitHub からの配布が前提で、Google Play 版は
+  申請を予定している（公開はまだ）」に改め、「不具合・要望・脆弱性」の節（Issues と SECURITY.md への案内）を足し、「開発の進め方」に
+  `CONTRIBUTING.md`・`rules/`・`.claude/`・`docs/records/` は開発に使う AI エージェント向けの規約と記録であることの説明を足した（内部文書は
+  公開範囲に残す。BL-095 のユーザーの決定）。README の相対リンクはすべて実在するファイルを指すことを確かめた。`CONTRIBUTING.md`・
+  guardrails・`CLAUDE.md`・`.claude/` は変更していない
+
 - ユーザーの決定を BACKLOG へ反映した。BL-094（アプリ内のライセンス表示）は A（出さない。リポジトリの LICENSE と docs の一覧だけ）、
   BL-095（公開範囲）は内部文書を残し README で説明する方向（A）に決まったため、2件を削除した。依存の NOTICE の扱いの確認は BL-093 の
   完了条件へ引き継いだ。GitHub のメール非公開設定の確認は不要とされたため BL-096 の確認項目から外した（他の項目は変えていない）。

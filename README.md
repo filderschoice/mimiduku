@@ -58,7 +58,8 @@ GitHub 版と Google Play 版は同じソースから作り、機能の違いは
 ## 前提条件
 
 - Android 10（API 29）以降
-- Google Play では配布しません。家庭内でのサイドロード（自分でビルドしてインストール）を前提にしています
+- 現在は GitHub からの配布（自分でビルドしてインストールするサイドロード）が前提です。Google Play 版は申請を予定していますが、
+  公開はまだです
 - Android 16 以降の「高度な保護（Advanced Protection）」を有効にした端末では、アクセシビリティ API が
   支援技術アプリに限られるため動作しない見込みです（未確認）
 - Private DNS（広告ブロック DNS）や Family Link と併用すると取りこぼしが減ります。本アプリは「設定で防げない
@@ -234,7 +235,14 @@ Apache License 2.0 です。全文は [LICENSE](LICENSE) にあります。
 
 Copyright 2026 filderschoice
 
+## 不具合・要望・脆弱性
+
+- 不具合や要望は GitHub の [Issues](https://github.com/filderschoice/mimiduku/issues) へ書いてください（テンプレートがあります）。
+  Issues は公開されるため、個人情報を書かないでください。
+- 脆弱性は公開の Issue に書かず、[SECURITY.md](SECURITY.md) の手順（Private vulnerability reporting）で知らせてください。
+
 ## 開発の進め方
 
-ブランチ・コミット・レビューの規約は [CONTRIBUTING.md](CONTRIBUTING.md) を参照してください。
-未対応の事項は [docs/records/managed/BACKLOG.md](docs/records/managed/BACKLOG.md) にあります。
+`CONTRIBUTING.md`・`rules/`・`.claude/`・`docs/records/` などは、本リポジトリの開発に使う AI エージェント向けの規約と記録です。
+利用だけであれば読む必要はありません。開発に参加する場合は、ブランチ・コミット・レビューの規約を
+[CONTRIBUTING.md](CONTRIBUTING.md) で、未対応の事項を [docs/records/managed/BACKLOG.md](docs/records/managed/BACKLOG.md) で確かめてください。
