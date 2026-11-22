@@ -4,6 +4,11 @@
 
 ## Unreleased
 
+- BL-097: `docs/THIRD_PARTY_LICENSES.md` で「未確認」だった34件（統括モジュール。直接の依存の material3 を含む）の
+  ライセンスを、ユーザーの許可を得てネットワーク上の POM（androidx は Google Maven、kotlin・kotlinx は Maven Central）で
+  確かめた。34件すべて Apache-2.0 で、一覧の「未確認」の行は無くなった（NOTICE・LICENSE の同梱は、AAR・JAR が
+  キャッシュに無いため確かめていない旨を注記）。BL-097 を BACKLOG から削除した。アプリのコード・文字列・Play 申告は変えていない
+
 - BL-096・BL-052 を完了として BACKLOG から削除した。ユーザーが BL-096 の残り（Private vulnerability reporting の
   報告画面の確認、BL-052 の判断）を確認済みと報告し、BL-052 も完了とした。BL-096 に依存していた BL-057・BL-031 の
   依存を解除した（Public 化が済んだため）。`docs/TESTING.md` U7 と Skill `mimiduku-device-verification` の
