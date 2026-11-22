@@ -1,0 +1,51 @@
+name: 不具合の報告
+description: 想定どおりに動かない、誤って検知する・検知しない、などを知らせます
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Issues は誰でも読めます。検知ログや画面の文字に、氏名・連絡先・閲覧したサイトの内容などの個人情報が含まれていないか確かめてから書いてください。
+        脆弱性はここに書かず、SECURITY.md の手順で知らせてください。
+  - type: input
+    id: device
+    attributes:
+      label: 端末名
+      placeholder: 例 Pixel 8 Pro
+    validations:
+      required: true
+  - type: input
+    id: android
+    attributes:
+      label: Android の版
+      placeholder: 例 Android 16
+    validations:
+      required: true
+  - type: input
+    id: app_version
+    attributes:
+      label: アプリの版と配布の版
+      description: アプリの版は端末の設定のアプリ情報で確かめられます。配布は GitHub 版か Google Play 版かを書いてください。
+      placeholder: 例 0.1.0（GitHub 版）
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 再現手順
+      placeholder: |
+        1. ...
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected_actual
+    attributes:
+      label: 期待した動作と実際の動作
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: 補足
+      description: 検知ログや画面の文字を貼る場合は、個人情報を伏せてください。

@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 脆弱性の報告（公開の Issue には書かないでください）
+    url: https://github.com/filderschoice/mimiduku/blob/main/SECURITY.md
+    about: 脆弱性は SECURITY.md の手順に従い、Private vulnerability reporting で非公開のまま知らせてください。

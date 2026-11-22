@@ -4,6 +4,12 @@
 
 ## Unreleased
 
+- BL-091: `SECURITY.md`（対象の版、脆弱性は公開の Issue に書かず GitHub の Private vulnerability reporting で知らせること、応答の期限を
+  約束しないこと）と、`.github/ISSUE_TEMPLATE/` の不具合報告・要望（いずれも YAML のフォーム。不具合報告は端末名・Android の版・アプリの版と
+  配布の版・再現手順と、個人情報を含めない注意書き）・`config.yml`（空の Issue を無効にし、脆弱性は SECURITY.md へ案内）を追加した。
+  窓口は GitHub の機能だけで、個人のメールアドレスは載せていない。Private vulnerability reporting の有効化は GitHub の設定で
+  人が行う（BL-096）。既存の `.github/` のファイルと CI/CD 定義は変えていない
+
 - BL-090: `docs/PRIVACY.md` の制定日（2026-11-22）と 8章「問い合わせ先」（GitHub の Issues。公開されるため個人情報を書かないよう添えた。
   個人のメールアドレスは載せない）を記入し、`docs/PLAY_LISTING.md` のポリシー URL を
   `https://github.com/filderschoice/mimiduku/blob/main/docs/PRIVACY.md` にした。読み取る情報・使い道・保存・送信の記述、開示文

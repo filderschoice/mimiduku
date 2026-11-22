@@ -21,7 +21,6 @@
     (1)〜(6) の結果が記録され、開けないリンクや認識されないライセンスがあれば BACKLOG に起票されている。BL-052 は本項目の完了で
     「公開状態が決まった」ことになるため、あわせて閉じるか判断されている
   依存:
-    - BL-091
     - BL-092
     - BL-093
   根拠: >-
@@ -92,29 +91,11 @@
   完了条件: >-
     README から「Google Play では配布しません」の矛盾が無くなり、Issues・SECURITY.md・LICENSE への案内がある。README の
     相対リンクがすべて実在するファイルを指している。CONTRIBUTING.md・guardrails・CLAUDE.md・.claude/ は変更していない。
-  依存:
-    - BL-091
+  依存: []
   根拠: >-
     既定値として内部文書はそのまま残して説明だけを足す（BL-095 の A）。B に決まった場合は記述を追従させる。CONTRIBUTING.md は
     配布元からの取り込みで上書きされるため、外部向けの案内は README に書く。Play 版は未申請のため「申請を予定」の書き方にとどめ、
     公開済みとは書かない。
-- id: BL-091
-  区分: 品質ゲート
-  タスク内容: >-
-    SECURITY.md と Issue テンプレートを追加する。SECURITY.md には対象の版、脆弱性は公開の Issue に書かず GitHub の
-    Private vulnerability reporting（Security タブの Report a vulnerability）で知らせること、応答は個人の開発のため期限を
-    約束しないことを書く。.github/ISSUE_TEMPLATE/ に不具合報告（端末名・Android の版・アプリの版と配布の版・再現手順。
-    検知ログや画面の文字に個人情報を含めないよう注意書き）と要望のテンプレート、config.yml（脆弱性は SECURITY.md へ案内）を置く
-  優先度: P2
-  状態: 未着手
-  担当: AIエージェント
-  完了条件: >-
-    SECURITY.md と .github/ISSUE_TEMPLATE/ の3ファイルがあり、Markdown の静的解析と秘密情報スキャンに合格している。
-    メールアドレスなどの個人の連絡先を書いていない。
-  依存: []
-  根拠: >-
-    既定値として窓口は GitHub の機能だけにし、個人のメールアドレスは載せない（個人情報を増やさない側）。Private vulnerability
-    reporting の有効化は GitHub の設定で人が行う（BL-096）。Issue テンプレートは CI/CD 定義ではなく、.github/ の既存ファイルも変えない。
 - id: BL-057
   区分: 人手検証
   タスク内容: >-
