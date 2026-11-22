@@ -26,7 +26,11 @@
     BL-052（要確認）はユーザーの「Public 切り替えを進めたい」で方向は示されたが、要確認の解消は人が行うため本項目では書き換えない。
     2026-11-22 に (2) のうち LICENSE の本文照合を済ませた（公式の LICENSE-2.0.txt と LICENSE が 11358 バイト・SHA-256 とも一致、行末の CR を除いた diff も差分なし）。
     2026-11-22 に公開後の確認を済ませた。(1) #14〜#16 をマージ済み、(2) GitHub が Apache-2.0 と認識（licenseInfo.key=apache-2.0）、(3) リポジトリは PUBLIC、(4) Private vulnerability reporting・Dependabot alerts・Dependabot security updates・Secret scanning・Push protection を有効化して読み取りで確認した（BL-098 の hook 許可でエージェントが実行）、(5) 未認証の curl で次の URL がすべて HTTP 200 だった。リポジトリのトップ（アプリの SUPPORT_URL と同じ）・Issues・issues/new/choose・docs/PRIVACY.md（Play のポリシー URL）・SECURITY.md・LICENSE・docs/THIRD_PARTY_LICENSES.md。security/advisories/new も 200 だったが、未認証ではログイン画面への転送を含むため、報告の動作はログインした状態で人が確かめる。README・SECURITY.md・docs/PRIVACY.md の URL は Issues のみで、開けないリンクは無かった。
-    残り（自律ループは 2026-11-22 に終了。以降は人が行う）。(a) リポジトリの description・topics が未設定。gh repo edit は hook が通さないため、ユーザーが `! gh repo edit filderschoice/mimiduku --description "Android の画面を見張り、悪質な広告やスケアウェア（偽の警告）に気づいて知らせるアプリ。子供の端末の保護向け" --add-topic android --add-topic kotlin --add-topic jetpack-compose --add-topic accessibility-service --add-topic parental-control --add-topic scareware` を実行する（jetpack-compose は mobile の依存で確認済み。wear-os はモジュールが無いため付けない）。(b) Private vulnerability reporting の報告画面の確認、Private vulnerability reporting の報告画面の確認、(c) BL-052 の判断（公開状態は決まった。要確認の解消は人が行う）、(d) 本ブランチ（docs/loop-20261122-bl096-license-check）の push と PR。完了したら BL-096 を削除する。
+    2026-11-22 に (a) リポジトリの description と topics（android・kotlin・jetpack-compose・accessibility-service・parental-control・scareware）を
+    `gh repo edit` で設定し、読み取りで反映を確認した（ユーザーの指示でエージェントが実行。この時点の settings.json は deny 末尾の余分なカンマで不正だったため hook は効いておらず、PR #19 で直した）。
+    (d) の作業ブランチは PR #14〜#19 としてすべてマージ済み。
+    残り（人が行う）。(b) Private vulnerability reporting の報告画面の確認（ログインした状態でないと確かめられない）、
+    (c) BL-052 の判断（公開状態は決まった。要確認の解消は人が行う）。完了したら BL-096 を削除する。
 - id: BL-097
   区分: 品質ゲート
   タスク内容: >-
