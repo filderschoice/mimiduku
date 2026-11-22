@@ -4,6 +4,11 @@
 
 ## Unreleased
 
+- BL-009・BL-056（実機確認の続き。コード変更なし）: Pixel 8 Pro（Android 17）へ BL-099 の「(debug)」付き GitHub 版 debug を `adb install -r` で入れ直し、
+  ランチャー名とアクセシビリティ設定のサービス名に「(debug)」が出ることを確認した。BL-009 の T16（再同意）を確認済み。
+  PIN が利用者設定済みで不明なため、BL-056 の X 系は新たに確認できなかった。T13・T15・X6・X14〜X16・他ブラウザ・他の OS は未確認のままで、
+  両項目とも BACKLOG に残した（`docs/TESTING.md` 4章に記録）
+
 - BL-099: debug ビルドのアプリ名とアクセシビリティサービス名の末尾に「 (debug)」を付けた（`mobile/src/debug/res/values/strings.xml`）。
   リリース版と同じ端末で見分けるため。release の名前は変えていない
 
