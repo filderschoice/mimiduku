@@ -193,8 +193,12 @@ scripts\release-build.bat -VersionCode 2 -VersionName 0.2.0
 | GitHub 版の APK | `mobile/build/outputs/apk/github/release/mobile-github-release.apk` | GitHub Releases など |
 | Play 版の AAB | `mobile/build/outputs/bundle/playRelease/mobile-play-release.aab` | Google Play Console |
 
-ビルド後は、`keytool -printcert -jarfile <APK または AAB>` で、両方の成果物の証明書の SHA-256 が同じ（作った鍵のもの）
-であることを確かめます。リリースのときは、利用者向けの変更点を [docs/RELEASE_NOTES.md](docs/RELEASE_NOTES.md) へ追記し、
+ビルド後は、両方の成果物の証明書の SHA-256 が同じ（作った鍵のもの）であることを確かめます。AAB は
+`keytool -printcert -jarfile <AAB>` で読めます。**APK には使えません**（minSdk 29 のため v2 署名だけで、`keytool` が読む JAR 署名
+（v1）が無く、何も出力されません）。APK は Android SDK の `build-tools/<版>/apksigner`（Windows は `apksigner.bat`）で
+`apksigner verify --print-certs -v <APK>` を実行し、`Verifies` と `Signer #1 certificate SHA-256 digest` を見ます
+（`keytool -list -v` が出す鍵ストアの指紋は、コロン区切りの大文字で、`apksigner` は小文字の連続である点だけが違います）。
+リリースのときは、利用者向けの変更点を [docs/RELEASE_NOTES.md](docs/RELEASE_NOTES.md) へ追記し、
 `scripts/version.properties` の更新をコミットします。
 
 ## テスト
