@@ -4,6 +4,14 @@
 
 ## Unreleased
 
+- BL-085（release 署名と版管理の実鍵での確認）が完了した。ユーザーが作った鍵（PKCS12・別名 `mimiduku-release`・リポジトリの外に保管）で
+  `scripts/release-build.bat` を実行し、GitHub 版の APK と Play 版の AAB が成功した。両方の証明書 SHA-256 は一致し、ユーザーが鍵ストアの
+  指紋と照合して一致を確かめた。GitHub 版の APK を Pixel 8 Pro へ入れて起動を確認した（クラッシュなし）。`scripts/version.properties` の
+  `VERSION_CODE` を 1 から 2 へ上げた（記録は成功したビルドだけが更新する）。鍵と `local.properties` は追跡されていない。BL-031 の
+  依存が外れた。初回のビルドは、`local.properties` の別名と鍵ストアの別名の食い違いで署名に失敗したが、鍵を作り直して解消した
+  （原因はユーザー側の設定で、スクリプトの不具合ではない）
+- README「リリースビルド」の署名確認の手順を直した。`keytool -printcert -jarfile` は APK では何も出力しない（minSdk 29 のため v2
+  署名のみで、v1 署名が無い）ため、APK は `apksigner verify --print-certs -v` で確かめる手順を足した
 - ガードレール配布元 copilot-rules を 0.30.0 へ追従した。配布元版で置き換えたのは `rules/guardrails-unified.v1.md`
   （セクション12.7「サブエージェントへの委任」の追加。規範本文は配布元の正本で、本リポジトリでの書き換えは無い）、`CONTRIBUTING.md`、
   `docs/guidelines/ADOPTION.md`、`scripts/scan-secrets.py`（検出規則の拡充・`--require-changes`・UTF-8 出力。本リポジトリ由来の
