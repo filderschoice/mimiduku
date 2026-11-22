@@ -25,7 +25,8 @@
     行わないため人手検証とした。履歴に残る author のメールはユーザーの決定で「そのまま公開」とし、履歴は書き換えない。GitHub のメール非公開設定の確認は、ユーザーの判断で不要とした。
     BL-052（要確認）はユーザーの「Public 切り替えを進めたい」で方向は示されたが、要確認の解消は人が行うため本項目では書き換えない。
     2026-11-22 に (2) のうち LICENSE の本文照合を済ませた（公式の LICENSE-2.0.txt と LICENSE が 11358 バイト・SHA-256 とも一致、行末の CR を除いた diff も差分なし）。
-    残りは GitHub のライセンス認識の確認と (1)(3)〜(5) で、Public 切り替えはユーザーが行う。
+    2026-11-22 に公開後の確認を済ませた。(1) #14〜#16 をマージ済み、(2) GitHub が Apache-2.0 と認識（licenseInfo.key=apache-2.0）、(3) リポジトリは PUBLIC、(4) Private vulnerability reporting・Dependabot alerts・Dependabot security updates・Secret scanning・Push protection を有効化して読み取りで確認した（BL-098 の hook 許可でエージェントが実行）、(5) 未認証の curl で次の URL がすべて HTTP 200 だった。リポジトリのトップ（アプリの SUPPORT_URL と同じ）・Issues・issues/new/choose・docs/PRIVACY.md（Play のポリシー URL）・SECURITY.md・LICENSE・docs/THIRD_PARTY_LICENSES.md。security/advisories/new も 200 だったが、未認証ではログイン画面への転送を含むため、報告の動作はログインした状態で人が確かめる。README・SECURITY.md・docs/PRIVACY.md の URL は Issues のみで、開けないリンクは無かった。
+    残り。リポジトリの description・homepage・topics が未設定（gh repo edit は hook が通さないためユーザーが設定する）、Private vulnerability reporting の報告画面の確認、BL-052 の判断（公開状態は決まった。要確認の解消は人が行う）、本ブランチの push と PR。
 - id: BL-097
   区分: 品質ゲート
   タスク内容: >-
