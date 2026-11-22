@@ -231,7 +231,8 @@ docs/records/managed/      エージェントの記録ファイル（BACKLOG・D
 
 ## ライセンス
 
-Apache License 2.0 です。全文は [LICENSE](LICENSE) にあります。
+Apache License 2.0 です。全文は [LICENSE](LICENSE) にあります。同梱するオープンソースのライセンスは
+[docs/THIRD_PARTY_LICENSES.md](docs/THIRD_PARTY_LICENSES.md) にあります。
 
 Copyright 2026 filderschoice
 
