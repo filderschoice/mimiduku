@@ -4,6 +4,15 @@
 
 ## Unreleased
 
+- BL-096（確認の途中）: 公開後の確認を済ませた。GitHub が Apache-2.0 と認識すること、リポジトリが PUBLIC であること、Private vulnerability
+  reporting・Dependabot alerts と security updates・Secret scanning・Push protection が有効であること（読み取りで確認）、README・SECURITY.md・
+  docs/PRIVACY.md・アプリの SUPPORT_URL の各 URL が未認証で HTTP 200 になることを BL-096 の根拠へ記録した。残りは description・homepage・topics の設定、
+  報告画面の確認、BL-052 の判断（人が行う）。アプリのコード・文字列・Play 申告は変えていない
+
+- BL-096（確認の途中）: `LICENSE` の本文を公式の Apache-2.0 全文（LICENSE-2.0.txt）と照合し、11358 バイト・SHA-256 とも一致して差分が
+  無いことを確かめた。BL-096 を「進行中」にして結果を根拠へ追記した（残りは GitHub のライセンス認識の確認と Public 切り替え以降で、人が行う）。
+  アプリのコード・文字列・Play 申告は変えていない
+
 - BL-098: Public 化後のリポジトリ設定をユーザーの指示でエージェントが行えるよう、`.claude/hooks/guard-commands.py` が通す `gh api` の書き込みを
   セキュリティ機能を有効にする4形（PUT の private-vulnerability-reporting・vulnerability-alerts・automated-security-fixes と、PATCH の
   `security_and_analysis[...][status]=enabled`）に限って足した。無効化・`--input`・他のフィールドやエンドポイントは拒否のまま。
