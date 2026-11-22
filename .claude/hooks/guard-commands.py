@@ -21,6 +21,7 @@
   `git -c alias.x=...` は展開して判定する
 - gh の書き込み: pr のマージ・クローズ・コメント・レビュー等と issue の作成と更新、`gh api` の書き込み（`-X`/`--method` が GET 以外、または `-f`/`-F`/`--field`/
   `--raw-field`/`--input` で本文を送る形）、release の作成・編集・削除、workflow run、pr update-branch など（GH_WRITE）。
+  リポジトリのセキュリティ設定を有効にする `gh api` の4形（REPO_SECURITY_APIS。下の check_gh_api）は通す（BL-098）。
   `gh pr create`（別名 `new`）と `gh pr edit` は通す（PR の作成・本文の編集はエージェントへ許可済み。自律ループ実行モード中に
   実行しないことは Skill `autonomous-loop`・`pr-create` の手順で守る。hook はモードを判別できない）
 
@@ -733,13 +734,41 @@ def check_gh(args: list[str]) -> str | None:
     return None
 
 
+REPO_SECURITY_PUT = ("private-vulnerability-reporting", "vulnerability-alerts", "automated-security-fixes")
+REPO_SLUG = r"[\w.-]+/[\w.-]+"
+SECURITY_FIELD = re.compile(
+    r"^security_and_analysis\[(secret_scanning|secret_scanning_push_protection|dependabot_security_updates)\]\[status\]=enabled$")
+
+
+def is_repo_security_enable(endpoint: str | None, method: str | None, fields: list[str], other_body: bool) -> bool:
+    """リポジトリのセキュリティ機能を「有効にする」gh api だけを通す（BL-098。Public 化後の設定をユーザーの指示で行うため）。
+
+    通す形: PUT repos/<o>/<r>/{private-vulnerability-reporting,vulnerability-alerts,automated-security-fixes}（本文なし）と、
+    PATCH repos/<o>/<r> で -f/-F が security_and_analysis[...][status]=enabled のみ（secret_scanning・push_protection・
+    dependabot_security_updates）。無効化（DELETE・disabled）、--input、他のフィールド、他のエンドポイントは通さない。
+    """
+    if endpoint is None or other_body or method is None:
+        return False
+    ep = endpoint.strip("/")
+    verb = method.upper()
+    if verb == "PUT" and not fields:
+        return re.fullmatch(rf"repos/{REPO_SLUG}/({'|'.join(REPO_SECURITY_PUT)})", ep) is not None
+    if verb == "PATCH" and fields:
+        return re.fullmatch(rf"repos/{REPO_SLUG}", ep) is not None and all(SECURITY_FIELD.match(f) for f in fields)
+    return False
+
+
 def check_gh_api(args: list[str]) -> str | None:
     method = None
     body = False
+    other_body = False
+    fields: list[str] = []
+    positional: list[str] = []
     i = 0
     while i < len(args):
         arg = args[i]
         if arg == "--":
+            positional.extend(args[i + 1:])
             break
         if arg.startswith("--"):
             name, eq, value = arg.partition("=")
@@ -748,8 +777,12 @@ def check_gh_api(args: list[str]) -> str | None:
                 i += 1
             if name == "--method":
                 method = value
-            elif name in ("--field", "--raw-field", "--input"):
+            elif name in ("--field", "--raw-field"):
                 body = True
+                fields.append(value)
+            elif name == "--input":
+                body = True
+                other_body = True
         elif arg.startswith("-") and len(arg) > 1:
             for k, c in enumerate(arg[1:]):
                 if c in GH_API_SHORT_WITH_VALUE:
@@ -761,11 +794,20 @@ def check_gh_api(args: list[str]) -> str | None:
                         method = value
                     elif c in "fF":
                         body = True
+                        fields.append(value)
                     break
+        else:
+            positional.append(arg)
         i += 1
-    if (method is not None and method.upper() != "GET") or (method is None and body):
+    if method is None and body:
+        method = "POST"  # gh api は本文があり -X 無しなら POST
+    if method is not None and method.upper() != "GET":
+        if len(positional) == 1 and is_repo_security_enable(positional[0], method, fields, other_body):
+            return None
         return ("gh api の書き込み（GET 以外のメソッド、または -f・-F・--input で本文を送る形）はエージェントから"
-                "実行しない（guardrails 12.2）。読み取りは -X GET を付けるか本文を送らずに行うこと")
+                "実行しない（guardrails 12.2）。リポジトリのセキュリティ機能を有効にする4形（PUT private-vulnerability-reporting・"
+                "vulnerability-alerts・automated-security-fixes、PATCH repos/<o>/<r> の security_and_analysis[...][status]=enabled）"
+                "だけは通す。読み取りは -X GET を付けるか本文を送らずに行うこと")
     return None
 
 
