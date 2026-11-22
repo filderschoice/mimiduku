@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  local.properties は端末ごとの設定（SDK のパスと release 署名の情報）で、追跡対象外（.gitignore）。
+  リポジトリの成果物ではないため、PropertyEscape の検査から外す。端末ごとの書き方の違いで品質ゲートの
+  Android Lint が失敗するのを防ぐ。
+-->
+<lint>
+    <issue id="PropertyEscape">
+        <ignore path="**/local.properties" />
+    </issue>
+</lint>
