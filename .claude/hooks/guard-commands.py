@@ -19,11 +19,9 @@
   git merge は、新しいコミットを作らない早送りのため通す。BL-088）
 - 検証のバイパスとエイリアス経由の実行: `git -c core.hooksPath=...`、`git config` での core.hooksPath・alias.* の設定。
   `git -c alias.x=...` は展開して判定する
-- gh の書き込み: pr のマージ・クローズ・コメント・レビュー等と issue の作成と更新、`gh api` の書き込み（`-X`/`--method` が GET 以外、または `-f`/`-F`/`--field`/
-  `--raw-field`/`--input` で本文を送る形）、release の作成・編集・削除、workflow run、pr update-branch など（GH_WRITE）。
-  リポジトリのセキュリティ設定を有効にする `gh api` の4形（REPO_SECURITY_APIS。下の check_gh_api）は通す（BL-098）。
-  `gh pr create`（別名 `new`）と `gh pr edit` は通す（PR の作成・本文の編集はエージェントへ許可済み。自律ループ実行モード中に
-  実行しないことは Skill `autonomous-loop`・`pr-create` の手順で守る。hook はモードを判別できない）
+- gh は判定しない（ユーザーの決定で `permissions.deny` の gh を外し、PR・Issue・リポジトリ設定などの GitHub 連携を
+  エージェントへ許可した。自律ループ実行モード中は guardrails 12.2 で禁止のままで、hook はモードを判別できないため
+  Skill `autonomous-loop` の手順で守る）
 
 判定する書き方:
 
@@ -39,16 +37,15 @@
 - 変数・展開を経由する名前（`$GIT push`、`g=git; $g push`、`git $(echo push)`、cmd の `%VAR%`）
 - 標準入力やファイルから読まれる引数とスクリプト（`echo push | xargs git`、`echo "git push" | bash`、`bash script.sh`、
   `source`、`powershell -File`）
-- 外部の設定に依存する形（gitconfig に定義済みの git のエイリアス、gh のエイリアス・拡張、環境変数 `GIT_CONFIG_*`、
+- 外部の設定に依存する形（gitconfig に定義済みの git のエイリアス、環境変数 `GIT_CONFIG_*`、
   シェル関数・alias を定義してからの呼び出し）
 - 別プログラム経由の起動（`Start-Process`、`find -exec`、Python の subprocess、make など）
 - `$(...)` の中の bash の `case` の `)`、`((` を入れ子のサブシェルとして使う書き方
-- 誤止めとして承知しているもの: `gh api graphql` は読み取りでも POST で本文を送るため拒否する
 
 入力は Claude Code が標準入力へ渡す JSON（`tool_name`・`tool_input.command`・`cwd`）。
 拒否するときは理由を標準エラーへ出して終了コード2で終わる（Claude へ理由が伝わる）。
 通すときは何も出さず終了コード0（通常の権限判定へ進む）。標準入力の JSON が読めない場合は終了コード1
-（ブロックしないエラー）で通す。判定中に例外が起きた場合は、コマンドに禁止操作の語（push・amend・commit・gh など、
+（ブロックしないエラー）で通す。判定中に例外が起きた場合は、コマンドに禁止操作の語（push・amend・commit など、
 FALLBACK_PATTERN）が含まれるときだけ安全側で終了コード2とし、それ以外は通す（フックの不具合で全コマンドを
 止めないため）。標準ライブラリのみで動作する。
 
@@ -71,28 +68,6 @@ import sys
 DEFAULT_BRANCHES = {"main", "master"}
 COMMIT_LIKE = {"commit", "merge", "cherry-pick", "revert", "am"}
 MAX_DEPTH = 8
-
-GH_WRITE = {
-    # pr の create・new・edit は通す（ユーザーの決定で PR の作成と本文の編集をエージェントへ許可した。
-    # 自律ループ実行モード中は guardrails 12.2 で禁止のままで、モードは hook で判別できないため手順で守る）
-    "pr": {"merge", "close", "reopen", "comment", "review", "ready", "lock", "unlock", "update-branch", "revert"},
-    "issue": {"create", "new", "edit", "close", "reopen", "comment", "delete", "transfer", "pin", "unpin", "lock",
-              "unlock", "develop"},
-    "release": {"create", "new", "edit", "delete", "upload", "delete-asset"},
-    "workflow": {"run", "enable", "disable"},
-    "run": {"rerun", "cancel", "delete"},
-    "repo": {"create", "new", "delete", "edit", "fork", "rename", "archive", "unarchive", "sync"},
-    "secret": {"set", "delete", "remove"},
-    "variable": {"set", "delete"},
-    "label": {"create", "edit", "delete", "clone"},
-    "gist": {"create", "new", "edit", "delete"},
-    "cache": {"delete"},
-    "alias": {"set", "import"},
-}
-GH_FLAGS_WITH_VALUE = {"-R", "--repo", "--hostname"}
-GH_API_SHORT_WITH_VALUE = set("XfFHqtp")
-GH_API_LONG_WITH_VALUE = {"--method", "--field", "--raw-field", "--input", "--header", "--jq", "--template", "--cache",
-                          "--preview", "--hostname"}
 
 # 値を1つ取る git のグローバルオプション（`git -C <path> push` の <path> をサブコマンドと誤認しないため）
 GIT_GLOBAL_WITH_VALUE = {"-C", "-c", "--git-dir", "--work-tree", "--namespace", "--config-env", "--super-prefix",
@@ -134,7 +109,7 @@ WRAPPERS = {
 # 判定中の例外時に安全側で止める語（単純な部分一致。誤止めは例外時だけなので許容する）
 FALLBACK_PATTERN = re.compile(
     r"push|amend|rebase|reset|no-verify|--force|hookspath|alias|delete|commit|merge|cherry-pick|revert|"
-    r"\bam\b|\bbranch\b|\btag\b|\bgh\b|\bapi\b", re.IGNORECASE)
+    r"\bam\b|\bbranch\b|\btag\b", re.IGNORECASE)
 
 
 class Command:
@@ -706,111 +681,6 @@ def check_git_config(shorts: set, longs: list, positional: list) -> str | None:
     return None
 
 
-def check_gh(args: list[str]) -> str | None:
-    positional: list[tuple[int, str]] = []
-    i = 0
-    while i < len(args) and len(positional) < 2:
-        arg = args[i]
-        if arg.startswith("-"):
-            if arg in GH_FLAGS_WITH_VALUE:
-                i += 1
-        else:
-            positional.append((i, arg))
-        i += 1
-    if not positional:
-        return None
-    index, group = positional[0]
-    if group == "api":
-        return check_gh_api(args[index + 1:])
-    if len(positional) >= 2 and group in GH_WRITE and positional[1][1] in GH_WRITE[group]:
-        sub = positional[1][1]
-        if group in ("pr", "issue"):
-            return (f"gh {group} {sub}（PR のマージ・クローズ・コメント等と Issue の操作）はエージェントから実行しない"
-                    "（guardrails 12.2・BL-077）。コマンド例をユーザーへ提示すること")
-        if group == "alias":
-            return "gh のエイリアスの定義は判定のすり抜けにつながるため禁止（guardrails 12.2）"
-        return (f"gh {group} {sub} は GitHub 上を変更する操作のためエージェントから実行しない（guardrails 12.2）。"
-                "コマンド例をユーザーへ提示すること")
-    return None
-
-
-REPO_SECURITY_PUT = ("private-vulnerability-reporting", "vulnerability-alerts", "automated-security-fixes")
-REPO_SLUG = r"[\w.-]+/[\w.-]+"
-SECURITY_FIELD = re.compile(
-    r"^security_and_analysis\[(secret_scanning|secret_scanning_push_protection|dependabot_security_updates)\]\[status\]=enabled$")
-
-
-def is_repo_security_enable(endpoint: str | None, method: str | None, fields: list[str], other_body: bool) -> bool:
-    """リポジトリのセキュリティ機能を「有効にする」gh api だけを通す（BL-098。Public 化後の設定をユーザーの指示で行うため）。
-
-    通す形: PUT repos/<o>/<r>/{private-vulnerability-reporting,vulnerability-alerts,automated-security-fixes}（本文なし）と、
-    PATCH repos/<o>/<r> で -f/-F が security_and_analysis[...][status]=enabled のみ（secret_scanning・push_protection・
-    dependabot_security_updates）。無効化（DELETE・disabled）、--input、他のフィールド、他のエンドポイントは通さない。
-    """
-    if endpoint is None or other_body or method is None:
-        return False
-    ep = endpoint.strip("/")
-    verb = method.upper()
-    if verb == "PUT" and not fields:
-        return re.fullmatch(rf"repos/{REPO_SLUG}/({'|'.join(REPO_SECURITY_PUT)})", ep) is not None
-    if verb == "PATCH" and fields:
-        return re.fullmatch(rf"repos/{REPO_SLUG}", ep) is not None and all(SECURITY_FIELD.match(f) for f in fields)
-    return False
-
-
-def check_gh_api(args: list[str]) -> str | None:
-    method = None
-    body = False
-    other_body = False
-    fields: list[str] = []
-    positional: list[str] = []
-    i = 0
-    while i < len(args):
-        arg = args[i]
-        if arg == "--":
-            positional.extend(args[i + 1:])
-            break
-        if arg.startswith("--"):
-            name, eq, value = arg.partition("=")
-            if name in GH_API_LONG_WITH_VALUE and not eq:
-                value = args[i + 1] if i + 1 < len(args) else ""
-                i += 1
-            if name == "--method":
-                method = value
-            elif name in ("--field", "--raw-field"):
-                body = True
-                fields.append(value)
-            elif name == "--input":
-                body = True
-                other_body = True
-        elif arg.startswith("-") and len(arg) > 1:
-            for k, c in enumerate(arg[1:]):
-                if c in GH_API_SHORT_WITH_VALUE:
-                    value = arg[k + 2:].removeprefix("=")
-                    if not arg[k + 2:]:
-                        value = args[i + 1] if i + 1 < len(args) else ""
-                        i += 1
-                    if c == "X":
-                        method = value
-                    elif c in "fF":
-                        body = True
-                        fields.append(value)
-                    break
-        else:
-            positional.append(arg)
-        i += 1
-    if method is None and body:
-        method = "POST"  # gh api は本文があり -X 無しなら POST
-    if method is not None and method.upper() != "GET":
-        if len(positional) == 1 and is_repo_security_enable(positional[0], method, fields, other_body):
-            return None
-        return ("gh api の書き込み（GET 以外のメソッド、または -f・-F・--input で本文を送る形）はエージェントから"
-                "実行しない（guardrails 12.2）。リポジトリのセキュリティ機能を有効にする4形（PUT private-vulnerability-reporting・"
-                "vulnerability-alerts・automated-security-fixes、PATCH repos/<o>/<r> の security_and_analysis[...][status]=enabled）"
-                "だけは通す。読み取りは -X GET を付けるか本文を送らずに行うこと")
-    return None
-
-
 def shell_script(args: list[str]) -> tuple[str, str | None]:
     """bash -c 等の引数から、実行される文字列を取り出す。("cmd", 文字列) / ("stdin", None) / ("file", None)。"""
     i = 0
@@ -867,8 +737,6 @@ def check_command(command: Command, dialect: str, cwd: str, state: dict, depth: 
     args = words[1:]
     if name == "git":
         return check_git(args, cwd, state, depth)
-    if name == "gh":
-        return check_gh(args)
     if name in SHELLS:
         kind, script = shell_script(args)
         if kind == "cmd":

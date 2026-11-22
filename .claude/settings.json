@@ -43,7 +43,7 @@
       "PowerShell(git rebase *)",
       "PowerShell(git reset --hard *)",
       "PowerShell(git tag -d *)",
-      "PowerShell(git tag --delete *)",
+      "PowerShell(git tag --delete *)"
     ]
   },
   "hooks": {

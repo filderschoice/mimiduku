@@ -4,6 +4,12 @@
 
 ## Unreleased
 
+- ユーザーが `.claude/settings.json` の `permissions.deny` から gh を外したのに合わせ、`.claude/hooks/guard-commands.py` の gh の判定
+  （GH_WRITE・`gh api` の書き込みと BL-098 の例外）を削除し、gh を止めないようにした（今後も gh での GitHub 連携を行うため）。
+  `settings.json` の `deny` 末尾に残っていた余分なカンマ（JSON として不正で、設定全体が読まれなくなる）も直した。
+  テストの gh の拒否ケースを通過の期待へ変え（全249件成功）、`CLAUDE.md`・`CONTRIBUTING.local.md`・Skill `autonomous-loop`・`pr-create` の説明を直した。
+  guardrails 12.2 は変えていない（自律ループ実行モード中の禁止は Skill の手順で守る）
+
 - BL-096（確認の途中）: 公開後の確認を済ませた。GitHub が Apache-2.0 と認識すること、リポジトリが PUBLIC であること、Private vulnerability
   reporting・Dependabot alerts と security updates・Secret scanning・Push protection が有効であること（読み取りで確認）、README・SECURITY.md・
   docs/PRIVACY.md・アプリの SUPPORT_URL の各 URL が未認証で HTTP 200 になることを BL-096 の根拠へ記録した。残りは description・homepage・topics の設定、
