@@ -4,6 +4,10 @@
 
 ## Unreleased
 
+- BL-097（確認の途中）: 「未確認」の34件のライセンスを、ローカルの Gradle キャッシュ（POM と metadata-2.107 の descriptors）で再度確かめたが、
+  記載が無く確かめられなかった。ネットワーク取得と品質ゲート表に無い Gradle タスクは実行していないため、34件は「未確認」のままとし、
+  BL-097 を「要確認」にした（人の許可か結果の連絡で再開できる）。`docs/THIRD_PARTY_LICENSES.md` に確認した範囲を追記した
+
 - BL-093: 同梱する OSS のライセンス一覧 `docs/THIRD_PARTY_LICENSES.md` を追加し、README のライセンス節からリンクした。release ビルドの
   依存（88件。GitHub 版・Play 版で同一）を AGP の依存レポート（`dependencies.pb`）から取り、ローカルの Gradle キャッシュの POM で確かめた。
   確かめられたものはすべて Apache-2.0、NOTICE ファイルを持つ依存は無く（`core`・`core-ktx` が LICENSE.txt を含むのみ）、追加で載せる
