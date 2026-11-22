@@ -4,6 +4,12 @@
 
 ## Unreleased
 
+- BL-090: `docs/PRIVACY.md` の制定日（2026-11-22）と 8章「問い合わせ先」（GitHub の Issues。公開されるため個人情報を書かないよう添えた。
+  個人のメールアドレスは載せない）を記入し、`docs/PLAY_LISTING.md` のポリシー URL を
+  `https://github.com/filderschoice/mimiduku/blob/main/docs/PRIVACY.md` にした。読み取る情報・使い道・保存・送信の記述、開示文
+  （`disclosure_body`）、`ConsentStore.CURRENT_VERSION` は変えていない。この URL はリポジトリの Public 化（BL-096）まで開けない。
+  Play のポリシー URL として受け付けられるかは未確認で、BL-031 の申請時に確かめる
+
 - BL-089: リポジトリのルートに Apache-2.0 の `LICENSE` を追加し、README にライセンスの節（Apache License 2.0・Copyright 2026
   filderschoice）を設けた（ユーザーの決定による。著作権者は公開済みの GitHub アカウント名で、実名・メールは載せない）。`LICENSE` の本文は
   記憶から書かず、ローカルの Gradle キャッシュにある AGP 8.13.0 の aapt2 同梱の `NOTICE`（`transforms/.../aapt2-8.13.0-13719691-windows/NOTICE`）の

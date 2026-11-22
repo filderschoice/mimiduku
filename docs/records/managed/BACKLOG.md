@@ -21,7 +21,6 @@
     (1)〜(6) の結果が記録され、開けないリンクや認識されないライセンスがあれば BACKLOG に起票されている。BL-052 は本項目の完了で
     「公開状態が決まった」ことになるため、あわせて閉じるか判断されている
   依存:
-    - BL-090
     - BL-091
     - BL-092
     - BL-093
@@ -116,24 +115,6 @@
   根拠: >-
     既定値として窓口は GitHub の機能だけにし、個人のメールアドレスは載せない（個人情報を増やさない側）。Private vulnerability
     reporting の有効化は GitHub の設定で人が行う（BL-096）。Issue テンプレートは CI/CD 定義ではなく、.github/ の既存ファイルも変えない。
-- id: BL-090
-  区分: 品質ゲート
-  タスク内容: >-
-    docs/PRIVACY.md の空欄を埋める。制定日を記入し、8章「問い合わせ先」に https://github.com/filderschoice/mimiduku/issues を
-    書き、Issues は公開されるため個人情報を書かないよう添える。docs/PLAY_LISTING.md の「（公開した docs/PRIVACY.md の URL を記入）」を
-    https://github.com/filderschoice/mimiduku/blob/main/docs/PRIVACY.md に置き換える。読み取る情報・使い道・保存・送信の記述は変えない
-  優先度: P1
-  状態: 未着手
-  担当: AIエージェント
-  完了条件: >-
-    docs/PRIVACY.md と docs/PLAY_LISTING.md に「記入」の空欄が残っていない。開示文（strings.xml の disclosure_body）と
-    ConsentStore.CURRENT_VERSION を変更していない。
-  依存: []
-  根拠: >-
-    既定値の1つめ、制定日は記入したイテレーションの日付とする。公開日は未定だが、方針の内容は既に確定しており、公開時に内容を
-    変えるなら7章のとおり改定として扱えるため、利用者に不利な食い違いは生じない。2つめ、窓口は公開の Issues とし個人の
-    メールアドレスは載せない。3つめ、URL は main の GitHub 上のページとし、Public 化（BL-096）まで開けない。Play のポリシー URL として
-    受け付けられるかは未確認で、BL-031 の申請時に確かめる。収集・利用の内容は変えないため再同意（開示文の版数）は不要。
 - id: BL-057
   区分: 人手検証
   タスク内容: >-

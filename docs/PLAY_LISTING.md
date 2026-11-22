@@ -45,7 +45,7 @@ BL-030 の成果物です。Play Console へ入力するのはユーザーです
 
 ■ プライバシーポリシー
 
-（公開した docs/PRIVACY.md の URL を記入）
+<https://github.com/filderschoice/mimiduku/blob/main/docs/PRIVACY.md>
 
 ## Play Console の申告で使う要点
 
