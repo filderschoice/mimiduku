@@ -4,6 +4,54 @@
 
 ## Unreleased
 
+- BL-097（確認の途中）: 「未確認」の34件のライセンスを、ローカルの Gradle キャッシュ（POM と metadata-2.107 の descriptors）で再度確かめたが、
+  記載が無く確かめられなかった。ネットワーク取得と品質ゲート表に無い Gradle タスクは実行していないため、34件は「未確認」のままとし、
+  BL-097 を「要確認」にした（人の許可か結果の連絡で再開できる）。`docs/THIRD_PARTY_LICENSES.md` に確認した範囲を追記した
+
+- BL-093: 同梱する OSS のライセンス一覧 `docs/THIRD_PARTY_LICENSES.md` を追加し、README のライセンス節からリンクした。release ビルドの
+  依存（88件。GitHub 版・Play 版で同一）を AGP の依存レポート（`dependencies.pb`）から取り、ローカルの Gradle キャッシュの POM で確かめた。
+  確かめられたものはすべて Apache-2.0、NOTICE ファイルを持つ依存は無く（`core`・`core-ktx` が LICENSE.txt を含むのみ）、追加で載せる
+  NOTICE は無い。統括モジュール34件（直接の依存の material3 を含む）は POM がキャッシュに無く「未確認」とし、確かめる作業を BL-097 に起票した
+  （依存の解決の Gradle タスクは品質ゲートの表に無いため実行していない）。アプリ内の表示は出さない（BL-094 の A）。依存の追加・変更は無い
+
+- BL-092: README を外部の読者向けに直した。前提条件の「Google Play では配布しません」を「現在は GitHub からの配布が前提で、Google Play 版は
+  申請を予定している（公開はまだ）」に改め、「不具合・要望・脆弱性」の節（Issues と SECURITY.md への案内）を足し、「開発の進め方」に
+  `CONTRIBUTING.md`・`rules/`・`.claude/`・`docs/records/` は開発に使う AI エージェント向けの規約と記録であることの説明を足した（内部文書は
+  公開範囲に残す。BL-095 のユーザーの決定）。README の相対リンクはすべて実在するファイルを指すことを確かめた。`CONTRIBUTING.md`・
+  guardrails・`CLAUDE.md`・`.claude/` は変更していない
+
+- ユーザーの決定を BACKLOG へ反映した。BL-094（アプリ内のライセンス表示）は A（出さない。リポジトリの LICENSE と docs の一覧だけ）、
+  BL-095（公開範囲）は内部文書を残し README で説明する方向（A）に決まったため、2件を削除した。依存の NOTICE の扱いの確認は BL-093 の
+  完了条件へ引き継いだ。GitHub のメール非公開設定の確認は不要とされたため BL-096 の確認項目から外した（他の項目は変えていない）。
+  アプリのコード・文字列・Play 申告は変えていない
+
+- BL-091: `SECURITY.md`（対象の版、脆弱性は公開の Issue に書かず GitHub の Private vulnerability reporting で知らせること、応答の期限を
+  約束しないこと）と、`.github/ISSUE_TEMPLATE/` の不具合報告・要望（いずれも YAML のフォーム。不具合報告は端末名・Android の版・アプリの版と
+  配布の版・再現手順と、個人情報を含めない注意書き）・`config.yml`（空の Issue を無効にし、脆弱性は SECURITY.md へ案内）を追加した。
+  窓口は GitHub の機能だけで、個人のメールアドレスは載せていない。Private vulnerability reporting の有効化は GitHub の設定で
+  人が行う（BL-096）。既存の `.github/` のファイルと CI/CD 定義は変えていない
+
+- BL-090: `docs/PRIVACY.md` の制定日（2026-11-22）と 8章「問い合わせ先」（GitHub の Issues。公開されるため個人情報を書かないよう添えた。
+  個人のメールアドレスは載せない）を記入し、`docs/PLAY_LISTING.md` のポリシー URL を
+  `https://github.com/filderschoice/mimiduku/blob/main/docs/PRIVACY.md` にした。読み取る情報・使い道・保存・送信の記述、開示文
+  （`disclosure_body`）、`ConsentStore.CURRENT_VERSION` は変えていない。この URL はリポジトリの Public 化（BL-096）まで開けない。
+  Play のポリシー URL として受け付けられるかは未確認で、BL-031 の申請時に確かめる
+
+- BL-089: リポジトリのルートに Apache-2.0 の `LICENSE` を追加し、README にライセンスの節（Apache License 2.0・Copyright 2026
+  filderschoice）を設けた（ユーザーの決定による。著作権者は公開済みの GitHub アカウント名で、実名・メールは載せない）。`LICENSE` の本文は
+  記憶から書かず、ローカルの Gradle キャッシュにある AGP 8.13.0 の aapt2 同梱の `NOTICE`（`transforms/.../aapt2-8.13.0-13719691-windows/NOTICE`）の
+  7〜208行目（Apache License 2.0 の本文と末尾の APPENDIX）を改変せずに写した。条項の本文は、同キャッシュの AndroidX の `LICENSE.txt` と
+  Python の pip 同梱の `LICENSE.APACHE`（どちらも APPENDIX なし）の本文と差分なしで一致することも確かめた。apache.org の原文との照合は
+  BL-096 で人が行う。本アプリ自身の NOTICE ファイルは作らない
+
+- リポジトリの Public 化と Play 公開に向けた対応を BACKLOG へ起票した（自律ループの第1イテレーション）。自動で進めるものは
+  BL-089（Apache-2.0 の LICENSE と README のライセンス節）、BL-090（docs/PRIVACY.md の制定日・問い合わせ先と docs/PLAY_LISTING.md の
+  ポリシー URL）、BL-091（SECURITY.md と Issue テンプレート）、BL-092（README の Play 配布の記述と外部向けの「開発の進め方」）、
+  BL-093（同梱する OSS のライセンス一覧）。要確認は BL-094（アプリ内のライセンス表示）と BL-095（内部文書の公開範囲）、人手検証は
+  BL-096（push・メール非公開設定・Public 化・GitHub のセキュリティ機能の有効化・公開後のリンク確認）。BL-031 と BL-057 は公開した
+  ポリシーの URL が前提のため、依存に BL-096 を足した。`.claude/hooks/__pycache__/` は既に `.gitignore` の対象で追跡されていないため
+  起票しなかった
+
 - BL-085（release 署名と版管理の実鍵での確認）が完了した。ユーザーが作った鍵（PKCS12・別名 `mimiduku-release`・リポジトリの外に保管）で
   `scripts/release-build.bat` を実行し、GitHub 版の APK と Play 版の AAB が成功した。両方の証明書 SHA-256 は一致し、ユーザーが鍵ストアの
   指紋と照合して一致を確かめた。GitHub 版の APK を Pixel 8 Pro へ入れて起動を確認した（クラッシュなし）。`scripts/version.properties` の

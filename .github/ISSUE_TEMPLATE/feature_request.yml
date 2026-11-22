@@ -1,0 +1,24 @@
+name: 要望
+description: 機能や文言などの改善案を伝えます
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Issues は誰でも読めます。個人情報は書かないでください。
+  - type: textarea
+    id: problem
+    attributes:
+      label: 困っていること
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 望む動作
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 他に考えた方法
