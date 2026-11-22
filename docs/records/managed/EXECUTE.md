@@ -22,7 +22,7 @@
       ./gradlew --continue ktlintCheck detekt testGithubDebugUnitTest --console=plain（軽い検証）、npx markdownlint-cli2、
       python scripts/validate-records.py、python scripts/scan-secrets.py --require-changes
     検証結果: >-
-      成功（詳細は下記の報告のとおり。実機での表示確認は未実施）
+      成功 - ./gradlew --continue ktlintCheck detekt testGithubDebugUnitTest は成功（リソースの統合と処理のタスクは実行され、Kotlin のコンパイルとテストは変更が無いため UP-TO-DATE）。processPlayDebugResources は成功。統合後の values.xml に「みみづく (debug)」が入っていることを確認。markdownlint は 0 件（40ファイル）、validate-records.py は成功、scan-secrets.py --require-changes は検出なし。実機での表示は別の作業（edf0165）で uiautomator dump により確認済みで、「(debug)」が出た
     関連ID:
       - BL-099
 - date: 2026-11-14 00:15
