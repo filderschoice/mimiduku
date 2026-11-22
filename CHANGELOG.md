@@ -4,6 +4,11 @@
 
 ## Unreleased
 
+- ユーザーの決定を BACKLOG へ反映した。BL-094（アプリ内のライセンス表示）は A（出さない。リポジトリの LICENSE と docs の一覧だけ）、
+  BL-095（公開範囲）は内部文書を残し README で説明する方向（A）に決まったため、2件を削除した。依存の NOTICE の扱いの確認は BL-093 の
+  完了条件へ引き継いだ。GitHub のメール非公開設定の確認は不要とされたため BL-096 の確認項目から外した（他の項目は変えていない）。
+  アプリのコード・文字列・Play 申告は変えていない
+
 - BL-091: `SECURITY.md`（対象の版、脆弱性は公開の Issue に書かず GitHub の Private vulnerability reporting で知らせること、応答の期限を
   約束しないこと）と、`.github/ISSUE_TEMPLATE/` の不具合報告・要望（いずれも YAML のフォーム。不具合報告は端末名・Android の版・アプリの版と
   配布の版・再現手順と、個人情報を含めない注意書き）・`config.yml`（空の Issue を無効にし、脆弱性は SECURITY.md へ案内）を追加した。
