@@ -299,7 +299,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 24px 40px;color:var(--sub);font-
 
 <section id="badge">
 <h2>7. みみづくバッジ・アプリアイコン</h2>
-<p class="lead">バッジは既定で画面右端・縦中央に 64dp・不透明度85%で常駐する（バッジ1つ分の領域だけがタッチを受け取り、外側は下のアプリへ届く）。指でドラッグでき、離すと近い方の左右の端へ吸着する。端の外へ半分以上引き出すと、端から32dpだけを見せる半透明の最小化表示になり、触る・内側へ引くと元に戻る。縦位置は画面の高さの割合で保存し、縦横どちらの向きでも端に合う。バッジをタップすると隣に出る「×」（48dp・4秒で消える）でバッジを閉じられ、通知の「バッジを隠す／出す」ボタンからも切り替えられる（<code>BadgePlacement</code> / <code>BadgeOverlay</code> / <code>BadgeNotification</code>）。絵は「仮の自作画像」で、同名の drawable を差し替えれば置き換わる設計。</p>
+<p class="lead">バッジは既定で画面右端・縦中央に 64dp・不透明度85%で常駐する（バッジ1つ分の領域だけがタッチを受け取り、外側は下のアプリへ届く）。指でドラッグでき、離すと近い方の左右の端へ吸着する。端の外へ半分以上引き出すと、端から32dpだけを見せる半透明の最小化表示になり、触る・内側へ引くと元に戻る。縦位置は画面の高さの割合で保存し、縦横どちらの向きでも端に合う。バッジをタップすると隣に出る「×」（48dp・4秒で消える）でバッジを閉じられ、通知の「バッジを隠す／出す」ボタンからも切り替えられる（<code>BadgePlacement</code> / <code>BadgeOverlay</code> / <code>BadgeNotification</code>）。絵は自作画像（2026-11-23 に本素材として確定）で、同名の drawable を差し替えれば置き換わる設計。</p>
 <div class="owlbox">
 <div class="owlcell"><svg width="128" height="128"><use href="#owl-sleepy"/></svg><b>SLEEPY</b><div style="font-size:12.5px;color:var(--sub)">平常時。うとうと（目を閉じた弧）。羽角は短い。</div></div>
 <div class="owlcell"><svg width="128" height="128"><use href="#owl-alert"/></svg><b>ALERT</b><div style="font-size:12.5px;color:var(--sub)">広告画面を見張っている。羽角が立ち、目が開く。<span class="tag gh">GitHub版のみ</span></div></div>
@@ -378,11 +378,11 @@ footer{max-width:1180px;margin:0 auto;padding:0 24px 40px;color:var(--sub);font-
 <tr><td>1</td><td><b>配色がブランド色と不一致</b><br><span class="tag">配色</span></td><td><span class="tag gh">対応済み</span></td><td><code>MimidukuTheme</code> でネイビー #1E3A5F 基調の独自カラースキームを定義した。2026-11-23 に Pixel 8 Pro で確認済み（ダークテーマ）。</td></tr>
 <tr><td>2</td><td><b>ダークテーマ・ダイナミックカラー</b><br><span class="tag">テーマ</span></td><td><span class="tag gh">ダークは対応済み</span><br>ダイナミックカラーは使わない方針</td><td>端末のダーク設定に追従（Activity の下地も DayNight）。ダイナミックカラーはブランド色を保つため採用しない（ユーザー決定）。実機は未確認。</td></tr>
 <tr><td>3</td><td><b>オーバーレイのボタン配色</b><br><span class="tag gh">実機確認済み</span></td><td><span class="tag gh">対応済み</span></td><td>主ボタンの背景（白）・文字色（#1E3A5F）・角丸を明示し、端末のテーマに依らないようにした。実機での視認性は 2026-11-23 に確認済み（U4）。</td></tr>
-<tr><td>4</td><td><b>バッジ画像が仮素材</b><br><span class="tag">素材</span></td><td><span class="tag unk">継続</span></td><td>丸みのあるかわいい造形（丸い体・羽角・ほお・目のハイライト）へ描き直したが、ファイル内コメントのとおり仮の自作画像。位置は右端中央固定、44dp・不透明度85%。</td></tr>
+<tr><td>4</td><td><b>バッジ画像の素材</b><br><span class="tag">素材</span></td><td><span class="tag">解決</span></td><td>丸みのあるかわいい造形（丸い体・羽角・ほお・目のハイライト）の自作画像を、2026-11-23 に本素材として確定した（同名のファイルの差し替えで置き換えられる構成は変えない）。位置は右端中央固定、44dp・不透明度85%。</td></tr>
 <tr><td>5</td><td><b>カード順</b><br><span class="tag">情報設計</span></td><td><span class="tag gh">対応済み</span></td><td>ホームに状態・ガイド・一時停止・ログを、設定に利用モード・PIN・バッジを分けた。サービス停止中は「オンにできないとき」が状態の直後に来る。</td></tr>
 <tr><td>6</td><td><b>アクセシビリティ（画面読み上げ・文字拡大・横向き・タブレット）</b><br><span class="tag gh">確認済み</span></td><td><span class="tag gh">対応済み</span></td><td>バッジは読み上げ対象外に設定済み。上部バーのアイコンには説明文（contentDescription）を付けた。2026-11-23 に Pixel 8 Pro で画面読み上げ・文字拡大・横向きを確認済み。タブレット・折りたたみ端末は未確認。</td></tr>
 <tr><td>7</td><td><b>こども向け文言の読みやすさ</b><br><span class="tag">文言</span></td><td><span class="tag gh">一部対応</span></td><td>Play版の確認文を「おしていないなら「もどる」を おしてね。わからなければ パパ・ママに きいてね。」へ短くした。設定画面は保護者向けで漢字表記のまま。</td></tr>
-<tr><td>8</td><td><b>ストア掲載用スクリーンショット・実機キャプチャが未作成</b><br><span class="tag">素材</span></td><td><span class="tag unk">継続</span></td><td>リポジトリに画像資産なし。本書のモックは再現であり、掲載用には実機撮影が必要。</td></tr></table>
+<tr><td>8</td><td><b>ストア掲載用スクリーンショット・実機キャプチャ</b><br><span class="tag">素材</span></td><td><span class="tag">解決</span></td><td>2026-11-23 に Play 版の release を実機で撮影し、docs/images/play/screenshots/ の5枚とサイト用の画像を作成した。本書のモックは再現のまま。</td></tr></table>
 </section>
 
 </main>

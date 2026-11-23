@@ -5,6 +5,32 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-11-23 22:00
+  summary: バッジ・アイコンの自作画像を本素材として確定し、リソースのコメントの「仮」を外す（BL-038）
+  details:
+    変更内容: >-
+      ユーザーが、バッジ（badge_owl_alert・badge_owl_sleepy・badge_owl_wide）とアプリアイコンの前景の自作画像を本素材として
+      確定すると決めたため、各 drawable の先頭コメントの「仮の自作画像」を「自作画像（2026-11-23 に本素材として確定）」へ直した。
+      コメントのみの変更で、描画・ビルド成果物の動作は変わらない。DESIGN.md と UI_DESIGN.html（所見4・8を解決へ）も合わせた。
+    変更ファイル:
+      - mobile/src/main/res/drawable/badge_owl_alert.xml
+      - mobile/src/main/res/drawable/badge_owl_sleepy.xml
+      - mobile/src/main/res/drawable/badge_owl_wide.xml
+      - mobile/src/main/res/drawable/ic_launcher_foreground.xml
+      - mobile/src/github/res/drawable/ic_launcher_foreground.xml
+      - docs/design/UI_DESIGN.html
+      - docs/records/managed/DESIGN.md
+      - docs/records/managed/BACKLOG.md
+      - docs/records/managed/EXECUTE.md
+      - CHANGELOG.md
+    検証コマンド: >-
+      ./gradlew --continue ktlintCheck detekt testGithubDebugUnitTest --console=plain（軽い検証）、npx markdownlint-cli2、
+      python scripts/validate-records.py、python scripts/scan-secrets.py --require-changes
+    検証結果: >-
+      成功 - 軽い検証は成功（リソースの処理のタスクを実行）。markdownlint は 0 件、validate-records.py は成功、scan-secrets.py は検出なし
+    関連ID:
+      - BL-038
+      - BL-100
 - date: 2026-11-23 12:00
   summary: debug ビルドのアプリ名とアクセシビリティサービス名の末尾に「 (debug)」を付ける（BL-099）
   details:
