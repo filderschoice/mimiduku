@@ -1,0 +1,19 @@
+{
+  "schema": "app-portfolio.v1",
+  "id": "mimiduku",
+  "name": "mimiduku",
+  "nameJa": "みみづく",
+  "tagline": "偽の警告や勝手な移動に気づいて知らせる、Android の見張り番",
+  "platforms": ["Android"],
+  "status": "development",
+  "license": "Apache-2.0",
+  "tags": ["Android", "Kotlin", "Accessibility Service", "Parental Control"],
+  "icon": "assets/icon.svg",
+  "page": "index.html",
+  "links": {
+    "homepage": "https://filderschoice.github.io/mimiduku/",
+    "repository": "https://github.com/filderschoice/mimiduku",
+    "download": "https://github.com/filderschoice/mimiduku#インストールサイドロード"
+  },
+  "updated": "2026-11-23"
+}
