@@ -10,7 +10,7 @@
   タスク内容: >-
     Play 公開用のスクリーンショットを、Play 版で撮り直す。GitHub 版の release（com.mimiduku.mobile.full）で撮った4枚
     （ホーム・偽の警告・検知ログ・設定。ステータスバーとナビゲーションバーを切り落とし、バッジは非表示）と、短い説明文つきの
-    Play 用画像（1080x2160）は作成済みで、docs/images/play/ と site/assets/screenshots/ にある
+    Play 用画像（1080x2160）は作成済みで、docs/images/play/screenshots/ と site/assets/screenshots/ にある
     （scripts/make-store-screenshots.py で作る）。残りは、Play 版の画面で確かめることと、掲載する枚数・説明文の決定。
     2026-11-23 に、Play 版の release（署名つき APK、versionCode 3、同意済み）で同じ4枚を撮り直して置き換えた（設定の画面は Play 版の文言）。
     あわせて、バッジを表示した画像2枚（眠っている・検知直後で目が開く）をサイト専用で追加した（site/assets/screenshots/badge-*.webp）。

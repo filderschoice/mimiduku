@@ -4,6 +4,10 @@
 
 ## Unreleased
 
+- Play 用のスクリーンショットを `docs/images/play/screenshots/` へ移し、掲載順の番号をつけた名前に変えた
+  （`01-home`・`02-warn`・`03-external`・`04-log`・`05-settings`）。`scripts/make-store-screenshots.py` の出力先と名前も合わせた。
+  アイコンとフィーチャー グラフィックは `docs/images/play/` のまま。Kotlin の変更は無い
+
 - BL-100 のスクリーンショットへ、勝手な外部移動の確認バナー（external）を Play 用・サイト用に追加した（電卓の前面でタップなしに
   テストページを開いて撮影。Play 版は自動で戻さず「もどる」「このまま すすむ」「今後は確認しない」を出す）。「はじめに」の画面は
   最初に必ず見るためユーザーの判断で撮らない。実機の設定は元へ戻した（GitHub 版 debug のみオン）。Kotlin の変更は無い

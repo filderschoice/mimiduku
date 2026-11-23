@@ -59,7 +59,8 @@ BL-030 の成果物です。Play Console へ入力するのはユーザーです
 
 ## スクリーンショット
 
-`docs/images/play/` に、短い説明文つきの画像（1080x2160）を置いている。`scripts/make-store-screenshots.py` が実機の生のスクリーンショットから
+`docs/images/play/screenshots/` に、掲載順の番号（`01-home.png` など）をつけた、短い説明文つきの画像（1080x2160）を置いている。
+Play Console へは番号の順に入れる。`scripts/make-store-screenshots.py` が実機の生のスクリーンショットから
 作る（ステータスバーとナビゲーションバーは切り落とす）。いまの5枚（ホーム・偽の警告・勝手な移動の確認・検知ログ・設定）は、2026-11-23 に Play 版の release（署名つき、versionCode 3）で撮り直したもの。
 同意前の「はじめに」の画面は、インストール後の最初の画面で利用者が必ず見るため、掲載用の画像は作らない（ユーザーの判断）。
 Play Console へ入れる枚数・説明文の決定は BACKLOG の BL-100。バッジの画像（`site/assets/screenshots/badge-*.webp`）はサイト専用。

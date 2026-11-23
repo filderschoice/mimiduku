@@ -23,7 +23,7 @@
 - `app.json` の `status` は `development`（GitHub での配布のみ）。Play で公開したら `released` にし、`links.download` を Play の公開ページへ変える。
 - 実機のスクリーンショット（`assets/screenshots/*.webp`、幅 540px）は `scripts/make-store-screenshots.py` で作る。実機の生の画像は
   ステータスバーに個人の通知アイコンが写るためリポジトリへ入れず、スクリプトが上下のバーを切り落とす。同じスクリプトが Play 用の
-  説明文つきの画像（`docs/images/play/`）も作る。画面のギャラリーは同じ縦横比の画像だけを並べる。
+  説明文つきの画像（`docs/images/play/screenshots/`）も作る。画面のギャラリーは同じ縦横比の画像だけを並べる。
   いまの画像は Play 版の release（versionCode 3）で撮ったもの。`badge-idle.webp`（バッジが眠っている）と `badge-alert.webp`（検知直後で目が開く）はバッジを表示して撮ったサイト専用の画像。「(debug)」の表示や個人の通知が写った画像は使わない。
 
 ## GitHub Pages での公開

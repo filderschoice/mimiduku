@@ -16,7 +16,7 @@
 このスクリプトが上下のバー（ステータスバー・ナビゲーションバー）を切り落とす。
 
 出力:
-    docs/images/play/<名前>.png           1080x2160（Play の画像の縦横比 2:1 以内）。上に短い説明文
+    docs/images/play/screenshots/<掲載順の番号>-<名前>.png  1080x2160（Play の画像の縦横比 2:1 以内）。上に短い説明文
     site/assets/screenshots/<名前>.webp   幅 540。説明文なし（badge_* は site/assets/screenshots/badge-*.webp でサイトのみ）
 """
 
@@ -28,7 +28,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parent.parent
-PLAY_DIR = ROOT / "docs" / "images" / "play"
+PLAY_DIR = ROOT / "docs" / "images" / "play" / "screenshots"
 SITE_DIR = ROOT / "site" / "assets" / "screenshots"
 
 # 1344x2992 の画面から切り落とす上下の幅（ステータスバーとジェスチャーナビのバー）
@@ -45,6 +45,7 @@ SHOT_WIDTH = 900
 SHOT_TOP = 380
 
 # 名前、説明文（短い見出し、補足）
+# 掲載順（Play のファイル名の番号になる）
 SHOTS = [
     ("home", "悪質な広告に、先に気づく", "子供の端末を、やさしく見守ります"),
     ("warn", "偽の警告に気づいて知らせます", "「ウイルスに感染」などの文言を見つけます"),
@@ -126,9 +127,9 @@ def main() -> None:
     src_dir = Path(sys.argv[1])
     PLAY_DIR.mkdir(parents=True, exist_ok=True)
     SITE_DIR.mkdir(parents=True, exist_ok=True)
-    for name, title, sub in SHOTS:
+    for number, (name, title, sub) in enumerate(SHOTS, start=1):
         shot = trimmed(src_dir / f"{name}_raw.png")
-        make_play(shot, title, sub).save(PLAY_DIR / f"{name}.png", optimize=True)
+        make_play(shot, title, sub).save(PLAY_DIR / f"{number:02d}-{name}.png", optimize=True)
         make_site(shot).save(SITE_DIR / f"{name}.webp", quality=88, method=6)
         print(f"{name}: ok")
     for name in SITE_ONLY:
