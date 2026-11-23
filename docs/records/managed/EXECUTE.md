@@ -5,6 +5,27 @@
 
 <!-- COPILOT_RECORDS:BEGIN -->
 ```yaml
+- date: 2026-11-23 23:00
+  summary: アプリ内広告の部分シールドを見送ると決め、ShieldTimer のコメントを直す（BL-025）
+  details:
+    変更内容: >-
+      AdMob 公式サンプル2件の実機調査（2026-11-23）の結果を受け、ユーザーがアプリ内バナー・ネイティブ広告の部分シールドを見送ると決めた。
+      ShieldTimer.kt のコメント「実機での確認が済むまで張らない」を「領域を誤ると子供が操作できなくなるおそれがあるため張らない」へ直した。
+      コメントのみの変更で、動作は変わらない。DESIGN.md の要件トレーサビリティ要件の記述も合わせた。
+    変更ファイル:
+      - mobile/src/main/kotlin/com/mimiduku/mobile/overlay/ShieldTimer.kt
+      - docs/records/managed/DESIGN.md
+      - docs/records/managed/BACKLOG.md
+      - docs/records/managed/EXECUTE.md
+      - .claude/skills/mimiduku-device-verification/SKILL.md
+      - CHANGELOG.md
+    検証コマンド: >-
+      ./gradlew --continue ktlintCheck detekt testGithubDebugUnitTest --console=plain（軽い検証）、npx markdownlint-cli2、
+      python scripts/validate-records.py、python scripts/scan-secrets.py --require-changes
+    検証結果: >-
+      成功 - 軽い検証は成功（compileGithubDebugKotlin は実行。コメントのみの変更でコンパイル結果が同じため testGithubDebugUnitTest は UP-TO-DATE）。markdownlint は 0 件、validate-records.py は成功、scan-secrets.py は検出なし
+    関連ID:
+      - BL-025
 - date: 2026-11-23 22:00
   summary: バッジ・アイコンの自作画像を本素材として確定し、リソースのコメントの「仮」を外す（BL-038）
   details:
