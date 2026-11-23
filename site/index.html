@@ -1,0 +1,197 @@
+<!doctype html>
+<!--
+  みみづくの紹介ページ。公開の手順は site/README.md。
+  外部フォント・外部スクリプト・アクセス解析は読み込まない（閲覧者の情報を第三者へ送らないため）。
+-->
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>みみづく — 偽の警告・勝手な移動に気づく見張り番</title>
+  <meta name="description" content="「ウイルスに感染」などの偽の警告や、広告による勝手なブラウザ・ストアへの移動に気づいて知らせる Android アプリ。子供の端末を守るために作りました。">
+  <meta name="theme-color" content="#1E3A5F">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://filderschoice.github.io/mimiduku/">
+  <link rel="canonical" href="https://filderschoice.github.io/mimiduku/">
+  <meta property="og:title" content="みみづく">
+  <meta property="og:description" content="偽の警告や勝手な移動に気づいて知らせる、Android の見張り番。（Android）">
+  <meta property="og:locale" content="ja_JP">
+  <meta property="og:site_name" content="みみづく">
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="#top">
+        <img src="assets/icon.svg" alt="" width="34" height="34">
+        <span>みみづく</span>
+      </a>
+      <nav class="nav" aria-label="ページ内の移動">
+        <a href="#features">できること</a>
+        <a href="#modes">モード</a>
+        <a href="#privacy">プライバシー</a>
+        <a href="#get">入手</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <span class="eyebrow">Android アプリ</span>
+          <h1>耳ざとく、<em>先に気づく</em>。<br>画面に止まる見張り番。</h1>
+          <p class="lead">
+            「ウイルスに感染しています」といった偽の警告や、タップしていないのにブラウザ・Play ストアが開く勝手な移動に気づいて、
+            やさしく知らせます。子供の端末を守るために作りましたが、大人の広告対策にも使えます。
+          </p>
+          <div class="actions">
+            <a class="button primary" href="#get">入手のしかた</a>
+            <a class="button" href="https://github.com/filderschoice/mimiduku">ソースコード</a>
+          </div>
+          <ul class="chips">
+            <li>インターネット権限なし</li>
+            <li>アカウント登録なし</li>
+            <li>画面の文字は保存・送信しない</li>
+          </ul>
+          <p class="meta">Android 10 以降 ・ Apache License 2.0 ・ 現在は GitHub からの配布（Google Play 版は申請を予定）</p>
+        </div>
+        <img class="hero-icon" src="assets/icon.svg" alt="みみづくのアイコン。紺の背景に、くちばしの黄色い茶色のみみづく" width="200" height="200">
+      </div>
+    </section>
+
+    <section id="scenes">
+      <div class="container">
+        <h2>こんなとき、ありませんか？</h2>
+        <p class="section-lead">子供がゲームや動画アプリを使っている最中の「いつの間にか」を、見張ります。</p>
+        <ul class="scenes">
+          <li class="scene">
+            <q>急に「ウイルスに感染」と出た</q>
+            <p>広告によくある偽の警告を文言で見つけ、「偽の警告の可能性があります」と知らせます。</p>
+          </li>
+          <li class="scene">
+            <q>気づいたらストアが開いていた</q>
+            <p>タップしていないのに外部アプリへ飛んだことに気づき、戻るか、そのまま進むかを選べます。</p>
+          </li>
+          <li class="scene">
+            <q>何が起きていたか分からない</q>
+            <p>いつ・どのアプリで・何に気づいたかを端末の中に記録し、あとから一覧で見られます。</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="features" class="alt">
+      <div class="container">
+        <h2>できること</h2>
+        <p class="section-lead">悪質さのサインに気づく、小さな見張り番です。</p>
+        <ul class="features">
+          <li class="card">
+            <span class="tag">偽の警告</span>
+            <h3>スケアウェア文言の検知</h3>
+            <p>「ウイルスに感染」「your device is infected」など、不安をあおる文言を見つけて警告します。</p>
+          </li>
+          <li class="card">
+            <span class="tag">勝手な移動</span>
+            <h3>外部遷移の検知</h3>
+            <p>アプリからブラウザ・Play ストア・インストーラーが勝手に開かれたことに気づいて知らせます。</p>
+          </li>
+          <li class="card">
+            <span class="tag">バッジ</span>
+            <h3>画面の端のみみづく</h3>
+            <p>平常はうとうと、危ない動きを止めると目が大きくなります。指で動かせ、画面の端に最小化もできます。</p>
+          </li>
+          <li class="card">
+            <span class="tag">保護者</span>
+            <h3>保護者 PIN と一時停止</h3>
+            <p>PIN（4〜8桁）で、おとなモードへの切替・ログの消去などを守れます。一緒に使うときは 15・30・60 分だけ止められます。</p>
+          </li>
+          <li class="card">
+            <span class="tag">ログ</span>
+            <h3>検知の記録</h3>
+            <p>日時・アプリ名・検知の種類だけを端末の中に保存し、新しい順に一覧できます。</p>
+          </li>
+          <li class="card">
+            <span class="tag">やさしい</span>
+            <h3>こどもに伝わる言葉</h3>
+            <p>こどもモードでは、やさしい言葉で知らせます。</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="how">
+      <div class="container">
+        <h2>仕組み</h2>
+        <p class="section-lead">Android のユーザー補助機能で画面を見て、端末の中だけで照合します。</p>
+        <img class="diagram" src="assets/how-it-works.svg" alt="仕組みの図解（実画面ではありません）。他のアプリの画面の文字と切り替わりを、端末の中でみみづくがルールと照合し、バッジ・警告・通知で知らせ、検知の記録を端末の中に残す。インターネットへは送らない" width="720" height="220">
+        <ol class="steps">
+          <li><h3>オンにする</h3><p>最初に画面の読み取りについての説明を読んで同意し、アクセシビリティ設定で「みみづく」をオンにします。</p></li>
+          <li><h3>見張る</h3><p>前面のアプリの名前と画面の文字を、その場で照合します。同意するまでは何も読み取りません。</p></li>
+          <li><h3>気づいて知らせる</h3><p>偽の警告や勝手な移動に気づいたら、バッジや警告で知らせ、記録を残します。</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="modes" class="alt">
+      <div class="container">
+        <h2>こどもモードとおとなモード</h2>
+        <p class="section-lead">使う人に合わせて、知らせ方を切り替えられます。</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>場面</th><th>こどもモード（既定）</th><th>おとなモード</th></tr></thead>
+            <tbody>
+              <tr><td>外部への勝手な移動</td><td>自動で戻り、やさしい言葉で知らせる</td><td>自動では戻さず、「戻る」「このまま進む」を選べる</td></tr>
+              <tr><td>偽の警告の文言</td><td>警告を出す</td><td>警告を出す</td></tr>
+              <tr><td>バッジ</td><td>初期位置は画面の右端。指で動かせる</td><td>設定や通知のボタンで非表示にできる</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <ul class="note">
+          <li>GitHub 版と Google Play 版は同じソースから作り、機能の違いは版ごとの設定だけで切り替えます。Play 版は Google Play のポリシーに合わせ、悪質さのサインへの対応だけを残します。</li>
+          <li>広告そのものの除去や、広告のクリック・完了の偽装は行いません。</li>
+          <li>子供がアクセシビリティ設定から本アプリをオフにすることは、アプリでは防げません。Family Link などで設定画面の操作を制限してください。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="privacy">
+      <div class="container">
+        <h2>安心して使えます</h2>
+        <p class="section-lead">画面を読み取るアプリだからこそ、外へ出さない作りにしています。</p>
+        <ul class="relief-list">
+          <li>画面の文字は照合にだけ使い、保存も送信もしません</li>
+          <li>インターネット権限を持ちません<small>外部へデータを送れない構成です。</small></li>
+          <li>検知の記録は端末の中だけに保存します<small>バックアップ・機種変更時の転送の対象外です。</small></li>
+          <li>同意するまで、何も読み取りません</li>
+        </ul>
+        <p class="note">詳しくは<a href="https://github.com/filderschoice/mimiduku/blob/main/docs/PRIVACY.md">プライバシーポリシー</a>を参照してください。</p>
+      </div>
+    </section>
+
+    <section id="get" class="closing">
+      <div class="container">
+        <div class="closing-box">
+          <h2>入手のしかた</h2>
+          <p class="section-lead">
+            いまは GitHub からの配布です。自分でビルドして端末へ入れる手順を、リポジトリの README にまとめています。
+            Google Play 版は申請を予定していますが、公開はまだです。
+          </p>
+          <div class="actions">
+            <a class="button primary" href="https://github.com/filderschoice/mimiduku#インストールサイドロード">インストール手順を見る</a>
+            <a class="button" href="https://github.com/filderschoice/mimiduku">ソースコード</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <a href="https://github.com/filderschoice/mimiduku">GitHub</a>
+      <a href="https://github.com/filderschoice/mimiduku/blob/main/docs/PRIVACY.md">プライバシーポリシー</a>
+    </div>
+  </footer>
+</body>
+</html>

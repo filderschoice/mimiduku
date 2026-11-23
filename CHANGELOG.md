@@ -4,6 +4,10 @@
 
 ## Unreleased
 
+- 紹介サイト（site/）を追加した。ikumemo・sesami-wear の site/ の構成（index.html・style.css・app.json・assets・.nojekyll・README.md）に合わせ、
+  HTML と CSS だけで作る（外部スクリプト・フォント・解析なし）。文言は README.md と docs/PLAY_LISTING.md の内容に限った。
+  実機のスクリーンショットは公開に使える画像が撮れなかったため載せていない（BL-100 に要確認で記録）。公開は BL-101（ユーザーが push と Pages 設定を行う）
+
 - BL-039・BL-043・BL-045・BL-054 を完了として BACKLOG から削除した（コード変更なし）。TalkBack・フォント拡大・再起動・横向きは
   ユーザーが実機で OK と確認し、Play 版の U 系はリリース後でないと入れられないため、資材が同じことからユーザーの判断で OK とした
   （「Play版はリリース後でないと確認できないので、現時点でOKとして」）。Play 版の U 系と、タブレット・折りたたみ端末は端末では未確認。
