@@ -6,7 +6,11 @@
 
 - 紹介サイト（site/）を追加した。ikumemo・sesami-wear の site/ の構成（index.html・style.css・app.json・assets・.nojekyll・README.md）に合わせ、
   HTML と CSS だけで作る（外部スクリプト・フォント・解析なし）。文言は README.md と docs/PLAY_LISTING.md の内容に限った。
-  実機のスクリーンショットは公開に使える画像が撮れなかったため載せていない（BL-100 に要確認で記録）。公開は BL-101（ユーザーが push と Pages 設定を行う）
+  実機（Pixel 8 Pro）で GitHub 版 release のスクリーンショット4枚（ホーム・偽の警告・検知ログ・設定）を撮り、ステータスバーと
+  ナビゲーションバーを切り落として個人の通知アイコンが写らないようにした。バッジは非表示で撮った。`scripts/make-store-screenshots.py` で、
+  サイト用（説明文なし、幅 540）と Play 用（短い説明文つき、1080x2160。`docs/images/play/`）を作る。
+  撮影では release 版のサービスを一時的にオンにし、撮影後にアクセシビリティ設定・バッジ表示・テストページの配信を元へ戻した。
+  Play 版での撮り直しは BL-100、公開は BL-101
 
 - BL-039・BL-043・BL-045・BL-054 を完了として BACKLOG から削除した（コード変更なし）。TalkBack・フォント拡大・再起動・横向きは
   ユーザーが実機で OK と確認し、Play 版の U 系はリリース後でないと入れられないため、資材が同じことからユーザーの判断で OK とした
