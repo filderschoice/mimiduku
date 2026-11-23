@@ -4,6 +4,23 @@
 
 ## Unreleased
 
+- docs 最新化: Skill `mimiduku-device-verification` の対応表が、BACKLOG から削除済みの BL-009・BL-056 を現役の人手検証として
+  挙げていたため、完了済みの行へ直した（ほか「BL-056 に既知」の参照と description の例）。README・TESTING.md・DESIGN.md・
+  MVP_DESIGN.md を実装・直近の変更と突き合わせ、他に直す点は無かった。コード変更なし
+
+- BL-009・BL-056 を BACKLOG から削除した。完了条件をすべて確認したためではなく、ユーザーの判断で閉じた
+  （「X6は不要。X15も不要。」、「BL-056を完了として削除して。BL-009も同様にクローズドテスト内で確認取れるので完了で削除でOK。」）。
+  T13・X14・X16・他ブラウザ・他の OS などは実機で確認していない。`docs/TESTING.md` の確認項目と4章の記録は残した。
+  他の BACKLOG 項目は両項目を依存に挙げておらず、依存の付け替えは無い。コード変更なし
+
+- BL-009・BL-056（実機確認の続き。コード変更なし）: Pixel 8 Pro（Android 17）へ BL-099 の「(debug)」付き GitHub 版 debug を `adb install -r` で入れ直し、
+  ランチャー名とアクセシビリティ設定のサービス名に「(debug)」が出ることを確認した。BL-009 の T16（再同意）を確認済み。
+  PIN が利用者設定済みで不明なため、BL-056 の X 系は新たに確認できなかった。T13・T15・X6・X14〜X16・他ブラウザ・他の OS は未確認のままで、
+  両項目とも BACKLOG に残した（`docs/TESTING.md` 4章に記録）
+
+- BL-099: debug ビルドのアプリ名とアクセシビリティサービス名の末尾に「 (debug)」を付けた（`mobile/src/debug/res/values/strings.xml`）。
+  リリース版と同じ端末で見分けるため。release の名前は変えていない
+
 - BL-097: `docs/THIRD_PARTY_LICENSES.md` で「未確認」だった34件（統括モジュール。直接の依存の material3 を含む）の
   ライセンスを、ユーザーの許可を得てネットワーク上の POM（androidx は Google Maven、kotlin・kotlinx は Maven Central）で
   確かめた。34件すべて Apache-2.0 で、一覧の「未確認」の行は無くなった（NOTICE・LICENSE の同梱は、AAR・JAR が

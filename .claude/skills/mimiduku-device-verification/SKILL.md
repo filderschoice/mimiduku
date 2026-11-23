@@ -1,6 +1,6 @@
 ---
 name: mimiduku-device-verification
-description: みみづく（本アプリ）を実機で確認するときの、このアプリ固有の手順。BACKLOG の人手検証の項目と docs/TESTING.md 2章の節の対応、確認する版（GitHub 版・Play 版・旧版の APK）の選び方、スケアウェア文言のテストページの使い方、検知ログをテキストで読む方法、確認後に端末の設定を元へ戻すこと、結果の記録先（TESTING.md 4章と BACKLOG）をまとめる。「実機で確認して」「BL-009 を確かめて」「人手検証を進めて」「TESTING.md の T 系を実機で」等、本アプリの実機確認を始める前に参照する。adb 接続そのものはユーザー共通スキル adb-device-connection、利用量の抑え方は verification-cost-control に委ねる。
+description: みみづく（本アプリ）を実機で確認するときの、このアプリ固有の手順。BACKLOG の人手検証の項目と docs/TESTING.md 2章の節の対応、確認する版（GitHub 版・Play 版・旧版の APK）の選び方、スケアウェア文言のテストページの使い方、検知ログをテキストで読む方法、確認後に端末の設定を元へ戻すこと、結果の記録先（TESTING.md 4章と BACKLOG）をまとめる。「実機で確認して」「T 系を確かめて」「人手検証を進めて」「TESTING.md の T 系を実機で」等、本アプリの実機確認を始める前に参照する。adb 接続そのものはユーザー共通スキル adb-device-connection、利用量の抑え方は verification-cost-control に委ねる。
 ---
 
 # みみづくの実機確認
@@ -29,10 +29,10 @@ description: みみづく（本アプリ）を実機で確認するときの、�
 
 | BACKLOG | TESTING.md | 主な版 |
 | --- | --- | --- |
-| BL-009 | 2.3（T1〜T16）、2.8（ログの確認） | GitHub 版。T16 は版数 1 の旧 APK も使う |
 | BL-039・BL-045 | 2.6（U1〜U7）。BL-045 は U1〜U5 の確認時に ⓘ の操作と読み上げも見る | GitHub 版 |
 | BL-043・BL-054 | 2.7（B1〜B8）。BL-054 は B 系の確認時に「×」と大きいバッジも見る | GitHub 版 |
-| BL-056 | 2.9（X1〜X15） | GitHub 版（X4 はこどもモード） |
+| （完了済みの BL-009） | 2.3（T1〜T16）、2.8（ログの確認） | GitHub 版。T16 は版数 1 の旧 APK も使う。2026-11-23 にユーザーの判断で完了として削除済み。再確認で使う |
+| （完了済みの BL-056） | 2.9（X1〜X15） | GitHub 版（X4 はこどもモード）。BL-009 と同日に削除済み。再確認で使う |
 | （完了済みの BL-023） | 2.4（P 系）・2.5（G 系） | P 系は GitHub 版、G 系は Play 版。不具合の修正後の再確認で使う |
 
 BL-025・BL-031・BL-038・BL-057 は TESTING.md の節を持たない人手検証（調査・申請・撮影・公開の確認）で、本スキルの対象外です。
@@ -52,7 +52,7 @@ BL-025・BL-031・BL-038・BL-057 は TESTING.md の節を持たない人手検�
   （`index.html`）、スクロールで出る版（`scroll.html`）、T11 のリンク先（`safe.html`）がある。ページの文言は架空で、照合語は
   `rules.json` から取っている。文言を変えたら単体テスト `ScarewarePageTest` を通してから端末で使う。
 - 外部遷移（T1 系）: TESTING.md の `adb shell am start` のコマンドを使う。Chrome が起動済みだと検知されないことがある
-  （BL-056 に既知）ため、T1 系は `adb shell am force-stop com.android.chrome` などで Chrome を止めてから行う
+  （BL-056 の確認で分かった既知の挙動）ため、T1 系は `adb shell am force-stop com.android.chrome` などで Chrome を止めてから行う
   （2026-11-08 の記録では `am kill` を使用）。
 
 ## 5. 確かめ方（画像を減らす）
