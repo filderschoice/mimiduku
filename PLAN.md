@@ -49,10 +49,12 @@
 
 - 検討した他案：`tomarigi`（止まり木）、`ho-mamori`、`kakapon`、`hoot` など。`tomarigi` は GitHub に同名のアカウント/組織と、近い題材のリポジトリが存在したため見送り
 - `mimiduku` は、一般の Web 検索では同名リポジトリが見つからなかった（GitHub 内検索ではないため、存在しない証明にはならない）
-- **TODO（実装前に確認）**
-  - `github.com/search?q=mimiduku&type=repositories`
-  - `github.com/search?q=mimiduku&type=users`
-  - 「みみづく」が旧仮名遣いである点を、辞書などで確認してから README に書く
+- **確認結果（2026-11-23、BL-010）**
+  - GitHub のリポジトリ検索: `mimiduku` を名前に持つのは本リポジトリ（`filderschoice/mimiduku`）だけ。
+  - GitHub のユーザー検索: `mimiduku` というアカウントが1件ある（2017年作成、公開リポジトリなし、プロフィール未設定）。
+    本アプリの利用や公開に支障はない（本リポジトリは別のアカウント配下）。
+  - 「みみづく」が旧仮名遣いである点: 語源由来辞典（<https://gogen-yurai.jp/mimizuku/>）に「ミミズクの歴史仮名は「ミミヅク」」とある。
+    語源は「耳」を主にした説が多く、古名「ツク（ヅク）」に「ミミ（耳）」が加わったとする。
 - `applicationId` は未定。`dev.<ユーザー名>.mimiduku` のような形で提案してほしい
 
 ### 2.4 README 冒頭文（案）
