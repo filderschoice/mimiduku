@@ -11,7 +11,7 @@
 | `style.css` | 共通のスタイル。色はアイコンの紺・茶色・琥珀色から取り、ライト／ダークは OS の設定（`prefers-color-scheme`）に従う |
 | `app.json` | アプリの概要（`schema: app-portfolio.v1`、ikumemo・sesami-wear と同じ形式） |
 | `assets/icon.svg` | アプリのアイコン。`ic_launcher_foreground.xml` のパスと背景色（`ic_launcher_background.xml`）を写したもの。アイコンを変えたら合わせて直す |
-| `assets/screenshots/` | 実機のスクリーンショット（ホーム・偽の警告・検知ログ・設定） |
+| `assets/screenshots/` | 実機のスクリーンショット（ホーム・偽の警告・勝手な移動の確認・検知ログ・設定） |
 | `assets/how-it-works.svg` | 仕組みの図解。実画面ではなく図解であることを `alt` に書いている |
 | `.nojekyll` | GitHub Pages に Jekyll の変換をさせないための空ファイル |
 
@@ -23,8 +23,8 @@
 - `app.json` の `status` は `development`（GitHub での配布のみ）。Play で公開したら `released` にし、`links.download` を Play の公開ページへ変える。
 - 実機のスクリーンショット（`assets/screenshots/*.webp`、幅 540px）は `scripts/make-store-screenshots.py` で作る。実機の生の画像は
   ステータスバーに個人の通知アイコンが写るためリポジトリへ入れず、スクリプトが上下のバーを切り落とす。同じスクリプトが Play 用の
-  説明文つきの画像（`docs/images/play/`）も作る。画面のギャラリーは同じ縦横比の画像だけを並べる。
-  いまの画像は GitHub 版の release で撮ったもので、Play 版での撮り直しは BACKLOG の BL-100。「(debug)」の表示や個人の通知が写った画像は使わない。
+  説明文つきの画像（`docs/images/play/screenshots/`）も作る。画面のギャラリーは同じ縦横比の画像だけを並べる。
+  いまの画像は Play 版の release（versionCode 3）で撮ったもの。`badge-idle.webp`（バッジが眠っている）と `badge-alert.webp`（検知直後で目が開く）はバッジを表示して撮ったサイト専用の画像。「(debug)」の表示や個人の通知が写った画像は使わない。
 
 ## GitHub Pages での公開
 
