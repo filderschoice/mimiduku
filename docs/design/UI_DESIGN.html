@@ -375,12 +375,12 @@ footer{max-width:1180px;margin:0 auto;padding:0 24px 40px;color:var(--sub);font-
 <h2>10. 所見（デザイン上の論点）</h2>
 <p class="lead">コード読解から挙がった論点と、2026-10-20 の UI 整理後の状況です。実機で確認していないものは「未確認」としています。優先度付けや起票は含めていません。</p>
 <table><tr><th>#</th><th>論点</th><th>状況</th><th>根拠・経緯</th></tr>
-<tr><td>1</td><td><b>配色がブランド色と不一致</b><br><span class="tag">配色</span></td><td><span class="tag gh">対応済み</span></td><td><code>MimidukuTheme</code> でネイビー #1E3A5F 基調の独自カラースキームを定義した。実機の見た目は未確認。</td></tr>
+<tr><td>1</td><td><b>配色がブランド色と不一致</b><br><span class="tag">配色</span></td><td><span class="tag gh">対応済み</span></td><td><code>MimidukuTheme</code> でネイビー #1E3A5F 基調の独自カラースキームを定義した。2026-11-23 に Pixel 8 Pro で確認済み（ダークテーマ）。</td></tr>
 <tr><td>2</td><td><b>ダークテーマ・ダイナミックカラー</b><br><span class="tag">テーマ</span></td><td><span class="tag gh">ダークは対応済み</span><br>ダイナミックカラーは使わない方針</td><td>端末のダーク設定に追従（Activity の下地も DayNight）。ダイナミックカラーはブランド色を保つため採用しない（ユーザー決定）。実機は未確認。</td></tr>
-<tr><td>3</td><td><b>オーバーレイのボタン配色</b><br><span class="tag unk">実機は未確認</span></td><td><span class="tag gh">対応済み</span></td><td>主ボタンの背景（白）・文字色（#1E3A5F）・角丸を明示し、端末のテーマに依らないようにした。実機での視認性は未確認。</td></tr>
+<tr><td>3</td><td><b>オーバーレイのボタン配色</b><br><span class="tag gh">実機確認済み</span></td><td><span class="tag gh">対応済み</span></td><td>主ボタンの背景（白）・文字色（#1E3A5F）・角丸を明示し、端末のテーマに依らないようにした。実機での視認性は 2026-11-23 に確認済み（U4）。</td></tr>
 <tr><td>4</td><td><b>バッジ画像が仮素材</b><br><span class="tag">素材</span></td><td><span class="tag unk">継続</span></td><td>丸みのあるかわいい造形（丸い体・羽角・ほお・目のハイライト）へ描き直したが、ファイル内コメントのとおり仮の自作画像。位置は右端中央固定、44dp・不透明度85%。</td></tr>
 <tr><td>5</td><td><b>カード順</b><br><span class="tag">情報設計</span></td><td><span class="tag gh">対応済み</span></td><td>ホームに状態・ガイド・一時停止・ログを、設定に利用モード・PIN・バッジを分けた。サービス停止中は「オンにできないとき」が状態の直後に来る。</td></tr>
-<tr><td>6</td><td><b>アクセシビリティ（画面読み上げ・文字拡大・横向き・タブレット）</b><br><span class="tag unk">未確認</span></td><td><span class="tag unk">継続</span></td><td>バッジは読み上げ対象外に設定済み。上部バーのアイコンには説明文（contentDescription）を付けた。バナーの読み上げ、フォント拡大時のバナー高さ、横向き・タブレットでの崩れは未検証。</td></tr>
+<tr><td>6</td><td><b>アクセシビリティ（画面読み上げ・文字拡大・横向き・タブレット）</b><br><span class="tag gh">確認済み</span></td><td><span class="tag gh">対応済み</span></td><td>バッジは読み上げ対象外に設定済み。上部バーのアイコンには説明文（contentDescription）を付けた。2026-11-23 に Pixel 8 Pro で画面読み上げ・文字拡大・横向きを確認済み。タブレット・折りたたみ端末は未確認。</td></tr>
 <tr><td>7</td><td><b>こども向け文言の読みやすさ</b><br><span class="tag">文言</span></td><td><span class="tag gh">一部対応</span></td><td>Play版の確認文を「おしていないなら「もどる」を おしてね。わからなければ パパ・ママに きいてね。」へ短くした。設定画面は保護者向けで漢字表記のまま。</td></tr>
 <tr><td>8</td><td><b>ストア掲載用スクリーンショット・実機キャプチャが未作成</b><br><span class="tag">素材</span></td><td><span class="tag unk">継続</span></td><td>リポジトリに画像資産なし。本書のモックは再現であり、掲載用には実機撮影が必要。</td></tr></table>
 </section>
