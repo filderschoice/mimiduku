@@ -4,6 +4,10 @@
 
 ## Unreleased
 
+- docs 最新化: Skill `mimiduku-device-verification` の対応表が、BACKLOG から削除済みの BL-009・BL-056 を現役の人手検証として
+  挙げていたため、完了済みの行へ直した（ほか「BL-056 に既知」の参照と description の例）。README・TESTING.md・DESIGN.md・
+  MVP_DESIGN.md を実装・直近の変更と突き合わせ、他に直す点は無かった。コード変更なし
+
 - BL-009・BL-056 を BACKLOG から削除した。完了条件をすべて確認したためではなく、ユーザーの判断で閉じた
   （「X6は不要。X15も不要。」、「BL-056を完了として削除して。BL-009も同様にクローズドテスト内で確認取れるので完了で削除でOK。」）。
   T13・X14・X16・他ブラウザ・他の OS などは実機で確認していない。`docs/TESTING.md` の確認項目と4章の記録は残した。
