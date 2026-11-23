@@ -60,8 +60,8 @@ BL-030 の成果物です。Play Console へ入力するのはユーザーです
 ## スクリーンショット
 
 `docs/images/play/` に、短い説明文つきの画像（1080x2160）を置いている。`scripts/make-store-screenshots.py` が実機の生のスクリーンショットから
-作る（ステータスバーとナビゲーションバーは切り落とす）。いまの4枚（ホーム・偽の警告・検知ログ・設定）は GitHub 版の release で撮ったもので、
-Play 版での撮り直しと、Play Console へ入れる枚数・説明文の決定は BACKLOG の BL-100。
+作る（ステータスバーとナビゲーションバーは切り落とす）。いまの4枚（ホーム・偽の警告・検知ログ・設定）は、2026-11-23 に Play 版の release（署名つき、versionCode 3）で撮り直したもの。
+Play Console へ入れる枚数・説明文の決定は BACKLOG の BL-100。バッジの画像（`site/assets/screenshots/badge-*.webp`）はサイト専用。
 
 ## アイコンとフィーチャー グラフィック
 

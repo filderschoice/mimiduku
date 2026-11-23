@@ -4,6 +4,12 @@
 
 ## Unreleased
 
+- BL-100 の撮影を進めた（BL-100 は決定待ちのため BACKLOG に残す）。scripts/release-build.bat で署名つきの Play 版（versionCode 3、
+  scripts/version.properties を 2 から 3 へ）を作って実機へ入れ、ホーム・偽の警告・検知ログ・設定の4枚を Play 版で撮り直した
+  （docs/images/play/、site/assets/screenshots/）。バッジを表示した2枚（badge-idle・badge-alert）をサイト専用で追加し、
+  紹介ページ（site/index.html）の画面一覧へ載せた。scripts/make-store-screenshots.py にバッジの画像の生成を足した。
+  実機の設定は元へ戻した。Kotlin の変更は無い
+
 - Play Console のストア掲載用に、アプリアイコン（512x512）とフィーチャー グラフィック（1024x500）を追加した
   （`docs/images/play/`、`scripts/make-store-graphics.py`、`docs/PLAY_LISTING.md`）。Kotlin の変更は無い。
   Play Console への入力はユーザー（BL-031）

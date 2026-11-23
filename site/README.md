@@ -24,7 +24,7 @@
 - 実機のスクリーンショット（`assets/screenshots/*.webp`、幅 540px）は `scripts/make-store-screenshots.py` で作る。実機の生の画像は
   ステータスバーに個人の通知アイコンが写るためリポジトリへ入れず、スクリプトが上下のバーを切り落とす。同じスクリプトが Play 用の
   説明文つきの画像（`docs/images/play/`）も作る。画面のギャラリーは同じ縦横比の画像だけを並べる。
-  いまの画像は GitHub 版の release で撮ったもので、Play 版での撮り直しは BACKLOG の BL-100。「(debug)」の表示や個人の通知が写った画像は使わない。
+  いまの画像は Play 版の release（versionCode 3）で撮ったもの。`badge-idle.webp`（バッジが眠っている）と `badge-alert.webp`（検知直後で目が開く）はバッジを表示して撮ったサイト専用の画像。「(debug)」の表示や個人の通知が写った画像は使わない。
 
 ## GitHub Pages での公開
 
