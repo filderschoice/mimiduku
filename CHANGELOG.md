@@ -4,6 +4,10 @@
 
 ## Unreleased
 
+- Play Console のストア掲載用に、アプリアイコン（512x512）とフィーチャー グラフィック（1024x500）を追加した
+  （`docs/images/play/`、`scripts/make-store-graphics.py`、`docs/PLAY_LISTING.md`）。Kotlin の変更は無い。
+  Play Console への入力はユーザー（BL-031）
+
 - BL-101 を完了として BACKLOG から削除した（コード変更なし）。紹介サイト（site/）を GitHub Pages で公開した。
   ユーザーが `git subtree push --prefix site origin gh-pages` を実行し、Pages は `gh-pages` の `/ (root)` で有効、
   <https://filderschoice.github.io/mimiduku/> が HTTP 200 で返ることを確かめ、ユーザーがブラウザで表示を確認した。

@@ -62,3 +62,10 @@ BL-030 の成果物です。Play Console へ入力するのはユーザーです
 `docs/images/play/` に、短い説明文つきの画像（1080x2160）を置いている。`scripts/make-store-screenshots.py` が実機の生のスクリーンショットから
 作る（ステータスバーとナビゲーションバーは切り落とす）。いまの4枚（ホーム・偽の警告・検知ログ・設定）は GitHub 版の release で撮ったもので、
 Play 版での撮り直しと、Play Console へ入れる枚数・説明文の決定は BACKLOG の BL-100。
+
+## アイコンとフィーチャー グラフィック
+
+`docs/images/play/icon-512.png`（512x512）と `docs/images/play/feature-graphic.png`（1024x500）を置いている。
+`scripts/make-store-graphics.py` が `site/assets/icon.svg` から作る（Edge または Chrome のヘッドレス実行と Pillow が必要）。
+アイコンを変えたら `icon.svg` を直してから再実行する。Play Console の「ストアの掲載情報」の
+アプリアイコンとフィーチャー グラフィックへ入れる。
