@@ -11,7 +11,7 @@
 | `style.css` | 共通のスタイル。色はアイコンの紺・茶色・琥珀色から取り、ライト／ダークは OS の設定（`prefers-color-scheme`）に従う |
 | `app.json` | アプリの概要（`schema: app-portfolio.v1`、ikumemo・sesami-wear と同じ形式） |
 | `assets/icon.svg` | アプリのアイコン。`ic_launcher_foreground.xml` のパスと背景色（`ic_launcher_background.xml`）を写したもの。アイコンを変えたら合わせて直す |
-| `assets/screenshots/` | 実機のスクリーンショット（ホーム・偽の警告・検知ログ・設定） |
+| `assets/screenshots/` | 実機のスクリーンショット（ホーム・偽の警告・勝手な移動の確認・検知ログ・設定） |
 | `assets/how-it-works.svg` | 仕組みの図解。実画面ではなく図解であることを `alt` に書いている |
 | `.nojekyll` | GitHub Pages に Jekyll の変換をさせないための空ファイル |
 
