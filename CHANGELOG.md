@@ -4,6 +4,11 @@
 
 ## Unreleased
 
+- BL-101 を完了として BACKLOG から削除した（コード変更なし）。紹介サイト（site/）を GitHub Pages で公開した。
+  ユーザーが `git subtree push --prefix site origin gh-pages` を実行し、Pages は `gh-pages` の `/ (root)` で有効、
+  <https://filderschoice.github.io/mimiduku/> が HTTP 200 で返ることを確かめ、ユーザーがブラウザで表示を確認した。
+  リポジトリの About の Website にも同じ URL を設定した。他の項目は BL-101 を依存に挙げておらず、付け替えは無い
+
 - 紹介サイト（site/）を追加した。ikumemo・sesami-wear の site/ の構成（index.html・style.css・app.json・assets・.nojekyll・README.md）に合わせ、
   HTML と CSS だけで作る（外部スクリプト・フォント・解析なし）。文言は README.md と docs/PLAY_LISTING.md の内容に限った。
   実機（Pixel 8 Pro）で GitHub 版 release のスクリーンショット4枚（ホーム・偽の警告・検知ログ・設定）を撮り、ステータスバーと
