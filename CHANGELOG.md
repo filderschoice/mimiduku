@@ -4,6 +4,15 @@
 
 ## Unreleased
 
+- 実機確認（自律ループ。コード変更なし）: ユーザーが実機操作をループへ含めると指示したため、
+  Skill `autonomous-loop` に「実機確認をループへ含める場合」の節を足し、
+  Skill `mimiduku-device-verification` の「ループ中は実機を操作しない」をその条件つきへ直した。
+  続けて Pixel 8 Pro（Android 17）
+  で BL-039・BL-045（U1〜U3・U6・U7・ⓘ の開閉）
+  と BL-043・BL-054（B6・B7 の一部）を確認した。
+  TalkBack・フォント拡大・再起動・Play 版・横向きの全画面は未確認のため BACKLOG に残した（`docs/TESTING.md` 4章に記録）
+  
+
 - docs 最新化: Skill `mimiduku-device-verification` の対応表が、BACKLOG から削除済みの BL-009・BL-056 を現役の人手検証として
   挙げていたため、完了済みの行へ直した（ほか「BL-056 に既知」の参照と description の例）。README・TESTING.md・DESIGN.md・
   MVP_DESIGN.md を実装・直近の変更と突き合わせ、他に直す点は無かった。コード変更なし
