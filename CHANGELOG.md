@@ -4,6 +4,10 @@
 
 ## Unreleased
 
+- BL-100 のスクリーンショットへ、勝手な外部移動の確認バナー（external）を Play 用・サイト用に追加した（電卓の前面でタップなしに
+  テストページを開いて撮影。Play 版は自動で戻さず「もどる」「このまま すすむ」「今後は確認しない」を出す）。「はじめに」の画面は
+  最初に必ず見るためユーザーの判断で撮らない。実機の設定は元へ戻した（GitHub 版 debug のみオン）。Kotlin の変更は無い
+
 - BL-100 の撮影を進めた（BL-100 は決定待ちのため BACKLOG に残す）。scripts/release-build.bat で署名つきの Play 版（versionCode 3、
   scripts/version.properties を 2 から 3 へ）を作って実機へ入れ、ホーム・偽の警告・検知ログ・設定の4枚を Play 版で撮り直した
   （docs/images/play/、site/assets/screenshots/）。バッジを表示した2枚（badge-idle・badge-alert）をサイト専用で追加し、
