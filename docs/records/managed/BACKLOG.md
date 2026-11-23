@@ -24,18 +24,6 @@
     Play 版は端末に入っておらず、署名つきの release ビルドは署名鍵が要りエージェントは作れない。debug の Play 版はアプリ名に
     「(debug)」が付くため掲載用にはできない。掲載する画像と説明文の最終決定は Play Console への入力と一体のため、ユーザーの判断とした。
     BL-038（掲載用スクリーンショット）と同じ作業なので、完了するときは両方を一度に済ませる。
-- id: BL-101
-  区分: 人手検証
-  タスク内容: >-
-    紹介サイト（site/）を GitHub Pages で公開する。main へマージしたあと、ユーザーが git subtree push --prefix site origin gh-pages を実行し、
-    Settings の Pages で gh-pages の root を選ぶ（手順は site/README.md）
-  優先度: P3
-  状態: 未着手
-  担当: ユーザー
-  完了条件: https://filderschoice.github.io/mimiduku/ が開き、アイコンと図解が表示される。
-  依存: []
-  根拠: >-
-    git push とリポジトリ設定の変更はエージェントが行えないため人手検証とした。公開後は app.json の links.homepage と一致していることを確かめる。
 - id: BL-057
   区分: 人手検証
   タスク内容: >-
