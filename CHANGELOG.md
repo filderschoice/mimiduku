@@ -4,6 +4,50 @@
 
 ## Unreleased
 
+- BL-025 を完了として BACKLOG から削除した。実機調査（AdMob 公式サンプル2件）の結果、アプリ内バナー・ネイティブ広告の部分シールドは
+  見送るとユーザーが決めた（領域を取り違えると子供が操作できなくなるおそれがあり、ネイティブ広告は領域を示す目印が無い）。
+  DESIGN.md と ShieldTimer.kt のコメントを合わせた。コメントのみの変更。BL-025 を依存に挙げる項目は無い
+
+- BL-025 の実機調査を行った（結果は BACKLOG の BL-025。部分シールドの要否はユーザーの判断待ちのため残す。コード変更なし）。
+  Google 公式の AdMob サンプル2件（テスト広告）を実機へ入れてノードツリーを読み、調査後にアンインストールした
+
+- BL-057 のエージェント側の確認を済ませた（Play Console の入力はユーザーが行うため BL-057 は残す。コード変更なし）。PRIVACY.md の記述を
+  コード・マニフェスト・開示文と突き合わせ、すべて一致した。Google の Data safety の定義（collect は端末外への送信。端末内だけで処理して
+  送信しないデータは申告不要）に照らして「収集なし・共有なし」でよいと確認し、`docs/PLAY_LISTING.md` と BACKLOG の BL-057 に記録した
+
+- BL-010 を完了として BACKLOG から削除した（コード変更なし）。ユーザーの許可を得て外部へ問い合わせた。GitHub のリポジトリ検索では
+  `mimiduku` を名前に持つのは本リポジトリだけ、ユーザー検索では2017年作成で公開リポジトリのない `mimiduku` アカウントが1件。
+  旧仮名遣いは語源由来辞典に「ミミズクの歴史仮名は「ミミヅク」」とあり確認できた。結果を PLAN.md 2.3 と README.md の名前の由来へ反映した
+  （README の「未確認」を外した）
+
+- BL-100・BL-038 を完了として BACKLOG から削除した。BL-100: 掲載は5枚、説明文は画像内の文言でよいとユーザーが決めた
+  （「はじめに」の画面は撮らない）。BL-038: バッジ・アイコンの自作画像を本素材として確定するとユーザーが決め
+  （差し替えはしない）、スクリーンショットは BL-100 で用意済み。ほかに BL-038 を依存に挙げる項目は無い。
+  バッジ・アイコンのリソースのコメントと DESIGN.md・UI_DESIGN.html（所見4・8を解決へ）の「仮の自作画像」の表現を直した。
+  リソースのコメントのみの変更で、描画は変わらない
+
+- Play 用スクリーンショットの説明文の背景を、紺色からクリーム色へ変えた（紺の文字）。アプリの警告バナーの紺と同じ色で
+  埋もれて見えたため。`scripts/make-store-screenshots.py` の色の定義だけを変え、`docs/images/play/screenshots/` の5枚を作り直した。
+  Kotlin の変更は無い
+
+- Play 用のスクリーンショットを `docs/images/play/screenshots/` へ移し、掲載順の番号をつけた名前に変えた
+  （`01-home`・`02-warn`・`03-external`・`04-log`・`05-settings`）。`scripts/make-store-screenshots.py` の出力先と名前も合わせた。
+  アイコンとフィーチャー グラフィックは `docs/images/play/` のまま。Kotlin の変更は無い
+
+- BL-100 のスクリーンショットへ、勝手な外部移動の確認バナー（external）を Play 用・サイト用に追加した（電卓の前面でタップなしに
+  テストページを開いて撮影。Play 版は自動で戻さず「もどる」「このまま すすむ」「今後は確認しない」を出す）。「はじめに」の画面は
+  最初に必ず見るためユーザーの判断で撮らない。実機の設定は元へ戻した（GitHub 版 debug のみオン）。Kotlin の変更は無い
+
+- BL-100 の撮影を進めた（BL-100 は決定待ちのため BACKLOG に残す）。scripts/release-build.bat で署名つきの Play 版（versionCode 3、
+  scripts/version.properties を 2 から 3 へ）を作って実機へ入れ、ホーム・偽の警告・検知ログ・設定の4枚を Play 版で撮り直した
+  （docs/images/play/、site/assets/screenshots/）。バッジを表示した2枚（badge-idle・badge-alert）をサイト専用で追加し、
+  紹介ページ（site/index.html）の画面一覧へ載せた。scripts/make-store-screenshots.py にバッジの画像の生成を足した。
+  実機の設定は元へ戻した。Kotlin の変更は無い
+
+- Play Console のストア掲載用に、アプリアイコン（512x512）とフィーチャー グラフィック（1024x500）を追加した
+  （`docs/images/play/`、`scripts/make-store-graphics.py`、`docs/PLAY_LISTING.md`）。Kotlin の変更は無い。
+  Play Console への入力はユーザー（BL-031）
+
 - BL-101 を完了として BACKLOG から削除した（コード変更なし）。紹介サイト（site/）を GitHub Pages で公開した。
   ユーザーが `git subtree push --prefix site origin gh-pages` を実行し、Pages は `gh-pages` の `/ (root)` で有効、
   <https://filderschoice.github.io/mimiduku/> が HTTP 200 で返ることを確かめ、ユーザーがブラウザで表示を確認した。

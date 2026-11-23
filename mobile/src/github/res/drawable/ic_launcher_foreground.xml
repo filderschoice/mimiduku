@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- アプリアイコンの前景・GitHub 版（タコを食べるみみづく。Play 版は main の通常のみみづく）（丸みを持たせたかわいい造形の仮の自作画像）。108dp のうち中央の安全領域に収める。 -->
+<!-- アプリアイコンの前景・GitHub 版（タコを食べるみみづく。Play 版は main の通常のみみづく）（丸みを持たせたかわいい造形の自作画像（2026-11-23 に本素材として確定））。108dp のうち中央の安全領域に収める。 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
