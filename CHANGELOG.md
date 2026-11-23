@@ -4,6 +4,10 @@
 
 ## Unreleased
 
+- Play 用スクリーンショットの説明文の背景を、紺色からクリーム色へ変えた（紺の文字）。アプリの警告バナーの紺と同じ色で
+  埋もれて見えたため。`scripts/make-store-screenshots.py` の色の定義だけを変え、`docs/images/play/screenshots/` の5枚を作り直した。
+  Kotlin の変更は無い
+
 - Play 用のスクリーンショットを `docs/images/play/screenshots/` へ移し、掲載順の番号をつけた名前に変えた
   （`01-home`・`02-warn`・`03-external`・`04-log`・`05-settings`）。`scripts/make-store-screenshots.py` の出力先と名前も合わせた。
   アイコンとフィーチャー グラフィックは `docs/images/play/` のまま。Kotlin の変更は無い

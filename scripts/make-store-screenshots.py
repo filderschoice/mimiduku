@@ -35,10 +35,11 @@ SITE_DIR = ROOT / "site" / "assets" / "screenshots"
 CROP_TOP = 140
 CROP_BOTTOM = 2900
 
-NAVY = (30, 58, 95)
-AMBER = (255, 160, 0)
-WHITE = (255, 255, 255)
-SUB = (205, 218, 235)
+# 説明文の背景。アプリの警告バナーが紺色（#1E3A5F 付近）なので、紺とは別の明るいクリーム色にして埋もれないようにする
+BG = (255, 246, 229)
+NAVY = (30, 58, 95)  # 見出しの文字
+AMBER = (240, 140, 0)
+SUB = (96, 82, 72)  # 補足の文字
 
 CANVAS = (1080, 2160)
 SHOT_WIDTH = 900
@@ -99,7 +100,7 @@ def centered(draw: ImageDraw.ImageDraw, text: str, font: ImageFont.FreeTypeFont,
 
 
 def make_play(shot: Image.Image, title: str, sub: str) -> Image.Image:
-    canvas = Image.new("RGB", CANVAS, NAVY)
+    canvas = Image.new("RGB", CANVAS, BG)
     draw = ImageDraw.Draw(canvas)
     draw.rectangle((CANVAS[0] // 2 - 40, 300, CANVAS[0] // 2 + 40, 308), fill=AMBER)
     title_font = load_font(FONT_CANDIDATES_BOLD, 70)
@@ -108,7 +109,7 @@ def make_play(shot: Image.Image, title: str, sub: str) -> Image.Image:
     while draw.textlength(title, font=title_font) > CANVAS[0] - 100 and size > 40:
         size -= 2
         title_font = load_font(FONT_CANDIDATES_BOLD, size)
-    centered(draw, title, title_font, 130, WHITE)
+    centered(draw, title, title_font, 130, NAVY)
     centered(draw, sub, load_font(FONT_CANDIDATES_REG, 38), 230, SUB)
     height = round(shot.height * SHOT_WIDTH / shot.width)
     scaled = rounded_top(shot.resize((SHOT_WIDTH, height), Image.LANCZOS), 48)
