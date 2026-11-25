@@ -13,7 +13,7 @@
 | `assets/icon.svg` | アプリのアイコン。`ic_launcher_foreground.xml` のパスと背景色（`ic_launcher_background.xml`）を写したもの。アイコンを変えたら合わせて直す |
 | `assets/screenshots/` | 実機のスクリーンショット（ホーム・偽の警告・勝手な移動の確認・検知ログ・設定） |
 | `assets/how-it-works.svg` | 仕組みの図解。実画面ではなく図解であることを `alt` に書いている |
-| `assets/disclosure-demo.mp4` | Play Console の「ユーザー補助サービス」申告（認識しやすい開示）へ入力する動画。紹介ページからはリンクしない。Play 版 release の実機で、開示と同意、サービスのオン、偽の警告の検知を録画した（約 0.5 MB。他の動画を足すときも数 MB に抑える） |
+| `assets/disclosure-demo.mp4` | Play Console の「ユーザー補助サービス」申告（認識しやすい開示）へ入力する動画。紹介ページからはリンクしない。Play 版 release の実機で、ランチャーからの起動、同意しなかった場合（アプリを閉じて開き直すと開示が再表示される）、同意、サービスのオン、偽の警告の検知を録画した（約 1 MB。他の動画を足すときも数 MB に抑える） |
 | `.nojekyll` | GitHub Pages に Jekyll の変換をさせないための空ファイル |
 
 ## 方針
