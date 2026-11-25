@@ -30,9 +30,14 @@
   タスク内容: >-
     Play 版を Google Play Console へ登録・申請する（アクセシビリティの申告フォーム、開示を映した動画、データセーフティ、
     対象年齢、プライバシーポリシーの URL、リスティング）。審査の結果を記録する。申請する AAB は、BL-085 で確かめた手順
-    （README.md「リリースビルド」の scripts/release-build.bat）で作る Play 版の署名つき AAB（mobile-play-release.aab）を使う
+    （README.md「リリースビルド」の scripts/release-build.bat）で作る Play 版の署名つき AAB（mobile-play-release.aab）を使う。
+    進捗は、2026-11-25 にユーザーが Play Console へアプリを作成し、内部テストのリリースを作成した（リリースノートは
+    docs/RELEASE_NOTES.md の 0.1.0 に記録）。AAB（versionCode 4）は release 鍵の署名、applicationId com.mimiduku.mobile、
+    INTERNET 権限なしであることをエージェントが確かめた（AAB 内の公開証明書とマニフェストのみ。鍵は扱っていない）。
+    残りは、個人アカウントのクローズドテストの条件（12人以上・14日間。Console の表示で確認。未確認）、本番の申請、審査結果の記録。
+    AAB の権限に DUMP が含まれる（出どころは未確認）
   優先度: P3
-  状態: 未着手
+  状態: 進行中
   担当: ユーザー
   完了条件: 審査の結果（承認・却下とその理由）が記録されている
   依存: []
