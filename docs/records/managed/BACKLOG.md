@@ -32,7 +32,10 @@
     申請の際はクローズドテストに関する質問への回答も要る（質問のプレビューあり）。
     残りは、クローズドテストのトラックの設定とリリースの公開（審査）、テスターの確保（12 人以上のオプイン）、14 日間以上の実施、
     製品版へのアクセスの申請と質問への回答、審査への送信（公開）、審査結果の記録。
-    AAB の権限に DUMP が含まれる（出どころは未確認）
+    AAB の権限に含まれる DUMP の出どころは、androidx.profileinstaller の ProfileInstallReceiver（ライブラリがマニフェストへ足すレシーバー）が
+    android:permission="android.permission.DUMP" を付けているもの（Play 版 release のマージ後マニフェストで確認。アプリの uses-permission ではなく、
+    レシーバーへ送れる側に DUMP を要求する指定で、adb のシェルなどシステム側が使う）。アプリ自身が宣言する権限は POST_NOTIFICATIONS だけ。
+    AAB 本体を展開しての確認は未実施（未確認）
   優先度: P3
   状態: 進行中
   担当: ユーザー

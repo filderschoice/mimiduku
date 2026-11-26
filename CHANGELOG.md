@@ -4,6 +4,10 @@
 
 ## Unreleased
 
+- BL-031 の「AAB の権限に DUMP が含まれる（出どころは未確認）」を更新した（コード変更なし）。Play 版 release のマージ後マニフェストで、
+  androidx.profileinstaller の ProfileInstallReceiver が android:permission="android.permission.DUMP" を持つことを確認した。
+  アプリの uses-permission ではなく、レシーバーを呼べる側への要求。AAB 本体の展開確認は未実施
+
 - BL-057 を完了として BACKLOG から削除した（コード変更なし）。ユーザーが Play Console へデータセーフティの申告（収集なし・共有なし）を
   入力した（公開の概要の画面で「データ セーフティの質問票を完了」を確認）。公開版のプライバシーポリシーの URL は
   `https://github.com/filderschoice/mimiduku/blob/main/docs/PRIVACY.md` で、リポジトリの `docs/PRIVACY.md` そのものを指すため、内容は一致する
