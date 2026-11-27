@@ -76,7 +76,8 @@ mimiduku の目的は、**悪質な広告**（偽の警告、勝手な外部遷�
 
 2026-10-19 にユーザーが「ソースは同一、Play 版はフラグで機能を抑止」とする構成を選んだ。ビルドの出し分けと
 Play 版の介入の絞り込み（BL-028、DESIGN.md の FR-19）、開示と同意の画面（BL-029、FR-20）、プライバシーポリシーと
-リスティングの文案（BL-030、`docs/PRIVACY.md`・`docs/PLAY_LISTING.md`）は作成済み。残りは Play Console への申請（BL-031）。
+リスティングの文案（BL-030、`docs/PRIVACY.md`・`docs/PLAY_LISTING.md`）は作成済み。Play Console への登録・申請（BL-031）はクローズドテストの段階で、
+進捗は BACKLOG の BL-031 に記録する。
 Play Console への登録・申請は外部への発信のため、人が行います。
 
 | 作業 | 内容 | 担当 |

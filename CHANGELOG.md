@@ -4,6 +4,10 @@
 
 ## Unreleased
 
+- ドキュメントの最新化（コード変更なし）。README の前提条件を GitHub 版 v0.1.0 の公開と Play 版のクローズドテストの段階へ、
+  リリースビルドの versionCode の説明を現在の記録（VERSION_CODE=4）へ直した。`site/index.html` の配布状況の文言と
+  `site/app.json` の `updated`、`docs/design/DISTRIBUTION.md` の「残りは申請」を同じ状況へ合わせた。リンク切れは無し
+
 - クローズドテストの公開を記録した（コード変更なし）。`docs/CLOSED_TEST.md` の STEP 2 へオプトイン URL を記入し、冒頭の「記入するまで配布しない」
   注記を外した。BL-031 へ、クローズドテストの公開と健康アプリの申告の完了（どちらもユーザーの申告。Console の画面は未確認）を記録した。
   配布は、この変更を main へ入れて フィードバックチャネルの URL が開けるようになった後。BL-031 は残す
