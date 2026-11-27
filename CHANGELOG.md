@@ -4,6 +4,12 @@
 
 ## Unreleased
 
+- Play のクローズドテストのテスター向け案内 `docs/CLOSED_TEST.md` を追加した（BL-031 の一部。BL-031 は残す。コード変更なし）。
+  参加の目的と14日間・12人以上の条件、必要なもの、画面の読み取りの説明、参加手順（グループ → オプトイン → インストール → 使ってみる）、
+  報告先、退会方法、メールアドレスの扱いを載せた。Google グループの URL とオプトイン URL は未確定のため空欄で、
+  記入するまで配布しない旨を冒頭に書いた。報告先は GitHub Issues のみ（専用のメールアドレスは未設定）。
+  構成は別リポジトリ（sesami-wear）の同名ファイルを参考にした
+
 - BL-031 の「AAB 本体を展開しての確認は未実施」を実施済みへ更新した（コード変更なし）。手元の mobile-play-release.aab を展開して調べ、
   INTERNET 権限なし、applicationId com.mimiduku.mobile、POST_NOTIFICATIONS・DUMP・BIND_ACCESSIBILITY_SERVICE の記述あり、
   ProfileInstallReceiver あり、署名ファイルありを確認した。このファイルは 2026-11-23 のビルドで、アップロードした AAB と同一かと
