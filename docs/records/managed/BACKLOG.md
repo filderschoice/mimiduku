@@ -35,7 +35,9 @@
     AAB の権限に含まれる DUMP の出どころは、androidx.profileinstaller の ProfileInstallReceiver（ライブラリがマニフェストへ足すレシーバー）が
     android:permission="android.permission.DUMP" を付けているもの（Play 版 release のマージ後マニフェストで確認。アプリの uses-permission ではなく、
     レシーバーへ送れる側に DUMP を要求する指定で、adb のシェルなどシステム側が使う）。アプリ自身が宣言する権限は POST_NOTIFICATIONS だけ。
-    AAB 本体を展開しての確認は未実施（未確認）
+    2026-11-27 に手元の mobile-play-release.aab（2026-11-23 のビルド。アップロードした AAB と同一かは未確認。versionCode は未確認）を
+    展開し、マニフェストの文字列を調べた。INTERNET 権限なし、applicationId com.mimiduku.mobile、POST_NOTIFICATIONS・DUMP・
+    BIND_ACCESSIBILITY_SERVICE の記述あり、ProfileInstallReceiver あり、META-INF に署名ファイルあり（鍵は扱っていない）
   優先度: P3
   状態: 進行中
   担当: ユーザー

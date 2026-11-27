@@ -4,6 +4,11 @@
 
 ## Unreleased
 
+- BL-031 の「AAB 本体を展開しての確認は未実施」を実施済みへ更新した（コード変更なし）。手元の mobile-play-release.aab を展開して調べ、
+  INTERNET 権限なし、applicationId com.mimiduku.mobile、POST_NOTIFICATIONS・DUMP・BIND_ACCESSIBILITY_SERVICE の記述あり、
+  ProfileInstallReceiver あり、署名ファイルありを確認した。このファイルは 2026-11-23 のビルドで、アップロードした AAB と同一かと
+  versionCode は未確認として BL-031 に残した
+
 - BL-031 の「AAB の権限に DUMP が含まれる（出どころは未確認）」を更新した（コード変更なし）。Play 版 release のマージ後マニフェストで、
   androidx.profileinstaller の ProfileInstallReceiver が android:permission="android.permission.DUMP" を持つことを確認した。
   アプリの uses-permission ではなく、レシーバーを呼べる側への要求。AAB 本体の展開確認は未実施
