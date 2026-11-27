@@ -4,6 +4,30 @@
 
 ## Unreleased
 
+- BL-031 へ、ユーザー補助サービスの申告を実施済みとユーザーが申告したこと（2026-11-28。Console の画面は未確認）を記録した。公開の概要の画面には
+  出ていないため、BL-031 の「出ているか未確認」を「出ていないが実施済み」へ直した。BL-031 は残す。コード変更なし
+
+- BL-031 へ、ユーザーが送った Play Console「公開の概要」のスクリーンショットの内容（クローズドテスト - Alpha の設定、審査へ送った変更の一覧）を記録した。
+  健康アプリの行が「申告を完了してください」のままであること、ユーザー補助サービスの申告がこの画面の範囲に出ていないこと、
+  フィードバックチャネルに設定した `docs/CLOSED_TEST.md` の URL が main へ入るまで 404 になることを、BL-031 の残りの作業へ加えた。
+  BL-031 は残す。コード変更なし
+
+- `docs/CLOSED_TEST.md` の STEP 1 に「承認待ちはなく、すぐに参加できる」を追記した（Google グループの設定はユーザーの申告。Groups の設定画面は未確認）。BL-031 は残す。コード変更なし
+
+- BL-031 へ、2026-11-28 にユーザーが Play Console の「公開の概要」を審査に送信したこと（ユーザーの申告。Console の画面は未確認）を記録した。
+  審査の結果・送信に含まれた変更の範囲・クローズドテストのトラックの状況は未確認として残した。BL-031 は残す。コード変更なし
+
+- Play のクローズドテストのテスター向け案内 `docs/CLOSED_TEST.md` を追加した（BL-031 の一部。BL-031 は残す。コード変更なし）。
+  参加の目的と14日間・12人以上の条件、必要なもの、画面の読み取りの説明、参加手順（グループ → オプトイン → インストール → 使ってみる）、
+  報告先、退会方法、メールアドレスの扱いを載せた。Google グループの URL（`https://groups.google.com/g/mimiduku-testers`）はユーザーから受け取って記入した。
+  オプトイン URL は未確定のため空欄で、記入するまで配布しない旨を冒頭に書いた。報告先は GitHub Issues のみ（専用のメールアドレスは未設定）。
+  構成は別リポジトリ（sesami-wear）の同名ファイルを参考にした
+
+- BL-031 の「AAB 本体を展開しての確認は未実施」を実施済みへ更新した（コード変更なし）。手元の mobile-play-release.aab を展開して調べ、
+  INTERNET 権限なし、applicationId com.mimiduku.mobile、POST_NOTIFICATIONS・DUMP・BIND_ACCESSIBILITY_SERVICE の記述あり、
+  ProfileInstallReceiver あり、署名ファイルありを確認した。このファイルは 2026-11-23 のビルドで、アップロードした AAB と同一かと
+  versionCode は未確認として BL-031 に残した
+
 - BL-031 の「AAB の権限に DUMP が含まれる（出どころは未確認）」を更新した（コード変更なし）。Play 版 release のマージ後マニフェストで、
   androidx.profileinstaller の ProfileInstallReceiver が android:permission="android.permission.DUMP" を持つことを確認した。
   アプリの uses-permission ではなく、レシーバーを呼べる側への要求。AAB 本体の展開確認は未実施
