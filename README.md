@@ -58,8 +58,8 @@ GitHub 版と Google Play 版は同じソースから作り、機能の違いは
 ## 前提条件
 
 - Android 10（API 29）以降
-- 現在は GitHub からの配布（自分でビルドしてインストールするサイドロード）が前提です。Google Play 版は申請を予定していますが、
-  公開はまだです
+- 現在は GitHub からの配布（サイドロード）が前提です。GitHub Releases に v0.1.0（プレリリース）の APK があります。
+  Google Play 版はクローズドテストの段階で、一般公開はまだです
 - Android 16 以降の「高度な保護（Advanced Protection）」を有効にした端末では、アクセシビリティ API が
   支援技術アプリに限られるため動作しない見込みです（未確認）
 - Private DNS（広告ブロック DNS）や Family Link と併用すると取りこぼしが減ります。本アプリは「設定で防げない
@@ -181,8 +181,8 @@ scripts\release-build.bat -VersionCode 2 -VersionName 0.2.0
 
 - versionCode は、配布するたびに前の版より大きい整数にします（既定は1つ上げる）。versionName は利用者に見える版で、
   両方の版で共通です（現在 `0.1.0`）
-- `scripts/version.properties` の記録は `VERSION_CODE=1` から始まるため、引数なしで実行すると**最初の配布の versionCode は 2**
-  になります。最初の配布を 1 にしたい場合は、初回だけ `scripts\release-build.bat -VersionCode 1` と指定します
+- 引数なしで実行すると、`scripts/version.properties` の記録（現在 `VERSION_CODE=4`）より 1 つ大きい versionCode になります。
+  記録が無い初回だけは、`scripts\release-build.bat -VersionCode 1` のように明示して始めます
 - `-VersionCode` に 0 以下・整数でない値を指定した場合と、`scripts/version.properties` に読めない行がある場合は、
   ビルドに進まずに中止します（読めない行は行番号で示す）
 - スクリプトは Gradle へ `-PappVersionCode`・`-PappVersionName` を渡して上書きします。指定しない通常のビルドは
