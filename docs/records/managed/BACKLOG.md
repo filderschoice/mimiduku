@@ -41,6 +41,11 @@
     審査の結果、健康アプリの申告が未完了のまま送信が受け付けられたか、オプトイン URL は未確認）。
     残りは、健康アプリの申告の完了、docs/CLOSED_TEST.md を main へ入れること、クローズドテストのリリースの審査（結果は未確認）、テスターの確保（12 人以上のオプイン）、
     14 日間以上の実施、製品版へのアクセスの申請と質問への回答、審査結果の記録。
+    GitHub 版は Play の審査を待たずに先に公開した（2026-11-28）。タグ v0.1.0（注釈付き。main の先端 69a3e6b。ユーザーが push）と
+    GitHub Releases の v0.1.0（プレリリース。署名済みの mobile-github-release.apk を添付。versionCode 4、com.mimiduku.mobile.full）。
+    APK は apksigner で署名を確認し、証明書の SHA-256 が Play 版の AAB と同じ（d619043f…8633d6）ことを確かめた。本文は README の機能表から
+    GitHub 版向けに書いた（docs/RELEASE_NOTES.md の 0.1.0 は Play 内部テスト向けの記述のまま）。添付した APK の実機でのインストール・起動は未確認。
+    Play 版が公開された後は、Release の本文（「Play 版は審査中で未公開」）の更新が要る。
     AAB の権限に含まれる DUMP の出どころは、androidx.profileinstaller の ProfileInstallReceiver（ライブラリがマニフェストへ足すレシーバー）が
     android:permission="android.permission.DUMP" を付けているもの（Play 版 release のマージ後マニフェストで確認。アプリの uses-permission ではなく、
     レシーバーへ送れる側に DUMP を要求する指定で、adb のシェルなどシステム側が使う）。アプリ自身が宣言する権限は POST_NOTIFICATIONS だけ。
